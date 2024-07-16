@@ -18,7 +18,8 @@ class ProductService {
         id: true,
         name: true,
         price: true,
-        ProductImage: { select: { id: true, image: true } },
+        ProductImage: { select: { id: true } },
+        category: { select: { id: true, name: true } },
       },
     });
     const total = await prisma.product.count();
@@ -40,6 +41,8 @@ class ProductService {
         name: true,
         price: true,
         description: true,
+        weight: true,
+        category: { select: { id: true, name: true } },
         ProductImage: { select: { id: true, image: true } },
       },
     });
@@ -48,12 +51,18 @@ class ProductService {
 
   static async create(req: Request) {
     await prisma.$transaction(async (prisma) => {
-      const { name, description, weight, price } = req.body;
+      const { name, description, weight, price, categoryId } = req.body;
       const { file } = req;
       const existingProduct = await prisma.product.findFirst({
         where: { name },
       });
       if (existingProduct) throw new Error('Product already exist');
+      if (categoryId) {
+        const category = await prisma.category.findUnique({
+          where: { id: categoryId },
+        });
+        if (!category) throw new Error('Invalid category');
+      }
       const buffer = await sharp(req.file?.buffer).png().toBuffer();
       const weightNumber = Number(weight);
       const priceNumber = Number(price);
@@ -66,6 +75,7 @@ class ProductService {
         ProductImage: {
           create: { image: buffer },
         },
+        category: categoryId ? { connect: { id: categoryId } } : undefined,
       };
       const product = await prisma.product.create({
         data,
@@ -77,7 +87,7 @@ class ProductService {
   static async edit(req: Request) {
     await prisma.$transaction(async (prisma) => {
       const { id } = req.params;
-      const { name, description, weight, price } = req.body;
+      const { name, description, weight, price, categoryId } = req.body;
       const { file } = req;
       const existingProduct = await prisma.product.findFirst({ where: { id } });
       if (!existingProduct) throw new Error('Product already exist');
@@ -94,6 +104,13 @@ class ProductService {
           create: { image: buffer },
         };
       }
+      if (categoryId) {
+        const category = await prisma.category.findUnique({
+          where: { id: categoryId },
+        });
+        if (!category) throw new Error('Invalid category ID');
+        data.category = { connect: { id: categoryId } };
+      }
       const editedProduct = await prisma.product.update({
         data,
         where: { id },
@@ -103,8 +120,6 @@ class ProductService {
   }
 
   static async deleteProduct(req: Request) {
-    console.log('masuk ke service');
-
     await prisma.$transaction(async (prisma) => {
       const { id } = req.params;
       await prisma.product.update({

@@ -2,6 +2,7 @@ import React from 'react';
 import { IoMdHome } from 'react-icons/io';
 import { IoStorefront, IoLogOutSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
+import { BiSolidCategory } from 'react-icons/bi';
 import { FaUserAlt } from 'react-icons/fa';
 import Link from 'next/link';
 type Props = {};
@@ -21,6 +22,9 @@ const Sidebar = (props: Props) => {
           className="flex items-center gap-3 font-bold text-[#2B3674] leading-7 tracking-[-2%] border-r-4 border-[#4318FF]"
         >
           <IoStorefront className="text-[#4318FF]" /> Products
+        </Link>
+        <Link href={'/dashboard/category'} className="flex items-center gap-3">
+          <BiSolidCategory /> Category
         </Link>
         <Link href={'/dashboard/admin'} className="flex items-center gap-3">
           <PiUsersThreeFill /> Admins

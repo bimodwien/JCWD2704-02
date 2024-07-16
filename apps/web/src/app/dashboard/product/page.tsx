@@ -9,6 +9,7 @@ import { TProduct } from '@/models/product';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { axiosInstance } from '@/lib/axios';
+import Category from '../category/page';
 
 const Store = () => {
   const [search, setSearch] = useState('');
@@ -83,7 +84,7 @@ const Store = () => {
                   All Products
                 </div>
                 <div className="font-bold text-customBlue text-14px items-center bg-white px-5 py-1 rounded-full">
-                  More Category
+                  Product & Category
                 </div>
               </div>
               {/* card buat product */}
@@ -108,7 +109,9 @@ const Store = () => {
                             {product.name}
                           </div>
                           <div className="font-dm-sans font-medium text-14px text-[#A3AED0] truncate w-[110px]">
-                            Category
+                            {product.category
+                              ? product.category.name
+                              : 'Category'}
                           </div>
                         </div>
                         <div className="font-dm-sans font-bold text-base text-[#1B2559]">

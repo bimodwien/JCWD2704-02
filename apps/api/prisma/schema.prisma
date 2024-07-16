@@ -113,9 +113,11 @@ model Product {
 }
 
 model Category {
-  id      String    @id @default(cuid())
-  name    String
-  Product Product[]
+  id        String    @id @default(cuid())
+  name      String
+  image     Bytes?    @db.LongBlob
+  isDeleted Boolean   @default(false)
+  Product   Product[]
 
   @@map("categories")
 }

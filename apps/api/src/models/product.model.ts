@@ -21,11 +21,6 @@ export type Store = {
   updatedAt: Date;
 };
 
-export type TCategory = {
-  id: string;
-  name: string;
-};
-
 export type TProductImage = {
   id: string;
   image: Buffer;
