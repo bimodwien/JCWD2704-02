@@ -1,33 +1,58 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { IoMdHome } from 'react-icons/io';
 import { IoStorefront, IoLogOutSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
 import { BiSolidCategory } from 'react-icons/bi';
 import { FaUserAlt } from 'react-icons/fa';
 import Link from 'next/link';
-type Props = {};
 
-const Sidebar = (props: Props) => {
+const Sidebar = () => {
+  const [pathname, setPathName] = useState('');
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setPathName(window.location.pathname);
+    }
+  }, []);
+
+  const linkClasses = (path: string) =>
+    pathname === path
+      ? 'flex items-center gap-3 font-bold text-[#2B3674] border-r-4 border-[#4318FF]'
+      : 'flex items-center gap-3';
+
+  const iconClasses = (path: string) =>
+    pathname === path ? 'text-[#4318FF]' : '';
+
   return (
     <div className="w-[300px] bg-white">
       <h1 className="py-5 h-24 flex items-center justify-center border-b-4 text-[#2B3674] border-[#F4F7FE] font-bold font-poppins text-26px font-700 text-left">
         BBH <span className="font-normal">STORE</span>
       </h1>
       <div className="flex flex-col gap-10 py-10 pl-3 text-[#A3AED0]">
-        <div className="flex items-center gap-3">
-          <IoMdHome /> Dashboard
-        </div>
+        <Link href={'/dashboard'} className={linkClasses('/dashboard')}>
+          <IoMdHome className={iconClasses('/dashboard')} /> Dashboard
+        </Link>
         <Link
           href={'/dashboard/product'}
-          className="flex items-center gap-3 font-bold text-[#2B3674] leading-7 tracking-[-2%] border-r-4 border-[#4318FF]"
+          className={linkClasses(`/dashboard/product`)}
         >
-          <IoStorefront className="text-[#4318FF]" /> Products
+          <IoStorefront className={iconClasses(`/dashboard/product`)} />
+          Products
         </Link>
-        <Link href={'/dashboard/category'} className="flex items-center gap-3">
-          <BiSolidCategory /> Category
+        <Link
+          href={'/dashboard/category'}
+          className={linkClasses(`/dashboard/category`)}
+        >
+          <BiSolidCategory className={iconClasses('/dashboard/category')} />
+          Category
         </Link>
-        <Link href={'/dashboard/admin'} className="flex items-center gap-3">
-          <PiUsersThreeFill /> Admins
+        <Link
+          href={'/dashboard/admin'}
+          className={linkClasses('/dashboard/admin')}
+        >
+          <PiUsersThreeFill className={iconClasses('/dashboard/admin')} />
+          Admins
         </Link>
         <div className="flex items-center gap-3">
           <FaUserAlt /> Profile
