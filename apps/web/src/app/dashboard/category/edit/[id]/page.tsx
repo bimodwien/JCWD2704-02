@@ -19,14 +19,15 @@ const EditCategory = ({ params }: { params: { id: string } }) => {
       try {
         const response = await axiosInstance().get(`/category/${id}`);
         const dataCategory = response.data.data;
-        console.log(dataCategory);
+        console.log('ini id category', dataCategory.id);
 
         setInitialValues({
           name: dataCategory.name,
         });
-        if (dataCategory.image && dataCategory.image.length > 0) {
+        if (dataCategory.image) {
           const imageUrl = `http://localhost:8000/category/images/${dataCategory.id}`;
           setImagePreview(imageUrl);
+          console.log(imageUrl);
         }
       } catch (error) {
         if (error instanceof AxiosError) throw error.response?.data?.message;

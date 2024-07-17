@@ -38,6 +38,8 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
           const images =
             'http://localhost:8000/products/images/' +
             dataProduct.ProductImage[0].id;
+          console.log(images);
+
           setImagePreview(images);
         }
       } catch (error) {
