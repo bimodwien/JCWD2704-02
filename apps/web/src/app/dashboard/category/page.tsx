@@ -8,6 +8,8 @@ import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { useDebounce } from 'use-debounce';
 import { fetchCategory, deleteCategory } from '@/helpers/fetchCategory';
 import { TCategory } from '@/models/category';
+import { axiosInstance } from '@/lib/axios';
+import { useRouter } from 'next/navigation';
 
 const Category = () => {
   const [search, setSearch] = useState('');
@@ -15,6 +17,17 @@ const Category = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [value] = useDebounce(search, 1000);
+  const router = useRouter();
+
+  async function onClickEdit(id: string) {
+    const axios = axiosInstance();
+    try {
+      await axios.get(`/category/${id}`);
+      router.push(`/dashboard/category/edit/${id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   useEffect(() => {
     fetchCategory(page, limit, value, setCategories);
@@ -42,6 +55,7 @@ const Category = () => {
                   type="text"
                   className="bg-[#F4F7FE] rounded-full pl-5 py-1 font-dm-sans text-14px"
                   placeholder="Search..."
+                  onChange={(e) => setSearch(e.target.value)}
                 />
                 <Link
                   href={'/dashboard/category/add'}
@@ -83,11 +97,28 @@ const Category = () => {
                             />
                           </Table.Cell>
                           <Table.Cell>{category.name}</Table.Cell>
-                          <Table.Cell className="font-medium text-red-600 cursor-pointer">
+                          <Table.Cell
+                            onClick={() => {
+                              deleteCategory(
+                                category.id,
+                                page,
+                                limit,
+                                value,
+                                setCategories,
+                              );
+                            }}
+                            className="font-medium text-red-600 cursor-pointer"
+                          >
                             Delete
                           </Table.Cell>
                           <Table.Cell className="font-medium text-green-600">
-                            Edit
+                            <button
+                              onClick={() => {
+                                onClickEdit(category.id);
+                              }}
+                            >
+                              Edit
+                            </button>
                           </Table.Cell>
                         </Table.Row>
                       );
@@ -106,12 +137,14 @@ const Category = () => {
           <div className="flex justify-center items-center gap-5 pb-14">
             <button
               disabled={page === 1}
+              onClick={() => setPage(page - 1)}
               className={`flex items-center font-bold gap-1  px-5 py-1 rounded-full ${page === 1 ? 'bg-gray-400 text-gray-200' : 'bg-[#11047A] text-white'}`}
             >
               <MdNavigateBefore /> Prev
             </button>
             <button
               disabled={isLastPage}
+              onClick={() => setPage(page + 1)}
               className={`flex items-center font-bold gap-1 px-5 py-1 rounded-full ${isLastPage ? 'bg-gray-400 text-gray-200' : 'bg-[#11047A] text-white'}`}
             >
               Next <MdNavigateNext />

@@ -39,6 +39,7 @@ class CategoryService {
         id: true,
         name: true,
         isDeleted: true,
+        image: true,
         Product: { select: { id: true, name: true } },
       },
     });

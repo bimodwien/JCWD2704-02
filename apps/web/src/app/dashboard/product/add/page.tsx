@@ -9,9 +9,7 @@ import { useRouter } from 'next/navigation';
 import { TCategory } from '@/models/category';
 import { fetchCategory } from '@/helpers/fetchCategory';
 
-type Props = {};
-
-const AddProduct = (props: Props) => {
+const AddProduct = () => {
   const initialValues = {
     name: '',
     price: 0,
