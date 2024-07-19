@@ -86,29 +86,34 @@ const AddStoreComponent = () => {
                 let prov = '';
                 let postal = '';
                 let type = '';
-
                 addressComponents.forEach((component) => {
                   if (component.types.includes('locality')) {
                     city = component.long_name;
                     type = 'Kota';
-                  }
-                  if (component.types.includes('administrative_area_level_2')) {
+                  } else if (
+                    component.types.includes('administrative_area_level_2')
+                  ) {
                     if (!city) {
                       city = component.long_name
                         .replace('Kabupaten', '')
+                        .replace('Kota', '')
                         .trim();
                     }
                     type = component.long_name.includes('Kabupaten')
                       ? 'Kabupaten'
                       : 'Kota';
-                  }
-                  if (component.types.includes('administrative_area_level_1')) {
+                  } else if (
+                    component.types.includes('administrative_area_level_1')
+                  ) {
                     prov = component.long_name;
-                  }
-                  if (component.types.includes('postal_code')) {
+                  } else if (component.types.includes('postal_code')) {
                     postal = component.long_name;
                   }
                 });
+
+                if (!city && type === 'Kota' && prov) {
+                  city = prov;
+                }
 
                 setCityName(city);
                 setType(type);

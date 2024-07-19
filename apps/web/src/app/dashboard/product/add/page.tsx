@@ -1,24 +1,30 @@
 'use client';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import { TCategory } from '@/models/category';
+import { fetchCategory } from '@/helpers/fetchCategory';
 
-type Props = {};
-
-const AddProduct = (props: Props) => {
+const AddProduct = () => {
   const initialValues = {
     name: '',
     price: 0,
     weight: 0,
     description: '',
+    categoryId: '',
   };
   const imageRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<TCategory[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    fetchCategory(1, 10, '', setCategories);
+  });
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object().shape({
@@ -26,6 +32,7 @@ const AddProduct = (props: Props) => {
       price: Yup.number().required('Price wajib diisi'),
       weight: Yup.number().required('Weight wajib diisi'),
       description: Yup.string().required('Description product wajib diisi'),
+      categoryId: Yup.string().required('Category wajib diisi'),
     }),
     onSubmit: async (values) => {
       try {
@@ -117,8 +124,14 @@ const AddProduct = (props: Props) => {
                 <select
                   id="category"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                  {...formik.getFieldProps('categoryId')}
                 >
                   <option value="">Select category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>

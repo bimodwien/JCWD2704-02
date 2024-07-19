@@ -5,16 +5,22 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
+import { fetchCategory } from '@/helpers/fetchCategory';
+import { TCategory } from '@/models/category';
+import { useRouter } from 'next/navigation';
 
 const EditProduct = ({ params }: { params: { id: string } }) => {
+  const router = useRouter();
   const { id } = params;
   const [initialValues, setInitialValues] = useState({
     name: '',
     price: 0,
     weight: 0,
     description: '',
+    categoryId: '',
   });
   const [imagePreview, setImagePreview] = useState<String | null>(null);
+  const [categories, setCategories] = useState<TCategory[]>([]);
   const imageRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     async function fetchDetail() {
@@ -26,12 +32,13 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
           price: dataProduct.price,
           weight: dataProduct.weight,
           description: dataProduct.description,
+          categoryId: dataProduct.category ? dataProduct.category.id : '',
         });
         if (dataProduct.ProductImage && dataProduct.ProductImage.length > 0) {
           const images =
             'http://localhost:8000/products/images/' +
             dataProduct.ProductImage[0].id;
-          console.log(dataProduct.ProductImage, 'apa si');
+          console.log(images);
 
           setImagePreview(images);
         }
@@ -40,7 +47,11 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
         else if (error instanceof Error) console.log(error.message);
       }
     }
+    async function fetchCategories() {
+      await fetchCategory(1, 10, '', setCategories);
+    }
     fetchDetail();
+    fetchCategories();
   }, [id]);
   const formik = useFormik({
     initialValues,
@@ -50,6 +61,7 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
       price: Yup.number().required('Price wajib diisi'),
       weight: Yup.number().required('Weight wajib diisi'),
       description: Yup.string().required('Description wajib diisi'),
+      categoryId: Yup.string().required('Category wajib diisi'),
     }),
     onSubmit: async (values) => {
       try {
@@ -59,6 +71,7 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
           { headers: { 'Content-Type': 'multipart/form-data' } },
         );
         alert(data.message);
+        router.push('/dashboard/product');
       } catch (error) {
         if (error instanceof AxiosError) alert(error.response?.data?.message);
         else if (error instanceof Error) console.log(error.message);
@@ -155,9 +168,18 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
                 </label>
                 <select
                   id="category"
+                  name="categoryId"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                  value={formik.values.categoryId}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 >
                   <option value="">Select category</option>
+                  {categories.map((category: { id: string; name: string }) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>

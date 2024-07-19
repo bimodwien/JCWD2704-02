@@ -2,7 +2,7 @@
 import prisma from '@/prisma';
 import { Request } from 'express';
 import { hashPassword } from '@/lib/bcrypt';
-import { Prisma, Role } from '@prisma/client';
+import { $Enums, Prisma, Role } from '@prisma/client';
 
 class AdminService {
   static async getAll(req: Request) {
@@ -12,7 +12,7 @@ class AdminService {
     const name = String(req.query.name || '');
 
     const adminData = await prisma.user.findMany({
-      where: { name: { contains: name } },
+      where: { name: { contains: name }, role: $Enums.Role.storeAdmin },
       skip: skip,
       take: limit,
       select: { id: true, name: true, email: true, role: true },

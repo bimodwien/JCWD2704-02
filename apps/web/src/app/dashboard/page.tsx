@@ -10,7 +10,7 @@ type Props = {};
 const Dashboard = (props: Props) => {
   return (
     <>
-      <section className="bg-[#F4F7FE] flex w-full top-[49px] left-[290px]">
+      <section className="bg-[#F4F7FE] flex w-full top-[49px] left-[290px] min-h-lvh">
         {/* sidebar, nanti dijadiin component sidebar */}
         <Sidebar />
         {/* content, nanti dipisah jadi component content dashboardnya */}
