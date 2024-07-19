@@ -2,7 +2,7 @@ import React from 'react';
 import { IoMdHome } from 'react-icons/io';
 import { IoStorefront, IoLogOutSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
-import { FaUserAlt } from 'react-icons/fa';
+import { FaUserAlt, FaStore } from 'react-icons/fa';
 import Link from 'next/link';
 type Props = {};
 
@@ -24,6 +24,9 @@ const Sidebar = (props: Props) => {
         </Link>
         <Link href={'/dashboard/admin'} className="flex items-center gap-3">
           <PiUsersThreeFill /> Admins
+        </Link>
+        <Link href={'/dashboard/store'} className="flex items-center gap-3">
+          <FaStore /> Store
         </Link>
         <div className="flex items-center gap-3">
           <FaUserAlt /> Profile

@@ -46,10 +46,13 @@ model Address {
   user       User     @relation(fields: [userId], references: [id])
   userId     String
   address    String
-  city       City     @relation(fields: [cityId], references: [id])
-  cityId     Int
   postalCode Int
-  isPrimay   Boolean  @default(false)
+  city       String
+  type       String
+  province   String
+  latitude   Float?
+  longitude  Float?
+  isChosen   Boolean  @default(false)
   Order      Order[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -58,13 +61,11 @@ model Address {
 }
 
 model City {
-  id         Int       @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   province   String
   type       String
   cityName   String
   postalCode String
-  Address    Address[]
-  Store      Store[]
 
   @@map("cities")
 }
@@ -75,8 +76,9 @@ model Store {
   user            User              @relation(fields: [userId], references: [id])
   userId          String
   address         String
-  city            City              @relation(fields: [cityId], references: [id])
-  cityId          Int
+  city            String
+  type            String
+  province        String
   postalCode      Int
   latitude        Float
   longitude       Float

@@ -48,6 +48,7 @@ class AdminService {
       if (existingUser) throw new Error('this store admin has been used');
       const hashed = await hashPassword(String(password));
       const role = Role.storeAdmin;
+
       const data: Prisma.UserCreateInput = {
         email,
         name,

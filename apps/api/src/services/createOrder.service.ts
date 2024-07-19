@@ -164,12 +164,12 @@ class CreateOrderService {
   }
 
   async shippingAddress(req: Request) {
-    const { userId } = req.params;
-    const address = await prisma.address.findFirst({
-      where: { userId: userId, isPrimay: true },
-      include: { city: true },
-    });
-    return address;
+    // const { userId } = req.params;
+    // const address = await prisma.address.findFirst({
+    //   where: { userId: userId, isPrimay: true },
+    //   include: { city: true },
+    // });
+    // return address;
   }
 }
 
