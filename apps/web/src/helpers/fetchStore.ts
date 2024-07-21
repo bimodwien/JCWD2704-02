@@ -25,3 +25,35 @@ export async function fetchStores(
     console.log(error);
   }
 }
+
+export async function getStoreByStoreId(id: string): Promise<TStore | null> {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/${id}`);
+    console.log('====================================');
+    console.log('response', response);
+    console.log('====================================');
+    const data = response.data.data;
+    return data;
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+    return null;
+  }
+}
+
+export async function softDeleteStore(
+  id: string,
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.delete(`/store/delete/${id}`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}

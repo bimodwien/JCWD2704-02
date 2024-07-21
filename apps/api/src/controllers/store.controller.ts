@@ -11,10 +11,27 @@ export class StoreController {
     }
   }
 
+  async softDeleteStore(req: Request, res: Response, next: NextFunction) {
+    try {
+      const store = await StoreService.softDeleteStore(req);
+      res.status(201).json(store);
+    } catch (error) {
+      next(error);
+    }
+  }
   async getStoresAll(req: Request, res: Response, next: NextFunction) {
     try {
       const stores = await StoreService.getStoresAll(req);
       res.status(200).json(stores);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getStoreByStoreId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const store = await StoreService.getStoresByStoreID(req);
+      res.status(200).json(store);
     } catch (error) {
       next(error);
     }

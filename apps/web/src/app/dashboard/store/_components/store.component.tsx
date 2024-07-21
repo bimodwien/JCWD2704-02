@@ -8,7 +8,7 @@ import { Table } from 'flowbite-react';
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { useDebounce } from 'use-debounce';
 import Link from 'next/link';
-import { fetchStores } from '@/helpers/fetchStore';
+import { fetchStores, softDeleteStore } from '@/helpers/fetchStore';
 import { TStore } from '@/models/store.model';
 
 const StoreComponent = () => {
@@ -36,6 +36,13 @@ const StoreComponent = () => {
 
   const handleEdit = (id: string) => {
     router.push(`/dashboard/store/edit/${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await softDeleteStore(id, setStores);
+      router.push('/dashboard/store');
+    } catch (error) {}
   };
 
   return (
@@ -121,7 +128,7 @@ const StoreComponent = () => {
                               Edit
                             </button>
                             <button
-                              // onClick={() => handleDelete(store.id)}
+                              onClick={() => handleDelete(store.id)}
                               className="ml-3 font-medium text-red-600"
                             >
                               Delete

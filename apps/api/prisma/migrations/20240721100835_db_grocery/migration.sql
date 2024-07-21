@@ -62,6 +62,7 @@ CREATE TABLE `stores` (
     `postalCode` INTEGER NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 

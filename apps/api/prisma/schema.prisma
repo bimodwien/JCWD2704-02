@@ -82,6 +82,7 @@ model Store {
   postalCode      Int
   latitude        Float
   longitude       Float
+  isDeleted       Boolean           @default(false)
   Stock           Stock[]
   Cart            Cart[]
   OrderItem       OrderItem[]
