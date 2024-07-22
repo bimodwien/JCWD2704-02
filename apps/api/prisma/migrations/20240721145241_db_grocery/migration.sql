@@ -55,6 +55,7 @@ CREATE TABLE `stores` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
+    `isChosen` BOOLEAN NOT NULL DEFAULT false,
     `address` VARCHAR(191) NOT NULL,
     `city` VARCHAR(191) NOT NULL,
     `type` VARCHAR(191) NOT NULL,

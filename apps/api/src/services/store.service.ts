@@ -37,7 +37,7 @@ class StoreService {
           city: checkCity.cityName,
           province,
           postalCode: Number(postalCode),
-          userId: 'clyvenmw00003bcgc5r3a59vf',
+          userId: 'superAdmin',
         },
       });
 
@@ -142,6 +142,17 @@ class StoreService {
     });
 
     return data;
+  }
+
+  async getAvailableStores() {
+    const stores = await prisma.store.findMany({
+      where: { isChosen: false },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+    return stores;
   }
 }
 

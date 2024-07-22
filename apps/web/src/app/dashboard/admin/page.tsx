@@ -94,7 +94,7 @@ const Users = () => {
                           <Table.Cell>{index + 1}</Table.Cell>
                           <Table.Cell>{user.name}</Table.Cell>
                           <Table.Cell>{user.email}</Table.Cell>
-                          <Table.Cell>-</Table.Cell>
+                          <Table.Cell>{user.Store.name}</Table.Cell>
                           <Table.Cell
                             onClick={() => {
                               deleteUser(user.id, page, limit, value, setUsers);

@@ -75,6 +75,7 @@ model Store {
   name            String
   user            User              @relation(fields: [userId], references: [id])
   userId          String
+  isChosen        Boolean           @default(false)
   address         String
   city            String
   type            String
@@ -91,7 +92,7 @@ model Store {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
-  @@map("stores")
+  @@map("store")
 }
 
 model Product {

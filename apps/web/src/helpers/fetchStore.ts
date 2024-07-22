@@ -26,6 +26,20 @@ export async function fetchStores(
   }
 }
 
+export async function getAllStore(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}
+
 export async function getStoreByStoreId(id: string): Promise<TStore | null> {
   const axios = axiosInstance();
   try {
@@ -50,6 +64,23 @@ export async function softDeleteStore(
   const axios = axiosInstance();
   try {
     const response = await axios.delete(`/store/delete/${id}`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}
+
+export async function availableStores(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/available-store`);
+    console.log('====================================');
+    console.log(response);
+    console.log('====================================');
     setData(response.data.data);
   } catch (error) {
     console.log('====================================');

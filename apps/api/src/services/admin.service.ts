@@ -15,7 +15,17 @@ class AdminService {
       where: { name: { contains: name }, role: $Enums.Role.storeAdmin },
       skip: skip,
       take: limit,
-      select: { id: true, name: true, email: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        Store: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     const total = await prisma.user.count();
@@ -42,6 +52,8 @@ class AdminService {
       const email: string = req.body.email;
       const name: string = req.body.name;
       const password: string = req.body.password;
+      const storeId: string = req.body.storeId;
+
       const existingUser = await prisma.user.findFirst({
         where: { OR: [{ name }, { email }] },
       });
@@ -55,7 +67,18 @@ class AdminService {
         password: hashed,
         role,
         isVerified: true,
+        // Store: {
+        //   connect: {
+        //     id: storeId,
+        //   },
+        // },
       };
+
+      // await prisma.store.update({
+      //   where: { id: storeId },
+      //   data: { isChosen: true },
+      // });
+
       const newAdmin = await prisma.user.create({
         data,
       });
