@@ -125,7 +125,7 @@ export default function FormSignInComponent() {
           </div>
           <div>Login With Google</div>
         </button>
-        <Link href="/forgot-password">Forgot Password ?</Link>
+        <Link href="/resetPassword/addEmail">Forgot Password ?</Link>
       </div>
     </>
   );

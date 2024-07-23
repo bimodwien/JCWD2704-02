@@ -1,36 +1,40 @@
 'use client';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Input } from '../../../components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
-
 import Swal from 'sweetalert2';
+import React from 'react';
 
-export default function AddEmailComponent() {
-  const signUpSchema = Yup.object({
-    email: Yup.string().required('Email is required'),
-  });
+interface Props {
+  id: string; // Define id as string
+}
+
+export default function FormRedeemCode({ id }: Props) {
   const router = useRouter();
+
   const formik = useFormik({
     initialValues: {
-      email: '',
+      referredCode: '',
     },
-    validationSchema: signUpSchema,
     onSubmit: async (values) => {
       try {
-        await axiosInstance().post('/v1/check-email-reset-pass', values);
+        const response = await axiosInstance().patch(
+          `/v1/refferalCode/${id}`,
+          values,
+        );
         Swal.fire({
           title: 'Success',
-          text: 'Please check your email for verification, reset password',
+          text: 'You get the voucher, please chek your voucher after login',
           icon: 'success',
         });
+        router.push(`/login`);
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Refferal Code:', error);
         Swal.fire({
           title: 'Error',
-          text: 'There was an error, please check your input email again.',
+          text: 'Wrong refferal code, please input again or check your referral code',
           icon: 'error',
         });
       }
@@ -41,28 +45,23 @@ export default function AddEmailComponent() {
     <>
       <form onSubmit={formik.handleSubmit}>
         <div className="grid w-full items-center gap-1.5">
-          <Label htmlFor="email">Email</Label>
           <div>
-            {formik.touched.email && formik.errors.email ? (
-              <div className="bg-[#D9534F] text-white text-[10px] pl-1">
-                {formik.errors.email}
-              </div>
-            ) : null}
             <Input
-              type="email"
-              id="email"
-              placeholder="Your Email"
+              type="referredCode"
+              id="referredCode"
+              placeholder="referredCode"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              value={formik.values.email}
+              value={formik.values.referredCode}
             />
           </div>
           <button
             className="bg-green-500 p-2 rounded-[8px] text-white"
             type="submit"
           >
-            Send Email
+            Submit
           </button>
+          <a href="/login">Skip</a>
         </div>
       </form>
     </>
