@@ -11,4 +11,15 @@ export type TProduct = {
     id: string;
     image: Buffer;
   }[];
+  Stock: {
+    productId: string;
+    store: {
+      id: string;
+      name: string;
+      latitude: number;
+      longitude: number;
+      city: string;
+    };
+    quantity: number;
+  }[];
 };

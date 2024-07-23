@@ -14,6 +14,8 @@ export class ProductRouter {
 
   private initializeRoutes(): void {
     this.router.get('/', this.productController.getByAll);
+    this.router.get('/all', this.productController.getAllByDistance);
+    this.router.get('/allData', this.productController.getAllData);
     this.router.get('/:id', this.productController.getProductById);
     this.router.post(
       '/',

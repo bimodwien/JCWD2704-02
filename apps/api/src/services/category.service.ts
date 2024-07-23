@@ -31,6 +31,9 @@ class CategoryService {
     };
   }
 
+  static async allData() {
+    return await prisma.category.findMany();
+  }
   static async getById(req: Request) {
     const id = req.params.id;
     const data = await prisma.category.findUnique({

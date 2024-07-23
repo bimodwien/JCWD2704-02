@@ -41,3 +41,29 @@ export async function deleteProduct(
     console.log(error);
   }
 }
+
+export async function getNearestProducts(
+  latitude: number,
+  longitude: number,
+  setProducts: (value: React.SetStateAction<TProduct[]>) => void,
+) {
+  try {
+    const response = await axiosInstance().get('/products/all', {
+      params: { latitude, longitude },
+    });
+    setProducts(response.data);
+  } catch (error) {
+    console.error('Error fetching nearest products:', error);
+  }
+}
+
+export async function getAllData(
+  setProducts: (value: React.SetStateAction<TProduct[]>) => void,
+) {
+  try {
+    const response = await axiosInstance().get('/products/allData');
+    setProducts(response.data);
+  } catch (error) {
+    console.error('Error fetching all products:', error);
+  }
+}

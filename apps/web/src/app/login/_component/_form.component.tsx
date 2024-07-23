@@ -15,6 +15,7 @@ import { RootState } from '../../_lib/redux/store';
 import { userLogin, loginByGoogle } from '@/app/_middleware/auth.middleware';
 import { auth, provider, signInWithPopup } from '../../_lib/firebase';
 import Swal from 'sweetalert2';
+import Link from 'next/link';
 
 export default function FormSignInComponent() {
   const dispatch = useDispatch();
@@ -107,7 +108,7 @@ export default function FormSignInComponent() {
           </div>
 
           <button
-            className="bg-[#5AC268] p-2 rounded-[8px] text-white"
+            className="bg-green-500 p-2 rounded-[8px] text-white"
             type="submit"
           >
             Login
@@ -124,6 +125,7 @@ export default function FormSignInComponent() {
           </div>
           <div>Login With Google</div>
         </button>
+        <Link href="/forgot-password">Forgot Password ?</Link>
       </div>
     </>
   );

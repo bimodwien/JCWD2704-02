@@ -70,4 +70,13 @@ export class CategoryController {
       next(error);
     }
   }
+
+  async allData(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await CategoryService.allData();
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

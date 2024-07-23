@@ -89,7 +89,7 @@ export default function FormSignUpComponent() {
             />
           </div>
           <button
-            className="bg-[#5AC268] p-2 rounded-[8px] text-white"
+            className="bg-green-500 p-2 rounded-[8px] text-white"
             type="submit"
           >
             Register

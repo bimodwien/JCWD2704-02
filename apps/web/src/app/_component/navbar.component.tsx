@@ -5,7 +5,7 @@ import { IoCartOutline } from 'react-icons/io5';
 import { CgNotes } from 'react-icons/cg';
 import { CgProfile } from 'react-icons/cg';
 
-export const Header = () => {
+export const NavbarComponent = () => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -30,10 +30,10 @@ export const Header = () => {
           </div>
           <input
             placeholder="Search in Grocery"
-            className="pl-2 outline-none w-48"
+            className="pl-2 outline-none"
           />
         </div>
-        <div className="flex space-x-3">
+        <div className="flex space-x-4">
           <div className="p-1">
             <IoCartOutline />
           </div>
@@ -48,3 +48,5 @@ export const Header = () => {
     </nav>
   );
 };
+
+export default NavbarComponent();
