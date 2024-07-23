@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import UserService from '../services/user.service';
-import user2Service from '@/services/user-2.service';
+import User2Service from '@/services/user-2.service';
 
 export class UserController {
   async addEmail(req: Request, res: Response, next: NextFunction) {
@@ -110,7 +110,7 @@ export class UserController {
 
   async checkEmail(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await user2Service.checkEmail(req);
+      const data = await User2Service.checkEmail(req);
       res.status(200).json(data);
     } catch (error) {
       next(error);
@@ -119,10 +119,19 @@ export class UserController {
 
   async verifResetPassword(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await user2Service.resetPasswordVerify(req);
+      const data = await User2Service.resetPasswordVerify(req);
       res
         .status(200)
         .redirect(`http://localhost:3000/resetPassword/addPassword/${data.id}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updatePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await User2Service.updatePassword(req);
+      res.status(200).json(data);
     } catch (error) {
       next(error);
     }
