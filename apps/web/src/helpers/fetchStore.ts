@@ -81,7 +81,7 @@ export async function availableStores(
     console.log('====================================');
     console.log(response);
     console.log('====================================');
-    setData(response.data.data);
+    setData(response.data);
   } catch (error) {
     console.log('====================================');
     console.log(error);
