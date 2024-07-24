@@ -54,8 +54,11 @@ const Sidebar = () => {
           <PiUsersThreeFill className={iconClasses('/dashboard/admin')} />
           Admins
         </Link>
-        <Link href={'/dashboard/store'} className="flex items-center gap-3">
-          <FaStore /> Store
+        <Link
+          href={'/dashboard/store'}
+          className={linkClasses('/dashboard/store')}
+        >
+          <FaStore className={iconClasses('/dashboard/store')} /> Store
         </Link>
         <div className="flex items-center gap-3">
           <FaUserAlt /> Profile
