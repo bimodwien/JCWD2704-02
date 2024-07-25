@@ -59,3 +59,26 @@ export async function softDeleteStore(
     console.log('====================================');
   }
 }
+
+export async function updateStore(
+  id: string,
+  storeData: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    type: string;
+    city: string;
+    province: string;
+    postalCode: number;
+  },
+): Promise<TStore | null> {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.patch(`/store/update/${id}`, storeData);
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

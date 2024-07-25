@@ -36,4 +36,13 @@ export class StoreController {
       next(error);
     }
   }
+
+  async updateStore(req: Request, res: Response, next: NextFunction) {
+    try {
+      const store = await StoreService.updateStore(req);
+      res.status(200).json(store);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

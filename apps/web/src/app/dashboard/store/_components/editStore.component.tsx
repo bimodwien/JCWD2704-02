@@ -1,6 +1,6 @@
 'use client';
 
-import { getStoreByStoreId } from '@/helpers/fetchStore';
+import { getStoreByStoreId, updateStore } from '@/helpers/fetchStore';
 import { TStore } from '@/models/store.model';
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation'; // atau useRouter jika tidak menggunakan app directory
@@ -28,12 +28,12 @@ export default function EditStoreComponent() {
     initialValues: {
       name: storeData?.name || '',
       address: storeData?.address || '',
-      latitude: storeData?.latitude.toString() || '',
-      longitude: storeData?.longitude.toString() || '',
+      latitude: storeData?.latitude?.toString() || '',
+      longitude: storeData?.longitude?.toString() || '',
       type: storeData?.type || '',
-      cityName: storeData?.city || '',
+      city: storeData?.city || '',
       province: storeData?.province || '',
-      postalCode: storeData?.postalCode || '',
+      postalCode: storeData?.postalCode?.toString() || '',
     },
     enableReinitialize: true,
     validationSchema: Yup.object().shape({
@@ -41,15 +41,14 @@ export default function EditStoreComponent() {
       address: Yup.string().required('Alamat wajib diisi'),
     }),
     onSubmit: async (values) => {
-      try {
-        const { data } = await axiosInstance().put(
-          `/store/update/${id}`,
-          values,
-        );
-        alert(data.message);
+      if (typeof id === 'string') {
+        const updatedStore = await updateStore(id, {
+          ...values,
+          latitude: parseFloat(values.latitude),
+          longitude: parseFloat(values.longitude),
+          postalCode: parseInt(values.postalCode),
+        });
         router.push('/dashboard/store');
-      } catch (error) {
-        console.error('Failed to update store:', error);
       }
     },
   });
@@ -258,16 +257,16 @@ export default function EditStoreComponent() {
                 </div>
                 <div className="pt-1">
                   <label
-                    htmlFor="cityName"
+                    htmlFor="city"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
                     City Name
                   </label>
                   <input
                     type="text"
-                    id="cityName"
+                    id="city"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    {...formik.getFieldProps('cityName')}
+                    {...formik.getFieldProps('city')}
                   />
                 </div>
                 <div className="pt-1">

@@ -46,7 +46,7 @@ class StoreService {
   }
 
   async updateStore(req: Request) {
-    const { storeId } = req.params;
+    const { id } = req.params;
     const {
       name,
       address,
@@ -72,7 +72,7 @@ class StoreService {
       }
 
       const store = await prisma.store.update({
-        where: { id: storeId },
+        where: { id: id },
         data: {
           name,
           address,
