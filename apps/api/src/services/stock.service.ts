@@ -62,8 +62,14 @@ class StockService {
       const existingStock = await prisma.stock.findUnique({
         where: { productId_storeId: { productId, storeId } },
       });
-      if (existingStock)
-        throw new Error('Stock for this product and store already exist');
+      if (existingStock) {
+        const updatedStock = await prisma.stock.update({
+          where: { productId_storeId: { productId, storeId } },
+          data: { quantity: existingStock.quantity + Number(quantity) },
+        });
+        return updatedStock;
+      }
+
       const data = { productId, storeId, quantity: Number(quantity) };
       const newStock = await prisma.stock.create({
         data,
@@ -76,11 +82,9 @@ class StockService {
     await prisma.$transaction(async (prisma) => {
       const id = req.params.id;
       const quantity: number = req.body.quantity;
-      const storeId: string = req.body.storeId;
-      const productId: string = req.body.productId;
       const editedStock = await prisma.stock.update({
         where: { id },
-        data: { quantity: Number(quantity), storeId, productId },
+        data: { quantity: Number(quantity) },
       });
       return editedStock;
     });

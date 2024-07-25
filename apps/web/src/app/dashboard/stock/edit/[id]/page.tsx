@@ -81,21 +81,18 @@ const EditStock = ({ params }: { params: { id: string } }) => {
                 >
                   Product Name
                 </label>
-                <select
+                <input
+                  type="text"
                   name="productId"
                   id="product"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                  value={formik.values.productId}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                >
-                  <option value="">Select product</option>
-                  {products.map((product: { id: string; name: string }) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name}
-                    </option>
-                  ))}
-                </select>
+                  className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                  value={
+                    products.find(
+                      (product) => product.id === formik.values.productId,
+                    )?.name || ''
+                  }
+                  readOnly
+                />
               </div>
               <div className="w-full">
                 <label
@@ -104,21 +101,17 @@ const EditStock = ({ params }: { params: { id: string } }) => {
                 >
                   Store
                 </label>
-                <select
+                <input
+                  type="text"
                   name="storeId"
                   id="store"
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                  value={formik.values.storeId}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                >
-                  <option value="">Select store</option>
-                  {stores.map((store: { id: string; name: string }) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
+                  className="bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                  value={
+                    stores.find((store) => store.id === formik.values.storeId)
+                      ?.name || ''
+                  }
+                  readOnly
+                />
               </div>
               <div className="sm:col-span-2">
                 <label
@@ -142,7 +135,7 @@ const EditStock = ({ params }: { params: { id: string } }) => {
                   type="submit"
                   className="inline-flex items-center px-5 py-2.5 mt-4 sm:mt-6 text-sm font-medium text-center text-white bg-blue-700 rounded-lg focus:ring-4 focus:ring-primary-200 hover:bg-primary-800"
                 >
-                  Add stock
+                  Edit stock
                 </button>
                 <Link
                   href={'/dashboard/stock'}
