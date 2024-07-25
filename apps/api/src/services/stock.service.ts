@@ -5,6 +5,9 @@ import { Request } from 'express';
 class StockService {
   static async getAll(req: Request) {
     const { productName, storeName } = req.query;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
     const stockData = await prisma.stock.findMany({
       where: {
         product: productName
@@ -15,6 +18,8 @@ class StockService {
           : undefined,
         isDeleted: false,
       },
+      skip: skip,
+      take: limit,
       select: {
         id: true,
         productId: true,
@@ -24,7 +29,14 @@ class StockService {
         store: { select: { id: true, name: true } },
       },
     });
-    return { data: stockData };
+    const total = await prisma.stock.count();
+    return {
+      data: stockData,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
   static async getById(req: Request) {
     const id = req.params.id;
@@ -34,6 +46,7 @@ class StockService {
         id: true,
         productId: true,
         storeId: true,
+        quantity: true,
         product: { select: { id: true, name: true } },
         store: { select: { id: true, name: true } },
       },
@@ -67,7 +80,7 @@ class StockService {
       const productId: string = req.body.productId;
       const editedStock = await prisma.stock.update({
         where: { id },
-        data: { quantity: Number(quantity) },
+        data: { quantity: Number(quantity), storeId, productId },
       });
       return editedStock;
     });

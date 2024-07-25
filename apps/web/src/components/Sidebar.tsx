@@ -6,6 +6,7 @@ import { IoStorefront, IoLogOutSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
 import { FaUserAlt, FaStore } from 'react-icons/fa';
 import { BiSolidCategory } from 'react-icons/bi';
+import { BsBoxFill } from 'react-icons/bs';
 import Link from 'next/link';
 
 const Sidebar = () => {
@@ -59,6 +60,13 @@ const Sidebar = () => {
           className={linkClasses('/dashboard/store')}
         >
           <FaStore className={iconClasses('/dashboard/store')} /> Store
+        </Link>
+
+        <Link
+          href={'/dashboard/stock'}
+          className={linkClasses('/dashboard/stock')}
+        >
+          <BsBoxFill className={iconClasses('/dashboard/stock')} /> Stock
         </Link>
         <div className="flex items-center gap-3">
           <FaUserAlt /> Profile

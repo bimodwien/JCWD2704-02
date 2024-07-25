@@ -9,7 +9,6 @@ import { TProduct } from '@/models/product';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { axiosInstance } from '@/lib/axios';
-import Category from '../category/page';
 
 const Store = () => {
   const [search, setSearch] = useState('');
