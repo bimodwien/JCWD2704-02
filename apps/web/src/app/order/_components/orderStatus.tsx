@@ -24,8 +24,8 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
             )}
           </div>
           <div className="w-24 h-8 text-right">
-            {order.paidType === 'manual' && order.processedAt ? (
-              <>{dayjs(order.processedAt).format('DD MMM YYYY, HH:mm:ss')}</>
+            {order.paidType === 'manual' && order.paidAt ? (
+              <>{dayjs(order.paidAt).format('DD MMM YYYY, HH:mm:ss')}</>
             ) : order.paidType === 'gateway' && order.paidAt ? (
               <>{dayjs(order.paidAt).format('DD MMM YYYY, HH:mm:ss')}</>
             ) : (
@@ -109,8 +109,8 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
           <div className="w-24 lg:text-center lg:flex lg:flex-col">
             <div>Paid</div>
             <div className="text-xs font-normal hidden lg:block">
-              {order.paidType === 'manual' && order.processedAt ? (
-                <>{dayjs(order.processedAt).format('DD MMM YYYY, HH:mm:ss')}</>
+              {order.paidType === 'manual' && order.paidAt ? (
+                <>{dayjs(order.paidAt).format('DD MMM YYYY, HH:mm:ss')}</>
               ) : order.paidType === 'gateway' && order.paidAt ? (
                 <>{dayjs(order.paidAt).format('DD MMM YYYY, HH:mm:ss')}</>
               ) : (
