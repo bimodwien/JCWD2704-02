@@ -19,7 +19,7 @@ const Checkout = () => {
   );
   const router = useRouter();
 
-  const userId = 'clykbw3cf000011p30uoi12du';
+  const userId = 'clz19hfia0000cfs3fxqba0vm';
 
   const fetchCart = async () => {
     try {
@@ -67,7 +67,8 @@ const Checkout = () => {
   const createOrder = async (paidType: 'manual' | 'gateway') => {
     try {
       const response = await axiosInstance().post(`/order/${userId}`, {
-        addressId: shippingAddress?.id,
+        // addressId: shippingAddress?.id,
+        addressId: 'clz19yu220002wsnpih1udj8s',
         paidType: paidType,
       });
       Swal.fire({

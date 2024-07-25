@@ -18,7 +18,7 @@ const Cart = () => {
   const [canCheckout, setCanCheckout] = useState<boolean>(true);
   const router = useRouter();
 
-  const userId = 'clykbw3cf000011p30uoi12du';
+  const userId = 'clz19hfia0000cfs3fxqba0vm';
 
   const fetchCart = async () => {
     try {
@@ -164,7 +164,7 @@ const Cart = () => {
             <button
               onClick={checkout}
               disabled={cartData.length === 0}
-              className={`flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold cursor-pointer ${cartData.length === 0 ? 'opacity-70 cursor-not-allowed' : ''}`}
+              className={`flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold ${cartData.length === 0 ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               Checkout
             </button>

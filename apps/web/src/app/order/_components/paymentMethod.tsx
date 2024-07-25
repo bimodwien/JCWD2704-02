@@ -7,7 +7,6 @@ interface PaymentMethodProps {
 }
 
 const PaymentMethod: React.FC<PaymentMethodProps> = ({ order }) => {
-  if (!order) return null;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -20,6 +19,10 @@ const PaymentMethod: React.FC<PaymentMethodProps> = ({ order }) => {
       })
       .catch((err) => console.error('Failed to copy:', err));
   };
+
+  if (!order) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col gap-3">
