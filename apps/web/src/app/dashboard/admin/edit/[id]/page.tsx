@@ -7,6 +7,7 @@ import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { availableStores } from '@/helpers/fetchStore';
+import { TStore } from '@/models/store.model';
 
 const EditAdmin = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -17,18 +18,21 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
     password: '',
     storeId: '', // Menambahkan storeId
   });
-  const [stores, setStores] = useState<any[]>([]); // State untuk daftar toko
+  const [stores, setStores] = useState<TStore[]>([]); // State untuk daftar toko
 
   useEffect(() => {
     async function fetchDetail() {
       try {
         const response = await axiosInstance().get(`/admins/${id}`);
         const dataAdmin = response.data.data;
+        console.log('====================================');
+        console.log(dataAdmin);
+        console.log('====================================');
         setInitialValues({
           name: dataAdmin.name,
           email: dataAdmin.email,
           password: dataAdmin.password,
-          storeId: dataAdmin.storeId || '', // Menambahkan storeId jika ada
+          storeId: dataAdmin.Store[0]?.id || '', // Menetapkan storeId jika ada
         });
       } catch (error) {
         if (error instanceof AxiosError)
@@ -159,7 +163,7 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                     htmlFor="storeId"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Store Location
+                    Store Name
                   </label>
                   <select
                     name="storeId"
@@ -171,7 +175,7 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                   >
                     <option value="">Select a location</option>
                     {stores.map((store) => (
-                      <option key={store.id} value={store.id}>
+                      <option key={store.id} value={store.name}>
                         {store.name}
                       </option>
                     ))}

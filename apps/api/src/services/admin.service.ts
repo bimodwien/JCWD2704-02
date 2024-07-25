@@ -42,7 +42,17 @@ class AdminService {
     const id = req.params.id;
     const data = await prisma.user.findUnique({
       where: { id },
-      select: { id: true, name: true, email: true, role: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        Store: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
     return data;
   }

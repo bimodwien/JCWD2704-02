@@ -79,7 +79,7 @@ const Users = () => {
                   <Table.HeadCell>No</Table.HeadCell>
                   <Table.HeadCell>Name</Table.HeadCell>
                   <Table.HeadCell>Email</Table.HeadCell>
-                  <Table.HeadCell>Store Location</Table.HeadCell>
+                  <Table.HeadCell>Store Name</Table.HeadCell>
                   <Table.HeadCell className="sr-only">
                     <span>Delete</span>
                   </Table.HeadCell>
@@ -95,7 +95,10 @@ const Users = () => {
                         <Table.Cell>{user.name}</Table.Cell>
                         <Table.Cell>{user.email}</Table.Cell>
                         <Table.Cell>
-                          {user.Store ? user.Store.name : 'No store assigned'}
+                          {' '}
+                          {user.Store && user.Store.length > 0
+                            ? user.Store[0].name
+                            : 'No Store'}
                         </Table.Cell>
                         <Table.Cell
                           onClick={() =>

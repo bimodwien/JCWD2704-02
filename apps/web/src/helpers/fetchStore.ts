@@ -78,9 +78,7 @@ export async function availableStores(
   const axios = axiosInstance();
   try {
     const response = await axios.get(`/store/available-store`);
-    console.log('====================================');
-    console.log(response);
-    console.log('====================================');
+
     setData(response.data);
   } catch (error) {
     console.log('====================================');
