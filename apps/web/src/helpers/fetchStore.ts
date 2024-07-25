@@ -26,15 +26,17 @@ export async function fetchStores(
   }
 }
 
-export async function getStoreByStoreId(id: string): Promise<TStore | null> {
+export async function getStoreByStoreId(
+  id: string,
+  setData: (value: React.SetStateAction<TStore | null>) => void,
+) {
   const axios = axiosInstance();
   try {
     const response = await axios.get(`/store/${id}`);
     console.log('====================================');
-    console.log('response', response);
+    console.log(response);
     console.log('====================================');
-    const data = response.data.data;
-    return data;
+    setData(response.data);
   } catch (error) {
     console.log('====================================');
     console.log(error);

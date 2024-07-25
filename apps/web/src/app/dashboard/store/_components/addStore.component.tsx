@@ -228,7 +228,7 @@ const AddStoreComponent = () => {
                   ) : null}
                 </div>
                 <div ref={mapRef} className="w-full h-64 rounded-lg" />
-                <div>
+                <div className="hidden">
                   <label
                     htmlFor="latitude"
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -243,7 +243,7 @@ const AddStoreComponent = () => {
                     readOnly
                   />
                 </div>
-                <div>
+                <div className="hidden">
                   <label
                     htmlFor="longitude"
                     className="block mb-2 text-sm font-medium text-gray-900"
@@ -315,7 +315,6 @@ const AddStoreComponent = () => {
                     id="postalCode"
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     value={postalCode}
-                    readOnly
                   />
                 </div>
                 <button
