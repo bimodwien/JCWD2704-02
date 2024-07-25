@@ -15,6 +15,7 @@ export class OrderRouter {
     this.router.post('/midtrans', this.orderController.midtrans);
     this.router.post('/:userId', this.orderController.createOrder);
     this.router.get('/a/:userId', this.orderController.address);
+    this.router.get('/:invoice', this.orderController.getDetail);
   }
 
   getRouter(): Router {

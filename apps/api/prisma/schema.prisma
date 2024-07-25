@@ -193,6 +193,9 @@ model Order {
   payment_method    String?
   paymentProof      Bytes?      @db.LongBlob
   paidAt            DateTime?
+  processedAt       DateTime?
+  confirmedAt       DateTime?
+  cancelledAt       DateTime?
   status            Status
   OrderItem         OrderItem[]
   createdAt         DateTime    @default(now())

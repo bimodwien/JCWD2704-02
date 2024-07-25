@@ -3,6 +3,18 @@ import orderSevice from '@/services/order.sevice';
 import { NextFunction, Request, Response } from 'express';
 
 export class OrderController {
+  async getDetail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await orderSevice.getDetail(req);
+      res.status(201).send({
+        message: 'order detail',
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createOrder(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await createOrderService.createOrder(req);

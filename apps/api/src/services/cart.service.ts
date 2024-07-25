@@ -10,7 +10,8 @@ class CartService {
         userId: userId,
       },
       include: {
-        product: true,
+        // product: true,
+        product: { include: { ProductImage: { select: { id: true } } } },
         store: true,
         stock: true,
       },
@@ -98,12 +99,12 @@ class CartService {
       throw new Error('cart not found');
     }
 
-    if (quantity == 0) {
-      const deleteCart = await prisma.cart.delete({
-        where: { id: cartId },
-      });
-      return deleteCart;
-    }
+    // if (quantity == 0) {
+    //   const deleteCart = await prisma.cart.delete({
+    //     where: { id: cartId },
+    //   });
+    //   return deleteCart;
+    // }
 
     const checkStock = await prisma.stock.findFirst({
       where: {

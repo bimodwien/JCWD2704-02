@@ -1,7 +1,5 @@
-import { json, Request } from 'express';
+import { Request } from 'express';
 import prisma from '@/prisma';
-import { TOrder } from '@/models/order.model';
-import { TCart } from '@/models/cart.model';
 import crypto from 'crypto';
 
 class OrderService {
@@ -15,13 +13,16 @@ class OrderService {
   }
 
   async getDetail(req: Request) {
-    const { orderId } = req.params;
+    const { invoice } = req.params;
     const detail = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { invoice: invoice },
       include: {
         OrderItem: {
-          include: { product: true },
+          include: {
+            product: { include: { ProductImage: { select: { id: true } } } },
+          },
         },
+        address: true,
       },
     });
     if (!detail) throw new Error('Order not found');
@@ -85,6 +86,7 @@ class OrderService {
             status: 'processed',
             payment_method: data.payment_type,
             paidAt: new Date(data.transaction_time),
+            processedAt: new Date(data.transaction_time),
           },
         });
         responData = updatedOrder;
@@ -95,6 +97,7 @@ class OrderService {
             status: 'processed',
             payment_method: data.payment_type,
             paidAt: new Date(data.transaction_time),
+            processedAt: new Date(data.transaction_time),
           },
         });
         responData = updatedOrder;
@@ -115,6 +118,7 @@ class OrderService {
           where: { invoice: data.order_id },
           data: {
             status: 'waitingPayment',
+            payment_method: data.payment_type,
           },
         });
         responData = updatedOrder;
