@@ -4,9 +4,14 @@ import { TOrder } from '@/models/order.model';
 interface PriceDetailsProps {
   order: TOrder | undefined;
   payNow: () => void;
+  seeProof: () => void;
 }
 
-const PriceDetails: React.FC<PriceDetailsProps> = ({ order, payNow }) => {
+const PriceDetails: React.FC<PriceDetailsProps> = ({
+  order,
+  payNow,
+  seeProof,
+}) => {
   if (!order) return null;
   return (
     <>
@@ -40,7 +45,10 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({ order, payNow }) => {
         )}
       </div>
       {order.status === 'waitingConfirmation' && (
-        <button className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50">
+        <button
+          onClick={seeProof}
+          className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50"
+        >
           See Payment Proof
         </button>
       )}

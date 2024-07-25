@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import prisma from '@/prisma';
 import crypto from 'crypto';
+import sharp from 'sharp';
 
 class OrderService {
   async getByUser(req: Request) {
@@ -27,6 +28,40 @@ class OrderService {
     });
     if (!detail) throw new Error('Order not found');
     return detail;
+  }
+
+  async paymentProof(req: Request) {
+    const { orderId } = req.params;
+    const { file } = req;
+    const userId = 'clz19hfia0000cfs3fxqba0vm';
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, paidType: 'manual' },
+    });
+    if (!order) throw new Error('order not found');
+
+    let status = order.status;
+    let paid_at = order.paidAt;
+
+    if (file) {
+      status = 'waitingConfirmation';
+      paid_at = new Date();
+      const buffer = await sharp(file.buffer).png().toBuffer();
+
+      return await prisma.order.update({
+        where: { id: orderId, userId: userId },
+        data: { paymentProof: buffer, status, paidAt: paid_at },
+      });
+    }
+  }
+
+  async renderProof(req: Request) {
+    const data = await prisma.order.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+    return data?.paymentProof;
   }
 
   async updateStatus(req: Request) {

@@ -51,4 +51,26 @@ export class OrderController {
       next(error);
     }
   }
+
+  async uploadProof(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await orderSevice.paymentProof(req);
+      res.status(201).send({
+        message: 'file uploaded successfully',
+        data: data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async renderProof(req: Request, res: Response, next: NextFunction) {
+    try {
+      const blob = await orderSevice.renderProof(req);
+      res.set('Content-type', 'image/png');
+      res.send(blob);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -10,9 +10,13 @@ import { MdOutlinePayment } from 'react-icons/md';
 import StatusAndDetail from './orderStatus';
 import PaymentMethod from './paymentMethod';
 import PriceDetails from './priceDetails';
+import SeeProof from './seeProof';
+import UploadModal from './uploadProof';
 
 const Detail = () => {
   const [order, setOrder] = useState<TOrder>();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSeeProofOpen, setIsSeeProofOpen] = useState(false);
   dayjs.extend(relativeTime);
   const params = useParams();
   const { invoice } = params;
@@ -32,9 +36,26 @@ const Detail = () => {
     fetchOrderData();
   }, [invoice]);
 
+  const handleConfirmPayment = () => {
+    setIsModalOpen(false);
+    fetchOrderData();
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setIsSeeProofOpen(false);
+  };
+
+  const seeProof = () => {
+    setIsSeeProofOpen(true);
+  };
+
   const payNow = () => {
     if (order?.paidType === 'gateway') {
       window.snap.pay(order?.snap_token);
+    }
+    if (order?.paidType === 'manual') {
+      setIsModalOpen(true);
     }
   };
 
@@ -80,9 +101,20 @@ const Detail = () => {
           <hr />
           <PaymentMethod order={order} />
           <hr />
-          <PriceDetails order={order} payNow={payNow} />
+          <PriceDetails order={order} payNow={payNow} seeProof={seeProof} />
         </div>
       </div>
+      <SeeProof
+        isOpen={isSeeProofOpen}
+        onClose={handleCloseModal}
+        order={order}
+      />
+      <UploadModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmPayment}
+        order={order}
+      />
     </div>
   );
 };
