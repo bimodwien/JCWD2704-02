@@ -16,6 +16,7 @@ import { ProductRouter } from './routers/product.router';
 import { CategoryRouter } from './routers/category.router';
 import { AdminRouter } from './routers/admin.router';
 import { corsOptions } from './config/index';
+import { StoreRouter } from './routers/store.router';
 
 export default class App {
   private app: Express;
@@ -63,6 +64,7 @@ export default class App {
     const userRouter = new UserRouter();
     const productRouter = new ProductRouter();
     const adminRouter = new AdminRouter();
+    const storeRouter = new StoreRouter();
     const categoryRouter = new CategoryRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
@@ -74,6 +76,7 @@ export default class App {
     this.app.use('/v1', userRouter.getRouter());
     this.app.use('/products', productRouter.getRouter());
     this.app.use('/admins', adminRouter.getRouter());
+    this.app.use('/store', storeRouter.getRouter());
     this.app.use('/category', categoryRouter.getRouter());
   }
 

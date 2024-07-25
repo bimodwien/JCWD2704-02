@@ -26,9 +26,6 @@ export default function FormRedeemCode({ id }: Props) {
           `/v1/refferalCode/${id}`,
           values,
         );
-        console.log('====================================');
-        console.log(response);
-        console.log('====================================');
         Swal.fire({
           title: 'Success',
           text: 'You get the voucher, please chek your voucher after login',

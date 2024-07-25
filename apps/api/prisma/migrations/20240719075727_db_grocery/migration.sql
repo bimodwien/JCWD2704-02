@@ -26,9 +26,13 @@ CREATE TABLE `addresses` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
-    `cityId` INTEGER NOT NULL,
     `postalCode` INTEGER NOT NULL,
-    `isPrimay` BOOLEAN NOT NULL DEFAULT false,
+    `city` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `province` VARCHAR(191) NOT NULL,
+    `latitude` DOUBLE NULL,
+    `longitude` DOUBLE NULL,
+    `isChosen` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -52,7 +56,9 @@ CREATE TABLE `stores` (
     `name` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
-    `cityId` INTEGER NOT NULL,
+    `city` VARCHAR(191) NOT NULL,
+    `type` VARCHAR(191) NOT NULL,
+    `province` VARCHAR(191) NOT NULL,
     `postalCode` INTEGER NOT NULL,
     `latitude` DOUBLE NOT NULL,
     `longitude` DOUBLE NOT NULL,
@@ -81,6 +87,8 @@ CREATE TABLE `products` (
 CREATE TABLE `categories` (
     `id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
+    `image` LONGBLOB NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -208,13 +216,7 @@ CREATE TABLE `voucher_users` (
 ALTER TABLE `addresses` ADD CONSTRAINT `addresses_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `addresses` ADD CONSTRAINT `addresses_cityId_fkey` FOREIGN KEY (`cityId`) REFERENCES `cities`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `stores` ADD CONSTRAINT `stores_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `stores` ADD CONSTRAINT `stores_cityId_fkey` FOREIGN KEY (`cityId`) REFERENCES `cities`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `categories`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
