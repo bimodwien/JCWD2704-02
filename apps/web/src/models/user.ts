@@ -4,5 +4,5 @@ export type TUser = {
   email: string;
   Store: {
     name: string;
-  };
+  }[];
 };

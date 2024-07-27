@@ -14,7 +14,7 @@ class StoreService {
       postalCode,
     } = req.body;
 
-    return await prisma.$transaction(async (prisma) => {
+    return await prisma.$transaction(async (prisma: any) => {
       const checkCity = await prisma.city.findFirst({
         where: {
           cityName,
@@ -46,7 +46,7 @@ class StoreService {
   }
 
   async updateStore(req: Request) {
-    const { storeId } = req.params;
+    const { id } = req.params;
     const {
       name,
       address,
@@ -58,7 +58,7 @@ class StoreService {
       postalCode,
     } = req.body;
 
-    return await prisma.$transaction(async (prisma) => {
+    return await prisma.$transaction(async (prisma: any) => {
       const checkCity = await prisma.city.findFirst({
         where: {
           cityName,
@@ -72,7 +72,7 @@ class StoreService {
       }
 
       const store = await prisma.store.update({
-        where: { id: storeId },
+        where: { id: id },
         data: {
           name,
           address,
