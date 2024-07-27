@@ -18,6 +18,7 @@ const Users = () => {
   const [limit, setLimit] = useState(10);
   const [value] = useDebounce(search, 1000);
   const router = useRouter();
+
   async function onClickEdit(id: string) {
     const axios = axiosInstance();
     try {
@@ -75,46 +76,45 @@ const Users = () => {
             <div className="overflow-x-auto pt-5">
               <Table>
                 <Table.Head>
-                  <Table.HeadCell>no</Table.HeadCell>
-                  <Table.HeadCell>name</Table.HeadCell>
-                  <Table.HeadCell>email</Table.HeadCell>
-                  <Table.HeadCell>store loc</Table.HeadCell>
+                  <Table.HeadCell>No</Table.HeadCell>
+                  <Table.HeadCell>Name</Table.HeadCell>
+                  <Table.HeadCell>Email</Table.HeadCell>
+                  <Table.HeadCell>Store Name</Table.HeadCell>
                   <Table.HeadCell className="sr-only">
-                    <span>delete</span>
+                    <span>Delete</span>
                   </Table.HeadCell>
                   <Table.HeadCell className="sr-only">
-                    <span>edit</span>
+                    <span>Edit</span>
                   </Table.HeadCell>
                 </Table.Head>
                 <Table.Body className="divide-y">
                   {Array.isArray(users) && users.length > 0 ? (
-                    users.map((user, index) => {
-                      return (
-                        <Table.Row key={user.id} className="bg-white">
-                          <Table.Cell>{index + 1}</Table.Cell>
-                          <Table.Cell>{user.name}</Table.Cell>
-                          <Table.Cell>{user.email}</Table.Cell>
-                          <Table.Cell>-</Table.Cell>
-                          <Table.Cell
-                            onClick={() => {
-                              deleteUser(user.id, page, limit, value, setUsers);
-                            }}
-                            className="font-medium text-red-600 cursor-pointer"
-                          >
-                            Delete
-                          </Table.Cell>
-                          <Table.Cell className="font-medium text-green-600">
-                            <button
-                              onClick={() => {
-                                onClickEdit(user.id);
-                              }}
-                            >
-                              Edit
-                            </button>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })
+                    users.map((user, index) => (
+                      <Table.Row key={user.id} className="bg-white">
+                        <Table.Cell>{index + 1}</Table.Cell>
+                        <Table.Cell>{user.name}</Table.Cell>
+                        <Table.Cell>{user.email}</Table.Cell>
+                        <Table.Cell>
+                          {' '}
+                          {user.Store && user.Store.length > 0
+                            ? user.Store[0].name
+                            : 'No Store'}
+                        </Table.Cell>
+                        <Table.Cell
+                          onClick={() =>
+                            deleteUser(user.id, page, limit, value, setUsers)
+                          }
+                          className="font-medium text-red-600 cursor-pointer"
+                        >
+                          Delete
+                        </Table.Cell>
+                        <Table.Cell className="font-medium text-green-600">
+                          <button onClick={() => onClickEdit(user.id)}>
+                            Edit
+                          </button>
+                        </Table.Cell>
+                      </Table.Row>
+                    ))
                   ) : (
                     <Table.Row className="bg-white">
                       <Table.Cell colSpan={6} className="text-center">
@@ -126,7 +126,6 @@ const Users = () => {
               </Table>
             </div>
           </div>
-
           <div className="flex justify-center items-center gap-5 pb-14">
             <button
               onClick={() => setPage(page - 1)}

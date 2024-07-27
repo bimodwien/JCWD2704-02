@@ -26,6 +26,20 @@ export async function fetchStores(
   }
 }
 
+export async function getAllStore(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}
+
 export async function getStoreByStoreId(
   id: string,
   setData: (value: React.SetStateAction<TStore | null>) => void,
@@ -34,9 +48,10 @@ export async function getStoreByStoreId(
   try {
     const response = await axios.get(`/store/${id}`);
     console.log('====================================');
-    console.log(response);
+    console.log('response', response);
     console.log('====================================');
-    setData(response.data);
+    const data = response.data.data;
+    return setData(data);
   } catch (error) {
     console.log('====================================');
     console.log(error);
@@ -80,5 +95,20 @@ export async function updateStore(
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export async function availableStores(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/available-store`);
+
+    setData(response.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
   }
 }

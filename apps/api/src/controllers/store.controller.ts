@@ -45,4 +45,16 @@ export class StoreController {
       next(error);
     }
   }
+
+  async availableStores(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await StoreService.getAvailableStores();
+      console.log('====================================');
+      console.log('ini data', data);
+      console.log('====================================');
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -75,6 +75,7 @@ model Store {
   name            String
   user            User              @relation(fields: [userId], references: [id])
   userId          String
+  isChosen        Boolean           @default(false)
   address         String
   city            String
   type            String
@@ -84,6 +85,7 @@ model Store {
   longitude       Float
   isDeleted       Boolean           @default(false)
   Stock           Stock[]
+  StockHistory    StockHistory[]
   Cart            Cart[]
   OrderItem       OrderItem[]
   ProductDiscount ProductDiscount[]
@@ -91,7 +93,7 @@ model Store {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
-  @@map("stores")
+  @@map("store")
 }
 
 model Product {
@@ -105,12 +107,14 @@ model Product {
   isDeleted       Boolean           @default(false)
   ProductImage    ProductImage[]
   Stock           Stock[]
+  StockHistory    StockHistory[]
   Cart            Cart[]
   OrderItem       OrderItem[]
   ProductDiscount ProductDiscount[]
   Voucher         Voucher[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  stockHistoryId  String?
 
   @@map("products")
 }
@@ -137,17 +141,39 @@ model ProductImage {
 }
 
 model Stock {
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
-  store     Store    @relation(fields: [storeId], references: [id])
-  storeId   String
-  quantity  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Cart      Cart[]
+  id              String            @id @default(cuid())
+  product         Product           @relation(fields: [productId], references: [id])
+  productId       String
+  store           Store             @relation(fields: [storeId], references: [id])
+  storeId         String
+  quantity        Int
+  priceDiscount   Int?
+  isDeleted       Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Cart            Cart[]
+  StockHistory    StockHistory[]
+  ProductDiscount ProductDiscount[]
 
-  @@id([productId, storeId])
+  @@unique([productId, storeId])
   @@map("stocks")
+}
+
+model StockHistory {
+  id             String   @id @default(cuid())
+  quantityChange Int
+  reason         String
+  isDeleted      Boolean  @default(false)
+  Product        Product? @relation(fields: [productId], references: [id])
+  productId      String?
+  Stock          Stock?   @relation(fields: [stockId], references: [id])
+  stockId        String?
+  Store          Store?   @relation(fields: [storeId], references: [id])
+  storeId        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("stock_histories")
 }
 
 model Cart {
@@ -237,17 +263,22 @@ enum CategoryVoucher {
 }
 
 model ProductDiscount {
-  id        String   @id @default(cuid())
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
-  store     Store    @relation(fields: [storeId], references: [id])
-  storeId   String
-  type      Type
-  value     Float
-  startDate DateTime
-  endDate   DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String       @id @default(cuid())
+  description String
+  product     Product      @relation(fields: [productId], references: [id])
+  productId   String
+  store       Store        @relation(fields: [storeId], references: [id])
+  storeId     String
+  stock       Stock        @relation(fields: [stockId], references: [id])
+  stockId     String
+  type        Type?
+  value       Float?
+  category    CategoryDisc
+  startDate   DateTime
+  endDate     DateTime
+  isDeleted   Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@map("product_discounts")
 }
@@ -255,19 +286,22 @@ model ProductDiscount {
 model Voucher {
   id               String          @id @default(cuid())
   voucherCode      String
-  product          Product         @relation(fields: [productId], references: [id])
-  productId        String
+  description      String
+  product          Product?        @relation(fields: [productId], references: [id])
+  productId        String?
   store            Store           @relation(fields: [storeId], references: [id])
   storeId          String
   category         CategoryVoucher
-  type             Type
-  value            Float
+  type             Type?
+  value            Float?
   maxDiscount      Float?
   minTransaction   Int?
   minTotalPurchase Float?
+  isValid          Boolean         @default(false)
   startDate        DateTime
   endDate          DateTime
   VoucherUser      VoucherUser[]
+  isDeleted        Boolean         @default(false)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 

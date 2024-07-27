@@ -17,6 +17,11 @@ export class StoreRouter {
     this.router.patch('/update/:id', this.storeController.updateStore);
     this.router.get('/:id', this.storeController.getStoreByStoreId);
     this.router.delete('/delete/:id', this.storeController.softDeleteStore);
+    this.router.get('/available-store', this.storeController.availableStores);
+    this.router.get('/', this.storeController.getStoresAll);
+    this.router.get('/:id', this.storeController.getStoreByStoreId);
+    this.router.delete('/delete/:id', this.storeController.softDeleteStore);
+    this.router.get('/', this.storeController.getStoresAll);
   }
 
   getRouter(): Router {
