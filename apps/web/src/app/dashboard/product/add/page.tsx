@@ -24,7 +24,7 @@ const AddProduct = () => {
 
   useEffect(() => {
     fetchCategory(1, 10, '', setCategories);
-  });
+  }, []);
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object().shape({
@@ -86,15 +86,15 @@ const AddProduct = () => {
               </div>
               <div className="w-full">
                 <label
-                  htmlFor="stock"
+                  htmlFor="discount"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Stock
+                  Discount
                 </label>
                 <input
                   type="number"
-                  name="stock"
-                  id="stock"
+                  name="discount"
+                  id="discount"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                   placeholder="10"
                 />
