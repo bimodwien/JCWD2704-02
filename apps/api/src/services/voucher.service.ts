@@ -10,6 +10,7 @@ class VoucherService {
     const { storeId, productId } = req.query;
     const whereClause: any = {
       storeId,
+      isValid: false,
       isDeleted: false,
     };
     if (productId) {
@@ -116,90 +117,17 @@ class VoucherService {
     return voucher as TVoucher;
   }
 
-  static async update(req: Request): Promise<TVoucher> {
+  static async deleteVoucher(req: Request) {
     const id = req.params.id;
-    const {
-      productId,
-      storeId,
-      category,
-      typeInput,
-      value,
-      maxDiscount,
-      minTransaction,
-      minTotalPurchase,
-      startDate,
-      endDate,
-    } = req.body;
-    if (
-      !productId ||
-      !storeId ||
-      !category ||
-      !typeInput ||
-      !value ||
-      !startDate ||
-      !endDate
-    ) {
-      throw new Error(
-        'product, store, category, type, value, start Date, and end Date are required',
-      );
-    }
-
-    if (category === CategoryVoucher.totalPurchase && !minTotalPurchase) {
-      throw new Error(
-        'minTotalPurchase are required for category totalPurchase',
-      );
-    } else if (category === CategoryVoucher.shippingCost && !minTransaction) {
-      throw new Error('minTransaction are required for category shippingCost');
-    } else if (category === CategoryVoucher.product && !maxDiscount) {
-      throw new Error('maxDiscount are required for category voucher product');
-    }
-
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
+    await prisma.$transaction(async (prisma) => {
+      return prisma.voucher.update({
+        where: { id },
+        data: {
+          isValid: true,
+        },
+      });
     });
-    if (!existingProduct) throw new Error('Product not found');
-
-    const existingStore = await prisma.store.findUnique({
-      where: { id: storeId },
-    });
-    if (!existingStore) throw new Error('Store not found');
-
-    const type =
-      (typeInput == 'percentage' && $Enums.Type.percentage) ||
-      (typeInput == 'nominal' && $Enums.Type.nominal);
-
-    const voucherCode = randomBytes(6).toString('hex');
-
-    const voucherData: any = {
-      voucherCode,
-      productId,
-      storeId,
-      category: category as CategoryVoucher,
-      type: type as Type,
-      value,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-    };
-    if (category === CategoryVoucher.totalPurchase) {
-      voucherData.minTotalPurchase = minTotalPurchase;
-      voucherData.maxDiscount = maxDiscount;
-    } else if (category === CategoryVoucher.shippingCost) {
-      voucherData.minTransaction = minTransaction;
-    } else if (category === CategoryVoucher.product) {
-      voucherData.maxDiscount = maxDiscount;
-    }
-
-    const updatedVoucher = await prisma.voucher.update({
-      where: { id },
-      data: voucherData,
-      include: {
-        VoucherUser: true,
-      },
-    });
-    return updatedVoucher as TVoucher;
   }
-
-  static async deleteVoucher(req: Request) {}
 }
 
 export default VoucherService;

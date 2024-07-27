@@ -24,17 +24,6 @@ export class VoucherController {
       next(error);
     }
   }
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await VoucherService.update(req);
-      res.status(201).send({
-        message: 'Update Voucher success',
-        data,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
   async deleteVoucher(req: Request, res: Response, next: NextFunction) {
     try {
       const data = {};

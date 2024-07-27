@@ -17,10 +17,24 @@ class DiscountService {
         id: true,
         productId: true,
         storeId: true,
+        description: true,
+        category: true,
         type: true,
         value: true,
         startDate: true,
         endDate: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        store: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
     return data;
@@ -61,7 +75,8 @@ class DiscountService {
       !typeInput ||
       !value ||
       !startDate ||
-      !endDate
+      !endDate ||
+      (categoryInput === 'discount' && !value)
     )
       throw new Error('All fields are required');
 
@@ -79,38 +94,45 @@ class DiscountService {
       (categoryInput == 'buyGet' && $Enums.CategoryDisc.buyGet) ||
       (categoryInput == 'discount' && $Enums.CategoryDisc.discount);
 
+    let discountValue = value;
+
+    if (type === $Enums.Type.percentage) {
+      discountValue = value / 100;
+    }
+
     const discountData: any = {
       productId,
       storeId,
       description,
-      value,
+      value: discountValue,
       category,
       type,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
     };
 
-    if (category == CategoryDisc.buyGet) {
-      discountData.value = null;
-    } else if (category == CategoryDisc.discount) {
-      discountData.value = value;
-      discountData.type = type;
-    }
-
-    console.log(discountData);
-
     const discount = await prisma.$transaction(async (prisma) => {
-      return await prisma.productDiscount.create({
+      const createdDiscount = await prisma.productDiscount.create({
         data: discountData,
       });
+      return createdDiscount;
     });
     return discount;
   }
 
   static async update(req: Request): Promise<TDiscount> {
     const id = req.params.id;
-    const { productId, storeId, type, value, startDate, endDate } = req.body;
-    if (!productId || storeId || type || value || startDate || endDate)
+    const { productId, storeId, type, description, value, startDate, endDate } =
+      req.body;
+    if (
+      !productId ||
+      description ||
+      storeId ||
+      type ||
+      value ||
+      startDate ||
+      endDate
+    )
       throw new Error('All fields are required');
     const existingDiscount = await prisma.productDiscount.findUnique({
       where: { id },
@@ -126,6 +148,7 @@ class DiscountService {
         data: {
           productId,
           storeId,
+          description,
           type: type as Type,
           value,
           startDate: new Date(startDate),

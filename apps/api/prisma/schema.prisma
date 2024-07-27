@@ -139,17 +139,19 @@ model ProductImage {
 }
 
 model Stock {
-  id           String         @id @default(cuid())
-  product      Product        @relation(fields: [productId], references: [id])
-  productId    String
-  store        Store          @relation(fields: [storeId], references: [id])
-  storeId      String
-  quantity     Int
-  isDeleted    Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  Cart         Cart[]
-  StockHistory StockHistory[]
+  id              String            @id @default(cuid())
+  product         Product           @relation(fields: [productId], references: [id])
+  productId       String
+  store           Store             @relation(fields: [storeId], references: [id])
+  storeId         String
+  quantity        Int
+  priceDiscount   Int?
+  isDeleted       Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  Cart            Cart[]
+  StockHistory    StockHistory[]
+  ProductDiscount ProductDiscount[]
 
   @@unique([productId, storeId])
   @@map("stocks")
@@ -265,6 +267,8 @@ model ProductDiscount {
   productId   String
   store       Store        @relation(fields: [storeId], references: [id])
   storeId     String
+  stock       Stock        @relation(fields: [stockId], references: [id])
+  stockId     String
   type        Type?
   value       Float?
   category    CategoryDisc
@@ -291,6 +295,7 @@ model Voucher {
   maxDiscount      Float?
   minTransaction   Int?
   minTotalPurchase Float?
+  isValid          Boolean         @default(false)
   startDate        DateTime
   endDate          DateTime
   VoucherUser      VoucherUser[]

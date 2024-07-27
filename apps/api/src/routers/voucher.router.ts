@@ -14,7 +14,6 @@ export class VoucherRouter {
   private initializeRoutes(): void {
     this.router.get('/', this.voucherController.getByAll);
     this.router.post('/', this.voucherController.create);
-    this.router.patch('/:id', this.voucherController.update);
     this.router.delete('/:id', this.voucherController.deleteVoucher);
   }
 
