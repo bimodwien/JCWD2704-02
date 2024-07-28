@@ -3,6 +3,7 @@ import prisma from '@/prisma';
 import sharp from 'sharp';
 import { TProduct } from '@/models/product.model';
 import { Prisma } from '@prisma/client';
+import haversine from 'haversine-distance';
 
 class ProductService {
   static async getByAll(req: Request) {

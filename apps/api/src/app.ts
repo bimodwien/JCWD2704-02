@@ -17,6 +17,9 @@ import { CategoryRouter } from './routers/category.router';
 import { AdminRouter } from './routers/admin.router';
 import { corsOptions } from './config/index';
 import { StoreRouter } from './routers/store.router';
+import { StockRouter } from './routers/stock.router';
+import { DiscountRouter } from './routers/discount.router';
+import { VoucherRouter } from './routers/voucher.router';
 
 export default class App {
   private app: Express;
@@ -38,19 +41,8 @@ export default class App {
     // not found
     this.app.use(
       (error: unknown, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/api/')) {
+        if (req.path.includes('/')) {
           res.status(404).send('Not found !');
-        } else {
-          next();
-        }
-      },
-    );
-
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/v1')) {
-          console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
         } else {
           next();
         }
@@ -66,6 +58,9 @@ export default class App {
     const adminRouter = new AdminRouter();
     const storeRouter = new StoreRouter();
     const categoryRouter = new CategoryRouter();
+    const stockRouter = new StockRouter();
+    const discountRouter = new DiscountRouter();
+    const voucherRouter = new VoucherRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
@@ -78,6 +73,9 @@ export default class App {
     this.app.use('/admins', adminRouter.getRouter());
     this.app.use('/store', storeRouter.getRouter());
     this.app.use('/category', categoryRouter.getRouter());
+    this.app.use('/stocks', stockRouter.getRouter());
+    this.app.use('/discounts', discountRouter.getRouter());
+    this.app.use('/vouchers', voucherRouter.getRouter());
   }
 
   public start(): void {

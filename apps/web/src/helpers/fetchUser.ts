@@ -19,6 +19,9 @@ export async function fetchUser(
     });
     const userData = response.data;
     setData(userData.data.data);
+    console.log('====================================');
+    console.log(userData.data.data);
+    console.log('====================================');
   } catch (error) {
     console.log(error);
   }

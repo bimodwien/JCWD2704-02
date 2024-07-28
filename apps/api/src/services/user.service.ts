@@ -38,15 +38,11 @@ class UserService {
 
     const token = createToken({ id: createUser.id }, '1h');
     const a = await transporter.sendMail({
-      to: email, // list of receivers
-      subject: 'Register to Grocery Web', // Subject line
-      text: 'verify your account', // plain text body
+      to: email,
+      subject: 'Register to Grocery Web',
+      text: 'verify your account',
       html: `<a href="http://localhost:8000/v1/verify/${token}">Verify your account</a>`, // html body
     });
-
-    console.log('====================================');
-    console.log(a);
-    console.log('====================================');
 
     return a;
   }

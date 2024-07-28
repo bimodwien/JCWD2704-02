@@ -7,11 +7,14 @@ import { axiosInstance } from '@/lib/axios';
 import axios, { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { Loader } from '@googlemaps/js-api-loader';
+import { availableStores, getAllStore } from '@/helpers/fetchStore';
+import { TStore } from '@/models/store.model';
 
 const AddAdmin = () => {
   const router = useRouter();
   const mapRef = useRef<HTMLDivElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
+  const [stores, setStores] = useState<TStore[]>([]);
 
   const initialValues = {
     name: '',
@@ -38,6 +41,10 @@ const AddAdmin = () => {
       }
     },
   });
+
+  useEffect(() => {
+    availableStores(setStores);
+  }, []);
 
   return (
     <>
@@ -105,6 +112,29 @@ const AddAdmin = () => {
                   {formik.touched.password && formik.errors.password ? (
                     <div className="text-red-500">{formik.errors.password}</div>
                   ) : null}
+                </div>
+                <div>
+                  <label
+                    htmlFor="storeId"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Store
+                  </label>
+                  <select
+                    id="storeId"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
+                    {...formik.getFieldProps('storeId')}
+                  >
+                    <option value="">Pilih Store</option>
+                    {stores.map((store) => (
+                      <option key={store.id} value={store.id}>
+                        {store.name}
+                      </option>
+                    ))}
+                  </select>
+                  {/* {formik.touched.storeId && formik.errors.storeId ? (
+                    <div className="text-red-500">{formik.errors.storeId}</div>
+                  ) : null} */}
                 </div>
                 <button
                   type="submit"

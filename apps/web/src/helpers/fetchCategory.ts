@@ -42,3 +42,21 @@ export async function deleteCategory(
     console.log(error);
   }
 }
+
+export async function getAll(
+  setCategory: (value: React.SetStateAction<TCategory[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/category/all`);
+    const categories = response.data.map((category: TCategory) => ({
+      ...category,
+      imageUrl: category.image
+        ? `data:image/jpeg;base64,${Buffer.from(category.image).toString('base64')}`
+        : '',
+    }));
+    setCategory(categories);
+  } catch (error) {
+    console.log(error);
+  }
+}

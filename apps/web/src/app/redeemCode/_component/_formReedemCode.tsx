@@ -1,13 +1,11 @@
 'use client';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import Image from 'next/image';
-import RegisterIcon from '../../../../public/google.svg';
+import { Input } from '../../../components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
 import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
+import React from 'react';
 
 interface Props {
   id: string; // Define id as string
@@ -58,7 +56,7 @@ export default function FormRedeemCode({ id }: Props) {
             />
           </div>
           <button
-            className="bg-[#5AC268] p-2 rounded-[8px] text-white"
+            className="bg-green-500 p-2 rounded-[8px] text-white"
             type="submit"
           >
             Submit

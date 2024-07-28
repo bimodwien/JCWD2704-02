@@ -30,10 +30,10 @@ export const Header = () => {
           </div>
           <input
             placeholder="Search in Grocery"
-            className="pl-2 outline-none"
+            className="pl-2 outline-none w-48"
           />
         </div>
-        <div className="flex space-x-4">
+        <div className="flex space-x-3">
           <div className="p-1">
             <IoCartOutline />
           </div>

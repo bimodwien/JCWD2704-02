@@ -7,7 +7,7 @@ class OrderAdminService {
   async getAll(req: Request) {
     const { store, sort, invoice, status, paid, startDate, endDate, byDate } =
       req.query;
-    const userId = 'clz2pe4ja0003iw265flg7dm6';
+    const userId = 'superAdmin';
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
