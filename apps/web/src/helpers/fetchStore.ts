@@ -40,15 +40,15 @@ export async function getAllStore(
   }
 }
 
-export async function getStoreByStoreId(id: string): Promise<TStore | null> {
+export async function getStoreByStoreId(
+  id: string,
+  setData: (value: React.SetStateAction<TStore | null>) => void,
+) {
   const axios = axiosInstance();
   try {
     const response = await axios.get(`/store/${id}`);
-    console.log('====================================');
-    console.log('response', response);
-    console.log('====================================');
-    const data = response.data.data;
-    return data;
+    const data = response.data;
+    return setData(data);
   } catch (error) {
     console.log('====================================');
     console.log(error);
@@ -69,6 +69,29 @@ export async function softDeleteStore(
     console.log('====================================');
     console.log(error);
     console.log('====================================');
+  }
+}
+
+export async function updateStore(
+  id: string,
+  storeData: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    type: string;
+    city: string;
+    province: string;
+    postalCode: number;
+  },
+): Promise<TStore | null> {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.patch(`/store/update/${id}`, storeData);
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    return null;
   }
 }
 
