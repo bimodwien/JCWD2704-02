@@ -50,7 +50,7 @@ class CreateOrderService {
       totalPrice += price;
       return {
         productId: item.productId,
-        storeId: item.storeId,
+        // storeId: item.storeId,
         quantity: item.quantity,
         price: price,
       };
@@ -58,6 +58,8 @@ class CreateOrderService {
 
     if (paidType !== 'manual' && paidType !== 'gateway')
       throw new Error('invalid paid type');
+
+    const storeIds = [...new Set(cart.map((item) => item.storeId))];
 
     const createdOrder = await prisma.order.create({
       data: {
@@ -67,6 +69,7 @@ class CreateOrderService {
         addressId,
         status: 'waitingPayment',
         paidType: paidType,
+        storeId: storeIds[0],
         OrderItem: {
           createMany: {
             data: orderItemsData,

@@ -18,7 +18,7 @@ const Cart = () => {
   const [canCheckout, setCanCheckout] = useState<boolean>(true);
   const router = useRouter();
 
-  const userId = 'clz19hfia0000cfs3fxqba0vm';
+  const userId = 'clz2pgpf10004iw2643b7u7rt';
 
   const fetchCart = async () => {
     try {

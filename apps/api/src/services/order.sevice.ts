@@ -33,7 +33,7 @@ class OrderService {
   async paymentProof(req: Request) {
     const { orderId } = req.params;
     const { file } = req;
-    const userId = 'clz19hfia0000cfs3fxqba0vm';
+    const userId = 'clz2pgpf10004iw2643b7u7rt';
 
     const order = await prisma.order.findUnique({
       where: { id: orderId, paidType: 'manual' },

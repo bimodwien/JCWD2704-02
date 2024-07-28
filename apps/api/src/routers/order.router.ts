@@ -15,6 +15,7 @@ export class OrderRouter {
   private initializeRoutes(): void {
     this.router.post('/midtrans', this.orderController.midtrans);
     this.router.post('/:userId', this.orderController.createOrder);
+    this.router.get('/all', this.orderController.getAll);
     this.router.get('/a/:userId', this.orderController.address);
     this.router.get('/proof/:id', this.orderController.renderProof);
     this.router.get('/:invoice', this.orderController.getDetail);

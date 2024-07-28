@@ -1,5 +1,8 @@
+import { TStore } from './store.model';
+
 export type TOrder = {
   id: string;
+  user: TUser;
   invoice: string;
   status: string;
   totalPrice: number;
@@ -16,6 +19,13 @@ export type TOrder = {
   payment_method: string;
   paidType: string;
   snap_token: string;
+  store: TStore;
+};
+
+type TUser = {
+  id: string;
+  name: string;
+  email: string;
 };
 
 export type TOrderItem = {
