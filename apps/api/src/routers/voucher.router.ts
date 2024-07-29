@@ -13,6 +13,7 @@ export class VoucherRouter {
 
   private initializeRoutes(): void {
     this.router.get('/', this.voucherController.getByAll);
+    this.router.get('/:id', this.voucherController.getById);
     this.router.post('/', this.voucherController.create);
     this.router.delete('/:id', this.voucherController.deleteVoucher);
   }

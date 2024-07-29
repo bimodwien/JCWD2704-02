@@ -267,8 +267,8 @@ model ProductDiscount {
   productId   String
   store       Store        @relation(fields: [storeId], references: [id])
   storeId     String
-  stock       Stock        @relation(fields: [stockId], references: [id])
-  stockId     String
+  stock       Stock?       @relation(fields: [stockId], references: [id])
+  stockId     String?
   type        Type?
   value       Float?
   category    CategoryDisc

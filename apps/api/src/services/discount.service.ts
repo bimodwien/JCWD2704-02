@@ -5,14 +5,22 @@ import { Request } from 'express';
 import { TDiscount } from '@/models/discount.model';
 
 class DiscountService {
-  static async getAll(req: Request): Promise<TDiscount[]> {
-    const { storeId, productId } = req.query;
-    const whereClause: any = { storeId };
-    if (productId) {
-      whereClause.productId = productId;
+  static async getAll(req: Request) {
+    const { productName, storeName, page, limit } = req.query;
+    const pageNumber = parseInt(page as string) || 1;
+    const pageSize = parseInt(limit as string) || 10;
+    const skip = (pageNumber - 1) * pageSize;
+    const whereClause: any = {};
+    if (productName) {
+      whereClause.product = { name: { contains: productName as string } };
     }
-    const data = await prisma.productDiscount.findMany({
+    if (storeName) {
+      whereClause.store = { name: { contains: storeName as string } };
+    }
+    const discountData = await prisma.productDiscount.findMany({
       where: whereClause,
+      skip: skip,
+      take: pageSize,
       select: {
         id: true,
         productId: true,
@@ -37,7 +45,16 @@ class DiscountService {
         },
       },
     });
-    return data;
+
+    const total = await prisma.productDiscount.count({ where: whereClause });
+
+    return {
+      data: discountData,
+      page: pageNumber,
+      limit: pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
   }
 
   static async getById(req: Request): Promise<TDiscount | null> {
@@ -72,27 +89,29 @@ class DiscountService {
       !productId ||
       !storeId ||
       !description ||
-      !typeInput ||
-      !value ||
+      !categoryInput ||
       !startDate ||
       !endDate ||
+      (categoryInput === 'discount' && !typeInput) ||
       (categoryInput === 'discount' && !value)
-    )
+    ) {
+      console.log('Validation failed');
       throw new Error('All fields are required');
-
+    }
     const existingStock = await prisma.stock.findFirst({
       where: { productId, storeId },
     });
-
-    if (!existingStock) throw new Error("Product isn't found in this store");
-
+    if (!existingStock) {
+      console.log("Product isn't found in this store");
+      throw new Error("Product isn't found in this store");
+    }
     const type =
-      (typeInput == 'percentage' && $Enums.Type.percentage) ||
-      (typeInput == 'nominal' && $Enums.Type.nominal);
-
+      (typeInput === 'percentage' && $Enums.Type.percentage) ||
+      (typeInput === 'nominal' && $Enums.Type.nominal) ||
+      null;
     const category =
-      (categoryInput == 'buyGet' && $Enums.CategoryDisc.buyGet) ||
-      (categoryInput == 'discount' && $Enums.CategoryDisc.discount);
+      (categoryInput === 'buyGet' && $Enums.CategoryDisc.buyGet) ||
+      (categoryInput === 'discount' && $Enums.CategoryDisc.discount);
 
     let discountValue = value;
 
@@ -111,13 +130,25 @@ class DiscountService {
       endDate: new Date(endDate),
     };
 
-    const discount = await prisma.$transaction(async (prisma) => {
-      const createdDiscount = await prisma.productDiscount.create({
-        data: discountData,
+    if (category === $Enums.CategoryDisc.buyGet) {
+      discountData.value = null;
+      discountData.type = null;
+    } else if (category === $Enums.CategoryDisc.discount) {
+      discountData.value = discountValue;
+      discountData.type = type;
+    }
+    try {
+      const discount = await prisma.$transaction(async (prisma) => {
+        const createdDiscount = await prisma.productDiscount.create({
+          data: discountData,
+        });
+        return createdDiscount;
       });
-      return createdDiscount;
-    });
-    return discount;
+      return discount;
+    } catch (error) {
+      console.error('Error creating discount:', error);
+      throw new Error('Failed to create discount');
+    }
   }
 
   static async update(req: Request): Promise<TDiscount> {
