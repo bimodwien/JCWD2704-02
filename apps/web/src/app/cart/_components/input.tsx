@@ -2,42 +2,67 @@ import React, { useEffect, useState } from 'react';
 import { axiosInstance } from '@/lib/axios';
 import { useDebounce } from 'use-debounce';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-import { QtyProps } from '@/model/cart.model';
+import Swal from 'sweetalert2';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { QtyProps } from '@/models/cart.model';
 
 const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
   const [quantity, setQuantity] = useState(cart.quantity);
   const [debouncedQuantity] = useDebounce(quantity, 1500);
+
+  useEffect(() => {
+    if (debouncedQuantity !== undefined) {
+      updateQuantity(cart.id, debouncedQuantity);
+      if (debouncedQuantity === 0) {
+        setQuantity(1);
+      }
+    }
+  }, [debouncedQuantity]);
 
   const updateQuantity = async (cartId: string, newQuantity: number) => {
     try {
       const response = await axiosInstance().patch(`/cart/${cartId}`, {
         quantity: newQuantity,
       });
-      // console.log('Update successful:', response.data);
       fetchCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
     }
   };
 
-  useEffect(() => {
-    if (debouncedQuantity !== undefined) {
-      updateQuantity(cart.id, debouncedQuantity);
-    }
-  }, [debouncedQuantity]);
-
   const handleDecrement = () => {
-    const newQuantity = quantity - 1;
-    if (newQuantity >= cart.stock.quantity) {
-      setQuantity(cart.stock.quantity);
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      setQuantity(newQuantity);
     } else {
-      setQuantity(Math.max(1, newQuantity));
+      toast.warning('Minimum Quantity Reached', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
   const handleIncrement = () => {
-    const newQuantity = Math.min(quantity + 1, cart.stock.quantity);
-    setQuantity(newQuantity);
+    const newQuantity = quantity + 1;
+    if (newQuantity > cart.stock.quantity) {
+      toast.warning('Stock Limit Reached', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    } else {
+      setQuantity(newQuantity);
+    }
   };
 
   const handleManual = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,31 +70,29 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
     if (isNaN(newQuantity)) {
       newQuantity = 0;
     } else {
-      newQuantity = Math.min(Math.max(1, newQuantity), cart.stock.quantity);
+      newQuantity = Math.min(Math.max(0, newQuantity), cart.stock.quantity);
     }
     setQuantity(newQuantity);
   };
 
   return (
-    <div className="flex justify-center items-center ">
+    <div className="flex justify-center gap-1 items-center p-1 border border-gray-400 bg-white rounded-full">
       <button
-        className="text-xs flex justify-center items-center w-6 h-6 rounded-tl rounded-bl text-white bg-blue-600"
+        className="text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600"
         onClick={handleDecrement}
-        // disabled={quantity <= 1}
       >
         <FaMinus />
       </button>
       <input
         type="text"
-        className="w-10 h-6 text-center border border-gray-400"
+        className="w-10 h-6 text-center"
         value={quantity.toString()}
         onChange={handleManual}
         style={{ outline: 'none' }}
       />
       <button
-        className="text-xs flex justify-center items-center w-6 h-6 rounded-tr rounded-br text-white bg-blue-600"
+        className={`text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600 `}
         onClick={handleIncrement}
-        disabled={quantity > cart.stock.quantity}
       >
         <FaPlus />
       </button>

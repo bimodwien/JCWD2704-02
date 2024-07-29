@@ -33,7 +33,7 @@ model User {
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   VoucherUser    VoucherUser[]
-  Store          Store[]
+  store          Store?
   Cart           Cart[]
   Order          Order[]
 
@@ -74,7 +74,8 @@ model Store {
   id              String            @id @default(cuid())
   name            String
   user            User              @relation(fields: [userId], references: [id])
-  userId          String
+  userId          String            @unique
+  isChosen        Boolean           @default(false)
   address         String
   city            String
   type            String
@@ -82,16 +83,18 @@ model Store {
   postalCode      Int
   latitude        Float
   longitude       Float
+  isDeleted       Boolean           @default(false)
   Stock           Stock[]
   StockHistory    StockHistory[]
   Cart            Cart[]
-  OrderItem       OrderItem[]
+  // OrderItem       OrderItem[]
   ProductDiscount ProductDiscount[]
   Voucher         Voucher[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  Order           Order[]
 
-  @@map("stores")
+  @@map("store")
 }
 
 model Product {
@@ -209,6 +212,8 @@ model Order {
   invoice           String      @unique
   user              User        @relation(fields: [userId], references: [id])
   userId            String
+  store             Store       @relation(fields: [storeId], references: [id])
+  storeId           String
   totalPrice        Float
   address           Address     @relation(fields: [addressId], references: [id])
   addressId         String
@@ -220,6 +225,9 @@ model Order {
   payment_method    String?
   paymentProof      Bytes?      @db.LongBlob
   paidAt            DateTime?
+  processedAt       DateTime?
+  confirmedAt       DateTime?
+  cancelledAt       DateTime?
   status            Status
   OrderItem         OrderItem[]
   createdAt         DateTime    @default(now())
@@ -234,8 +242,8 @@ model OrderItem {
   orderId   String
   product   Product  @relation(fields: [productId], references: [id])
   productId String
-  store     Store    @relation(fields: [storeId], references: [id])
-  storeId   String
+  // store     Store    @relation(fields: [storeId], references: [id])
+  // storeId   String
   quantity  Int
   price     Float
   createdAt DateTime @default(now())

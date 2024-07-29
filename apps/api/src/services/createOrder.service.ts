@@ -2,18 +2,10 @@ import { Request } from 'express';
 import prisma from '@/prisma';
 import { TOrder } from '@/models/order.model';
 import { TCart } from '@/models/cart.model';
+import { generateInvoice } from '@/utils/invoice';
 const midtransClient = require('midtrans-client');
 
 class CreateOrderService {
-  private generateInvoice(): string {
-    const timestamp = new Date().getTime().toString(36).toUpperCase();
-    const randomChars = Math.random()
-      .toString(36)
-      .substring(2, 6)
-      .toUpperCase();
-    return `${timestamp}${randomChars}`;
-  }
-
   async checkStock(cart: any[]) {
     for (const item of cart) {
       const stock = await prisma.stock.findFirst({
@@ -46,32 +38,41 @@ class CreateOrderService {
       },
     });
 
+    if (cart.length === 0) {
+      throw new Error('Cart is empty, cannot create order');
+    }
+
     await this.checkStock(cart);
 
     let totalPrice = 0;
-    cart.forEach((item) => {
-      totalPrice += item.product.price * item.quantity;
+    const orderItemsData = cart.map((item) => {
+      const price = item.product.price * item.quantity;
+      totalPrice += price;
+      return {
+        productId: item.productId,
+        // storeId: item.storeId,
+        quantity: item.quantity,
+        price: price,
+      };
     });
 
-    const invoice = this.generateInvoice();
-    const validPaidType = paidType === 'gateway' ? 'gateway' : 'manual';
+    if (paidType !== 'manual' && paidType !== 'gateway')
+      throw new Error('invalid paid type');
+
+    const storeIds = [...new Set(cart.map((item) => item.storeId))];
 
     const createdOrder = await prisma.order.create({
       data: {
-        invoice,
+        invoice: generateInvoice(),
         userId,
-        totalPrice,
+        totalPrice: totalPrice,
         addressId,
         status: 'waitingPayment',
-        paidType: validPaidType,
+        paidType: paidType,
+        storeId: storeIds[0],
         OrderItem: {
           createMany: {
-            data: cart.map((item) => ({
-              productId: item.productId,
-              storeId: item.storeId,
-              quantity: item.quantity,
-              price: item.product.price,
-            })),
+            data: orderItemsData,
           },
         },
       },
@@ -79,7 +80,7 @@ class CreateOrderService {
 
     if (paidType === 'gateway') {
       const snapToken = await this.createSnapToken(createdOrder, cart);
-      return { token: snapToken };
+      return { token: snapToken, createdOrder };
     }
 
     await this.cartAndStock(cart);
@@ -127,15 +128,19 @@ class CreateOrderService {
       };
 
       const snapToken = await snap.createTransactionToken(orderData);
-
+      const redirectUrl = `https://app.sandbox.midtrans.com/snap/v4/redirection/${snapToken}`;
       await prisma.order.update({
         where: { invoice: order.invoice },
-        data: { snap_token: snapToken },
+        data: {
+          snap_token: snapToken,
+          snap_redirect_url: redirectUrl,
+        },
       });
 
       await this.cartAndStock(cart);
 
       return snapToken;
+      // return redirectUrl;
     } catch (error) {
       console.error('Error creating transaction:', error);
       throw new Error('Failed to initiate payment');

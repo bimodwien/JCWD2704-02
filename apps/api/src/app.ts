@@ -18,8 +18,8 @@ import { AdminRouter } from './routers/admin.router';
 import { corsOptions } from './config/index';
 import { StoreRouter } from './routers/store.router';
 import { StockRouter } from './routers/stock.router';
-import { VoucherRouter } from './routers/voucher.router';
 import { DiscountRouter } from './routers/discount.router';
+import { VoucherRouter } from './routers/voucher.router';
 
 export default class App {
   private app: Express;
@@ -41,19 +41,8 @@ export default class App {
     // not found
     this.app.use(
       (error: unknown, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/api/')) {
+        if (req.path.includes('/')) {
           res.status(404).send('Not found !');
-        } else {
-          next();
-        }
-      },
-    );
-
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/v1')) {
-          console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
         } else {
           next();
         }

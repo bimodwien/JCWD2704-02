@@ -1,4 +1,6 @@
+import ProductService2 from '@/services/product-2.service';
 import ProductService from '@/services/product.service';
+
 import { Request, Response, NextFunction } from 'express';
 
 export class ProductController {
@@ -66,6 +68,22 @@ export class ProductController {
       const blob = await ProductService.render(req);
       res.set('Content-type', 'image/png');
       res.send(blob);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllByDistance(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await ProductService2.getAllDataByDistance(req);
+      res.status(200).json(data);
+    } catch (error) {}
+  }
+
+  async getAllData(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await ProductService2.getAllData();
+      res.status(200).json(data);
     } catch (error) {
       next(error);
     }

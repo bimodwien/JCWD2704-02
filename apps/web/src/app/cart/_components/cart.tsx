@@ -2,44 +2,23 @@
 import React, { useEffect, useState } from 'react';
 import { LiaShippingFastSolid } from 'react-icons/lia';
 import { FaChevronDown } from 'react-icons/fa';
-import { formatPrice } from './format';
 import { axiosInstance } from '@/lib/axios';
-import CartTable from './cartItem';
 import { IoCartOutline } from 'react-icons/io5';
-import { BiSolidDiscount } from 'react-icons/bi';
-import { IoReceiptOutline } from 'react-icons/io5';
+import { useRouter } from 'next/navigation';
+import { TAddress, TCart } from '@/models/cart.model';
+import CartList from './cartItem';
+import { formatPrice } from '@/helpers/format';
+import Swal from 'sweetalert2';
 
-interface CartItem {
-  id: string;
-  productId: string;
-  quantity: number;
-  product: {
-    id: string;
-    name: string;
-    price: number;
-  };
-  stock: {
-    quantity: number;
-  };
-}
-
-interface Address {
-  id: string;
-  address: string;
-  city: {
-    province: string;
-    cityName: string;
-    postalCode: string;
-  };
-}
-
-const Cart: React.FC = () => {
-  const [cartData, setCartData] = useState<CartItem[]>([]);
-  const [shippingAddress, setShippingAddress] = useState<Address | null>(null);
+const Cart = () => {
+  const [cartData, setCartData] = useState<TCart[]>([]);
+  const [shippingAddress, setShippingAddress] = useState<TAddress | null>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
   const [totalQuantity, setTotalQuantity] = useState<number>(0);
+  const [canCheckout, setCanCheckout] = useState<boolean>(true);
+  const router = useRouter();
 
-  const userId = 'clykbw3cf000011p30uoi12du';
+  const userId = 'clz5p3y8f0000ldvnbx966ss6';
 
   const fetchCart = async () => {
     try {
@@ -79,81 +58,76 @@ const Cart: React.FC = () => {
   useEffect(() => {
     setTotalPrice(calculateTotalPrice());
     setTotalQuantity(cartData.reduce((acc, cart) => acc + cart.quantity, 0));
+
+    const canCheckout = cartData.every(
+      (item) => item.quantity <= item.stock.quantity,
+    );
+    setCanCheckout(canCheckout);
   }, [cartData]);
 
   const totalProduct = (quantity: number, price: number) => {
     return quantity * price;
   };
 
-  const deleteCart = async (cartId: string) => {
-    try {
-      await axiosInstance().delete(`/cart/${cartId}`);
-      fetchCart();
-    } catch (error) {
-      console.error('Error deleting cart:', error);
-    }
-  };
-
-  const payGateway = async () => {
-    try {
-      const response = await axiosInstance().post(`/order/${userId}`, {
-        addressId: shippingAddress?.id,
-        paidType: 'gateway',
+  const checkout = () => {
+    if (canCheckout && shippingAddress) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Please confirm that your shipping address and cart items are correct.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed to checkout!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/checkout');
+        }
       });
-      const { data } = response.data;
-      window.snap.pay(data.token);
-    } catch (error) {
-      console.error('Error initiating Midtrans payment:', error);
+    } else {
+      if (!shippingAddress) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please add a shipping address before proceeding to checkout.',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Unable to proceed to checkout. Please check your cart details.',
+        });
+      }
     }
   };
-
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
-    script.setAttribute(
-      'data-client-key',
-      process.env.NEXT_PUBLIC_CLIENT || '',
-    );
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
 
   return (
     <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-between gap-5 md:gap-10 bg-gray-100">
       <div className="rounded-xl bg-white w-full overflow-hidden shadow-md border border-gray-200">
         <div className="p-5 flex flex-col gap-3 ">
-          <div className="text-2xl font-semibold flex justify-between items-center">
+          <div className="text-xl lg:text-2xl font-semibold flex justify-between items-center border-b border-gray-300 pb-2">
             <div className="flex gap-3 items-center">
               <IoCartOutline /> Shopping Cart
             </div>
-            <span className="font-semibold text-base">
+            <span className="font-semibold text-sm lg:text-base">
               {totalQuantity} {totalQuantity > 1 ? 'items' : 'item'}
             </span>
           </div>
-          <hr />
-          <CartTable
+          <CartList
             cartData={cartData}
             fetchCart={fetchCart}
             totalProduct={totalProduct}
-            deleteCart={deleteCart}
           />
-          {!cartData && <p>Your cart is empty</p>}
+          {cartData.length === 0 && (
+            <p className="text-center h-full">Your cart is empty</p>
+          )}
         </div>
       </div>
       <div className="rounded-xl bg-white w-full md:w-[500px] h-full p-5 shadow-md border border-gray-200">
         <div className="flex flex-col gap-3">
-          <div className="font-semibold text-2xl flex gap-3 items-center">
-            <IoReceiptOutline />
-            Order Summary
-          </div>
-          <hr />
-          <div className="flex flex-col bg-blue-100 rounded-xl border border-blue-400 p-4 gap-1">
-            <div className="flex justify-between items-center text-blue-700 ">
-              <div className="flex gap-3 items-center font-semibold pb-1">
+          <div className="flex flex-col bg-blue-100 rounded-xl border border-blue-400 p-4 gap-1 cursor-pointer">
+            <div className="flex justify-between items-center text-blue-700 lg:text-lg ">
+              <div className="flex gap-3 items-center font-semibold">
                 <LiaShippingFastSolid className="text-2xl" />
                 Shipping Address
               </div>
@@ -173,36 +147,26 @@ const Cart: React.FC = () => {
               )}
             </div>
           </div>
-          <hr />
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 border-t border-gray-300 pt-2">
             <div className="text-xl font-semibold">Price Details</div>
             <div className="flex justify-between items-center font-semibold ">
-              <span className="font-normal ">Subtotal</span>
-              Rp {formatPrice(totalPrice)}
-            </div>
-            <div className="flex justify-between items-center font-semibold ">
-              <span className="font-normal ">Shipping</span>
-              Rp XX.XXX
+              <span className="font-normal ">Product</span>
+              {formatPrice(totalPrice)}
             </div>
             <div className="flex justify-between items-center font-semibold ">
               <span className="font-normal ">Discount</span>
               Rp XX.XXX
             </div>
-            <hr />
-            <div className="flex justify-between items-center font-semibold text-lg">
-              <span className="">Total Payment</span>
-              Rp {formatPrice(totalPrice)}
+            <div className="flex justify-between items-center font-semibold text-lg  border-y border-gray-300 py-2">
+              <span className="">Subtotal Price</span>
+              {formatPrice(totalPrice)}
             </div>
-            <hr />
-            <button className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold">
-              <BiSolidDiscount className="text-2xl" />
-              Apply Voucher
-            </button>
             <button
-              onClick={payGateway}
-              className="flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold"
+              onClick={checkout}
+              disabled={cartData.length === 0}
+              className={`flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold ${cartData.length === 0 ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              Order Now
+              Checkout
             </button>
           </div>
         </div>

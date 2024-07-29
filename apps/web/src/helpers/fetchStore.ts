@@ -25,3 +25,89 @@ export async function fetchStores(
     console.log(error);
   }
 }
+
+export async function getAllStore(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}
+
+export async function getStoreByStoreId(
+  id: string,
+  setData: (value: React.SetStateAction<TStore | null>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/${id}`);
+    const data = response.data;
+    return setData(data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+    return null;
+  }
+}
+
+export async function softDeleteStore(
+  id: string,
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.delete(`/store/delete/${id}`);
+    setData(response.data.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}
+
+export async function updateStore(
+  id: string,
+  storeData: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    type: string;
+    city: string;
+    province: string;
+    postalCode: number;
+  },
+): Promise<TStore | null> {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.patch(`/store/update/${id}`, storeData);
+    return response.data.data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+export async function availableStores(
+  setData: (value: React.SetStateAction<TStore[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    const response = await axios.get(`/store/available-store`);
+    console.log('====================================');
+    console.log(response);
+    console.log('====================================');
+    setData(response.data);
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}

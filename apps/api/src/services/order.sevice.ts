@@ -1,8 +1,7 @@
-import { json, Request } from 'express';
+import { Request } from 'express';
 import prisma from '@/prisma';
-import { TOrder } from '@/models/order.model';
-import { TCart } from '@/models/cart.model';
 import crypto from 'crypto';
+import sharp from 'sharp';
 
 class OrderService {
   async getByUser(req: Request) {
@@ -15,17 +14,54 @@ class OrderService {
   }
 
   async getDetail(req: Request) {
-    const { orderId } = req.params;
+    const { invoice } = req.params;
     const detail = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: { invoice: invoice },
       include: {
         OrderItem: {
-          include: { product: true },
+          include: {
+            product: { include: { ProductImage: { select: { id: true } } } },
+          },
         },
+        address: true,
       },
     });
     if (!detail) throw new Error('Order not found');
     return detail;
+  }
+
+  async paymentProof(req: Request) {
+    const { orderId } = req.params;
+    const { file } = req;
+    const userId = 'clz5p3y8f0000ldvnbx966ss6';
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, paidType: 'manual' },
+    });
+    if (!order) throw new Error('order not found');
+
+    let status = order.status;
+    let paid_at = order.paidAt;
+
+    if (file) {
+      status = 'waitingConfirmation';
+      paid_at = new Date();
+      const buffer = await sharp(file.buffer).png().toBuffer();
+
+      return await prisma.order.update({
+        where: { id: orderId, userId: userId },
+        data: { paymentProof: buffer, status, paidAt: paid_at },
+      });
+    }
+  }
+
+  async renderProof(req: Request) {
+    const data = await prisma.order.findUnique({
+      where: {
+        id: req.params.id,
+      },
+    });
+    return data?.paymentProof;
   }
 
   async updateStatus(req: Request) {
@@ -85,6 +121,7 @@ class OrderService {
             status: 'processed',
             payment_method: data.payment_type,
             paidAt: new Date(data.transaction_time),
+            processedAt: new Date(data.transaction_time),
           },
         });
         responData = updatedOrder;
@@ -95,6 +132,7 @@ class OrderService {
             status: 'processed',
             payment_method: data.payment_type,
             paidAt: new Date(data.transaction_time),
+            processedAt: new Date(data.transaction_time),
           },
         });
         responData = updatedOrder;
@@ -115,6 +153,7 @@ class OrderService {
           where: { invoice: data.order_id },
           data: {
             status: 'waitingPayment',
+            payment_method: data.payment_type,
           },
         });
         responData = updatedOrder;

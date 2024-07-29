@@ -13,3 +13,8 @@ export type TUser = {
   latitude: number;
   longitude: number;
 };
+
+export type TDecode = {
+  role: string;
+  user: TUser;
+};

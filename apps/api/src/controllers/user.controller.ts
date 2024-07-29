@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import passport from 'passport';
+// import passport from 'passport';
 import UserService from '../services/user.service';
+import User2Service from '@/services/user-2.service';
 
 export class UserController {
   async addEmail(req: Request, res: Response, next: NextFunction) {
@@ -102,6 +103,35 @@ export class UserController {
         message: 'Refferal Code succsess',
         data,
       });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async checkEmail(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await User2Service.checkEmail(req);
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async verifResetPassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await User2Service.resetPasswordVerify(req);
+      res
+        .status(200)
+        .redirect(`http://localhost:3000/resetPassword/addPassword/${data.id}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updatePassword(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await User2Service.updatePassword(req);
+      res.status(200).json(data);
     } catch (error) {
       next(error);
     }
