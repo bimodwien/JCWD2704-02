@@ -1,4 +1,5 @@
 import { CartController } from '@/controllers/cart.controller';
+import { validateToken } from '@/middleware/auth.middleware';
 import { Router } from 'express';
 
 export class CartRouter {
@@ -12,7 +13,7 @@ export class CartRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/:userId', this.cartController.getByUser);
+    this.router.get('/a', validateToken, this.cartController.getByUser);
     this.router.get('/t/:userId', this.cartController.sumCart);
     this.router.post('/c', this.cartController.addCart);
     this.router.patch('/:cartId', this.cartController.updateCart);

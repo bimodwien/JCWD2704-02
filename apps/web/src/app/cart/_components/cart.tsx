@@ -18,11 +18,11 @@ const Cart = () => {
   const [canCheckout, setCanCheckout] = useState<boolean>(true);
   const router = useRouter();
 
-  const userId = 'clz5p3y8f0000ldvnbx966ss6';
+  // const userId = 'clz5p3y8f0000ldvnbx966ss6';
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/${userId}`);
+      const response = await axiosInstance().get(`/cart/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {
@@ -30,19 +30,19 @@ const Cart = () => {
     }
   };
 
-  const fetchShippingAddress = async () => {
-    try {
-      const response = await axiosInstance().get(`/order/a/${userId}`);
-      const { data } = response.data;
-      setShippingAddress(data);
-    } catch (error) {
-      console.error('Error fetching shipping address:', error);
-    }
-  };
+  // const fetchShippingAddress = async () => {
+  //   try {
+  //     const response = await axiosInstance().get(`/order/a/${userId}`);
+  //     const { data } = response.data;
+  //     setShippingAddress(data);
+  //   } catch (error) {
+  //     console.error('Error fetching shipping address:', error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchCart();
-    fetchShippingAddress();
+    // fetchShippingAddress();
   }, []);
 
   const calculateTotalPrice = () => {

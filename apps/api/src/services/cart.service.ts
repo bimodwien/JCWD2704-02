@@ -4,7 +4,8 @@ import { TCart } from '@/models/cart.model';
 
 class CartService {
   async getByUser(req: Request) {
-    const { userId } = req.params;
+    // const { userId } = req.params;
+    const userId = req.user?.id;
     const data = await prisma.cart.findMany({
       where: {
         userId: userId,

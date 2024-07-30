@@ -95,8 +95,8 @@ const Users = () => {
                         <Table.Cell>{user.name}</Table.Cell>
                         <Table.Cell>{user.email}</Table.Cell>
                         <Table.Cell>
-                          {user.Store && user.Store.length > 0
-                            ? user.Store[0].name
+                          {user.store && user.store.length > 0
+                            ? user.store[0].name
                             : 'No Store'}
                         </Table.Cell>
                         <Table.Cell

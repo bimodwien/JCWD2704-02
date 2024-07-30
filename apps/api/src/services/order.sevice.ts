@@ -2,6 +2,7 @@ import { Request } from 'express';
 import prisma from '@/prisma';
 import crypto from 'crypto';
 import sharp from 'sharp';
+const midtransClient = require('midtrans-client');
 
 class OrderService {
   async getByUser(req: Request) {
@@ -64,17 +65,121 @@ class OrderService {
     return data?.paymentProof;
   }
 
-  async updateStatus(req: Request) {
+  async cancelByUser(req: Request) {
     const { orderId } = req.params;
+    const userId = 'clz5p3y8f0000ldvnbx966ss6';
 
-    const update = await prisma.order.update({
-      where: {
-        id: orderId,
-      },
-      data: {
-        status: 'processed',
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
     });
+
+    if (!user) throw new Error('user not found');
+
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, userId: userId },
+    });
+
+    if (!order) throw new Error('order not found');
+
+    if (order.status !== 'waitingPayment') {
+      throw new Error('order cannot be cancelled');
+    }
+
+    if (
+      order.paidType === 'manual' ||
+      (order.paidType === 'gateway' && !order.payment_method)
+    ) {
+      const cancel = await prisma.$transaction(async (prisma) => {
+        const updatedOrder = await prisma.order.update({
+          where: { id: orderId, userId: userId },
+          data: {
+            status: 'cancelled',
+            cancelledAt: new Date(),
+            cancelledBy: 'user',
+          },
+        });
+
+        const orderItems = await prisma.orderItem.findMany({
+          where: { orderId: orderId },
+        });
+
+        for (const item of orderItems) {
+          const updatedStock = await prisma.stock.update({
+            where: {
+              productId_storeId: {
+                productId: item.productId,
+                storeId: updatedOrder.storeId,
+              },
+            },
+            data: {
+              quantity: { increment: item.quantity },
+            },
+          });
+
+          const stock = await prisma.stock.findUnique({
+            where: {
+              productId_storeId: {
+                productId: item.productId,
+                storeId: updatedOrder.storeId,
+              },
+            },
+          });
+
+          if (stock) {
+            await prisma.stockHistory.create({
+              data: {
+                quantityChange: item.quantity,
+                reason: 'orderCancellation',
+                changeType: 'in',
+                productId: item.productId,
+                stockId: stock.id,
+                storeId: updatedOrder.storeId,
+                orderId: updatedOrder.id,
+              },
+            });
+          } else {
+            throw new Error(
+              `stock not found for product ${item.productId} and store ${updatedOrder.storeId}`,
+            );
+          }
+        }
+
+        return updatedOrder;
+      });
+
+      return cancel;
+    } else if (
+      order.paidType === 'gateway' &&
+      order.payment_method &&
+      !order.paidAt
+    ) {
+      try {
+        const coreApi = new midtransClient.CoreApi({
+          isProduction: false,
+          serverKey: process.env.SERVER_KEY,
+          clientKey: process.env.CLIENT_KEY,
+        });
+
+        await coreApi.transaction.cancel(order.invoice);
+
+        const cancelledOrder = await prisma.order.update({
+          where: { id: orderId, userId: userId },
+          data: {
+            cancelledBy: 'user',
+          },
+        });
+
+        console.log(
+          `cancellation request sent to midtrans for ${order.invoice}`,
+        );
+
+        return cancelledOrder;
+      } catch (error) {
+        throw new Error('error while cancelling order with midtrans');
+      }
+    }
+
+    throw new Error('cancellation criteria not met');
   }
 
   async updateByMidtrans(req: Request) {
@@ -141,19 +246,64 @@ class OrderService {
         orderStatus === 'deny' ||
         orderStatus === 'expire'
       ) {
-        const updatedOrder = await prisma.order.update({
-          where: { invoice: data.order_id },
-          data: {
-            status: 'cancelled',
-          },
-        });
-        responData = updatedOrder;
+        try {
+          const updatedOrder = await prisma.$transaction(async (prisma) => {
+            const orderUpdate = await prisma.order.update({
+              where: { invoice: data.order_id },
+              data: { status: 'cancelled', cancelledAt: new Date() },
+            });
+
+            const orderItems = await prisma.orderItem.findMany({
+              where: { orderId: orderUpdate.id },
+            });
+
+            for (const item of orderItems) {
+              const updatedStock = await prisma.stock.update({
+                where: {
+                  productId_storeId: {
+                    productId: item.productId,
+                    storeId: orderUpdate.storeId,
+                  },
+                },
+                data: {
+                  quantity: { increment: item.quantity },
+                },
+              });
+
+              if (updatedStock) {
+                await prisma.stockHistory.create({
+                  data: {
+                    quantityChange: item.quantity,
+                    reason: 'orderCancellation',
+                    changeType: 'in',
+                    productId: item.productId,
+                    stockId: updatedStock.id,
+                    storeId: orderUpdate.storeId,
+                    orderId: orderUpdate.id,
+                  },
+                });
+              } else {
+                throw new Error(
+                  `stock not found for product ${item.productId} and store ${orderUpdate.storeId}`,
+                );
+              }
+            }
+
+            return orderUpdate;
+          });
+
+          responData = updatedOrder;
+        } catch (error) {
+          console.error('error cancellation:', error);
+          throw new Error('failed to cancel order and update stock');
+        }
       } else if (orderStatus === 'pending') {
         const updatedOrder = await prisma.order.update({
           where: { invoice: data.order_id },
           data: {
             status: 'waitingPayment',
             payment_method: data.payment_type,
+            expiry_time: new Date(data.expiry_time),
           },
         });
         responData = updatedOrder;

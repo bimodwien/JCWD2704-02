@@ -23,7 +23,7 @@ const Checkout = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/${userId}`);
+      const response = await axiosInstance().get(`/cart/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {

@@ -86,4 +86,16 @@ export class OrderController {
       next(error);
     }
   }
+
+  async cancelByUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const cancel = await orderSevice.cancelByUser(req);
+      res.status(201).send({
+        message: 'cancel order',
+        data: cancel,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

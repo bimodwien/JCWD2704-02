@@ -19,6 +19,7 @@ export class OrderRouter {
     this.router.get('/a/:userId', this.orderController.address);
     this.router.get('/proof/:id', this.orderController.renderProof);
     this.router.get('/:invoice', this.orderController.getDetail);
+    this.router.patch('/c/:orderId', this.orderController.cancelByUser);
     this.router.patch(
       '/:orderId',
       blobUploader().single('paymentProof'),

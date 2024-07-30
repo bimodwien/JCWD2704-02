@@ -7,7 +7,7 @@ import { LiaShippingFastSolid } from 'react-icons/lia';
 import { MdOutlineStorefront } from 'react-icons/md';
 
 interface StatusAndDetailProps {
-  order: TOrder | undefined;
+  order: TOrder | null;
 }
 
 const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
