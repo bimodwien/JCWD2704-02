@@ -1,6 +1,7 @@
 import { log } from 'handlebars';
 import { UserController } from '../controllers/user.controller';
 import { Router } from 'express';
+import { blobUploader } from '@/lib/multer';
 
 export class UserRouter {
   private router: Router;
@@ -18,6 +19,11 @@ export class UserRouter {
     this.router.post('/signUpWithGoogle', this.userController.signUByGoogle);
     this.router.post('/signInWithGoogle', this.userController.signInByGoogle);
     this.router.post('/check-email-reset-pass', this.userController.checkEmail);
+    this.router.patch(
+      '/update-profile/:id',
+      blobUploader().single('profilePicture'),
+      this.userController.updateProfile,
+    );
     this.router.patch(
       '/update-password/:id',
       this.userController.updatePassword,

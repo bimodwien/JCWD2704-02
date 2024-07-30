@@ -128,10 +128,20 @@ class UserService {
   }
 
   async regisWithGoogle(req: Request) {
-    const { uid, email, name, referralCode } = req.body;
+    const { uid, email, name, referralCode, photoURL } = req.body;
     const userExists = await prisma.user.findMany({ where: { googleId: uid } });
 
     const finalReferralCode = referralCode || referalCode.generate();
+
+    let profilePictureBuffer: Buffer | undefined;
+    try {
+      const response = await axios.get(photoURL, {
+        responseType: 'arraybuffer',
+      });
+      profilePictureBuffer = Buffer.from(response.data, 'base64');
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
 
     if (!userExists || userExists.length === 0) {
       const userData = await prisma.user.create({
@@ -141,6 +151,7 @@ class UserService {
           name,
           isVerified: true,
           referralCode: finalReferralCode,
+          profilePicture: profilePictureBuffer,
         },
       });
       return userData;

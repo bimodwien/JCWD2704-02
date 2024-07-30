@@ -6,6 +6,7 @@ import { verify } from 'jsonwebtoken';
 import { SECRET_KEY } from '../config/config';
 import { TUser } from '@/models/user.model';
 import { hashPassword } from '@/lib/bcrypt';
+import sharp from 'sharp';
 
 class UserService2 {
   async checkEmail(req: Request) {
@@ -70,6 +71,36 @@ class UserService2 {
     });
 
     return updatedUser;
+  }
+
+  async updateProfile(req: Request) {
+    const { id } = req.params;
+    const { email, name } = req.body;
+    const { file } = req;
+
+    const userExist = await prisma.user.findFirst({
+      where: { id: id },
+    });
+
+    if (!userExist) throw new Error('User not exist');
+    const buffer = await sharp(req.file?.buffer).png().toBuffer();
+
+    if (!userExist.googleId) {
+      throw new Error('Cannot update profile for users with Google ID');
+    }
+
+    if (!file) throw new Error('no image uploaded');
+
+    const data = await prisma.user.update({
+      where: { id: id },
+      data: {
+        name: name,
+        email: email,
+        profilePicture: buffer,
+      },
+    });
+
+    return data;
   }
 }
 
