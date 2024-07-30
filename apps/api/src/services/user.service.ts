@@ -79,6 +79,7 @@ class UserService {
 
   async signIn(req: Request) {
     const { email, password } = req.body;
+    // console.log(req.body);
 
     const data = await prisma.user.findFirst({
       where: {
@@ -89,13 +90,17 @@ class UserService {
     if (!data) throw new Error('wrong email');
 
     const checkUser = await comparePassword(String(data.password), password);
+    // console.log(data);
 
     if (!checkUser) throw new Error('incorrect password');
 
     delete (data as any).password;
 
-    const accessToken = createToken(data);
+    const accessToken = createToken(data, '1hr');
     const refreshToken = createToken({ id: data.id }, '20 hr');
+
+    console.log('access token: ', accessToken);
+    console.log('refresh token: ', refreshToken);
 
     return { accessToken, refreshToken };
   }
