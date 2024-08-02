@@ -50,7 +50,7 @@ const Dashboard = (props: Props) => {
                 <input
                   type="text"
                   className="bg-[#F4F7FE] rounded-full pl-5 py-1 font-dm-sans text-14px"
-                  placeholder="Store..."
+                  placeholder="Sales..."
                 />
               </div>
             </div>

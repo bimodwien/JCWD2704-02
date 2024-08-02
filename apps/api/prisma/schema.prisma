@@ -154,7 +154,7 @@ model Stock {
   updatedAt       DateTime          @updatedAt
   Cart            Cart[]
   StockHistory    StockHistory[]
-  ProductDiscount ProductDiscount[]
+  ProductDiscount ProductDiscount[] @relation("StockDiscount")
 
   @@unique([productId, storeId])
   @@map("stocks")
@@ -275,7 +275,7 @@ model ProductDiscount {
   productId   String
   store       Store        @relation(fields: [storeId], references: [id])
   storeId     String
-  stock       Stock?       @relation(fields: [stockId], references: [id])
+  stock       Stock?       @relation("StockDiscount", fields: [stockId], references: [id])
   stockId     String?
   type        Type?
   value       Float?

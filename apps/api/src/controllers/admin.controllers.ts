@@ -27,6 +27,27 @@ export class AdminController {
     }
   }
 
+  async login(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { access_token } = await AdminService.login(req);
+      res.status(200).cookie('access_token', access_token).send({
+        message: 'login success',
+        access_token: access_token,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async validate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const access_token = await AdminService.validate(req);
+      res.send({ access_token });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async createStoreAdmin(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await AdminService.create(req);

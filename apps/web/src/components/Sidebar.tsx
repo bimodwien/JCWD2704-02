@@ -6,7 +6,8 @@ import { IoStorefront, IoLogOutSharp, IoTicketSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
 import { FaUserAlt, FaStore } from 'react-icons/fa';
 import { BiSolidCategory } from 'react-icons/bi';
-import { RiShoppingBasket2Fill } from 'react-icons/ri';
+
+import { RiShoppingBasket2Fill, RiFileHistoryLine } from 'react-icons/ri';
 import { MdDiscount } from 'react-icons/md';
 import { BsBoxFill } from 'react-icons/bs';
 
@@ -70,6 +71,15 @@ const Sidebar = () => {
           className={linkClasses('/dashboard/stock')}
         >
           <BsBoxFill className={iconClasses('/dashboard/stock')} /> Stock
+        </Link>
+        <Link
+          href={'/dashboard/stockHistory'}
+          className={linkClasses('/dashboard/stockHistory')}
+        >
+          <RiFileHistoryLine
+            className={iconClasses('/dashboard/stockHistory')}
+          />
+          Stock History
         </Link>
         <Link
           href={'/dashboard/discount'}

@@ -15,6 +15,6 @@ export type TUser = {
 };
 
 export type TDecode = {
-  role: string;
+  type: string;
   user: TUser;
 };

@@ -81,6 +81,10 @@ export default function HomeComponent() {
     getAllData(setAllProducts);
   }, []);
 
+  function handleProductClick(id: string) {
+    router.push(`/detail/${id}`);
+  }
+
   return (
     <>
       <div className="">
@@ -167,7 +171,10 @@ export default function HomeComponent() {
               <div className="grid grid-cols-2 gap-1.5">
                 {(user && user.id ? products : allProducts).map(
                   (product, index) => (
-                    <Card key={index}>
+                    <Card
+                      key={index}
+                      onClick={() => handleProductClick(product.id)}
+                    >
                       <img
                         src={`http://localhost:8000/products/images/${product.ProductImage[0].id}`}
                         width="200"

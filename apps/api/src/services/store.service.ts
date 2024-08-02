@@ -41,7 +41,7 @@ class StoreService {
         },
       });
 
-      // return store;
+      return store;
     });
   }
 

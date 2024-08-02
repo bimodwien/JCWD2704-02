@@ -1,46 +1,68 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
-import { AxiosError } from 'axios';
-import { axiosInstance } from './app/_lib/axios';
+import { TUser } from './models/user';
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = request.cookies.get('refresh_token')?.value || '';
+  const refresh_token = request.cookies.get('access_token')?.value || '';
   const response = NextResponse.next();
-  const validate = await axiosInstance()
-    .get('/user/validate', {
-      withCredentials: true,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    })
-    .then((res) => {
-      response.cookies.set('access_token', res.data.access_token);
+  const { pathname } = request.nextUrl;
+
+  console.log(refresh_token, 'refresh_token');
+  const isLogin = await fetch('http://localhost:8000/admins/validate', {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${refresh_token}`,
+    },
+  })
+    .then(async (res) => {
+      const data = await res.json();
+      if (!data.access_token) throw new Error('Token not found');
+      response.cookies.set('access_token', data.access_token);
       return true;
     })
     .catch((err) => {
-      if (err instanceof AxiosError) console.log(err.response?.data);
+      if (err instanceof Error) console.log(err.message);
       return false;
     });
-  //   const is_verified = res.is_verified;
-  let userType = '';
-  const access_token = response.cookies.get('access_token')?.value;
-  if (access_token) {
-    const decodedToken: any = jwtDecode(access_token);
-    userType = decodedToken?.type || '';
-    // Mengambil ID dari token JWT dan menyimpannya dalam userType
-    // userType = decodedToken?.id || "";
-    // console.log("ID dari token JWT:", userType); // Menampilkan isi dari ID
-  }
-  if ((pathname == '/admin' || pathname.startsWith('/profile')) && !validate) {
+
+  console.log(isLogin);
+
+  const token = response.cookies.get('access_token')?.value;
+
+  const decode = token ? (jwtDecode(token) as { user: TUser }) : undefined;
+  console.log(decode, 'decode');
+
+  const isSuperAdmin = decode?.user?.role === 'superAdmin';
+  // const isStoreAdmin = decode?.role === 'storeAdmin';
+  if (!isSuperAdmin && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url));
-  } else if ((pathname == '/login' || pathname == '/register') && validate) {
-    return NextResponse.redirect(new URL('/', request.url));
   }
+  // if (
+  //   (pathname === '/login' || pathname === '/register') &&
+  //   is_verified &&
+  //   is_user
+  // ) {
+  //   return NextResponse.redirect(new URL('/', request.url));
+  // } else if (pathname === '/login' && !isLogin && !is_storeAdmin) {
+  //   return NextResponse.redirect(new URL('/login', request.url));
+  // } else if (pathname === '/dashboard' && !isLogin && !is_storeAdmin) {
+  //   return NextResponse.redirect(new URL('/login', request.url));
+  // } else if (pathname === '/login' && isLogin && is_storeAdmin) {
+  //   return NextResponse.redirect(new URL('/dashboard', request.url));
+  // } else if (pathname === '/login' && isLogin && is_superAdmin) {
+  //   return NextResponse.redirect(new URL('/dashboard', request.url));
+  // }
   return response;
 }
 export const config = {
-  matcher: ['/auth', '/login', '/verification', '/register', '/admin', '/'],
+  matcher: [
+    '/login',
+    '/auth',
+    '/dashboard',
+    '/verification',
+    '/register',
+    '/admin',
+    '/',
+  ],
 };

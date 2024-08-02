@@ -1,8 +1,7 @@
 export type TUser = {
-  id: string;
-  name: string;
+  id: string | null;
+  name: string | null;
   email: string;
-  store: {
-    name: string;
-  }[];
+  isVerified?: boolean | null;
+  role: 'superAdmin' | 'storeAdmin' | 'user' | null;
 };

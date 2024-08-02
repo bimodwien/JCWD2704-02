@@ -1,6 +1,6 @@
 'use strict';
 import prisma from '@/prisma';
-import { $Enums, CategoryDisc, Type } from '@prisma/client';
+import { $Enums, CategoryDisc, Prisma, Type } from '@prisma/client';
 import { Request } from 'express';
 import { TDiscount } from '@/models/discount.model';
 
@@ -110,8 +110,8 @@ class DiscountService {
       (typeInput === 'nominal' && $Enums.Type.nominal) ||
       null;
     const category =
-      (categoryInput === 'buyGet' && $Enums.CategoryDisc.buyGet) ||
-      (categoryInput === 'discount' && $Enums.CategoryDisc.discount);
+      (categoryInput === 'buyGet' && CategoryDisc.buyGet) ||
+      (categoryInput === 'discount' && CategoryDisc.discount);
 
     let discountValue = value;
 
@@ -119,15 +119,18 @@ class DiscountService {
       discountValue = value / 100;
     }
 
-    const discountData: any = {
-      productId,
-      storeId,
+    const discountData: Prisma.ProductDiscountCreateInput = {
+      product: { connect: { id: productId } },
+      store: { connect: { id: storeId } },
       description,
       value: discountValue,
-      category,
+      category: category as CategoryDisc,
       type,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
+      stock: {
+        connect: { id: existingStock.id },
+      },
     };
 
     if (category === $Enums.CategoryDisc.buyGet) {
