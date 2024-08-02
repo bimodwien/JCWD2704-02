@@ -43,3 +43,28 @@ export async function deleteUser(
     console.log(error);
   }
 }
+
+export async function updateProfile(
+  id: string,
+  profileData: { email: string; name: string; profilePicture: string },
+) {
+  const axios = axiosInstance();
+
+  try {
+    const response = await axios.patch(
+      `/v1/update-profile/${id}`,
+      profileData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.log('====================================');
+    console.log(error);
+    console.log('====================================');
+  }
+}

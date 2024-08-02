@@ -136,6 +136,15 @@ export class UserController {
       next(error);
     }
   }
+
+  async updateProfile(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await User2Service.updateProfile(req);
+      res.status(200).json(data);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new UserController();

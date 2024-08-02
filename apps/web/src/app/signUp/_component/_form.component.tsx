@@ -46,11 +46,15 @@ export default function FormSignUpComponent() {
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      const { uid, email, displayName } = result.user;
+      console.log('====================================');
+      console.log(result);
+      console.log('====================================');
+      const { uid, email, displayName, photoURL } = result.user;
       const response = await axiosInstance().post('/v1/signUpWithGoogle', {
         uid,
         email,
         name: displayName,
+        photoURL,
       });
       console.log(response.data.data);
       router.push(`/redeemCode/${response.data.data.id}`);
