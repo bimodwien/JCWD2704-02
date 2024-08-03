@@ -1,13 +1,12 @@
+import prisma from '@/prisma';
 const midtransClient = require('midtrans-client');
 const dayjs = require('dayjs');
 const cron = require('node-cron');
-const prisma = require('../prisma');
 
 const cancelUnpaidOrders = async () => {
   const oneHourAgo = dayjs().subtract(1, 'hour').toDate();
   const now = new Date();
 
-  // Kondisi pertama: paidType manual & waitingPayment & !paidAt
   const manualOrders = await prisma.order.findMany({
     where: {
       createdAt: {
@@ -22,7 +21,6 @@ const cancelUnpaidOrders = async () => {
     },
   });
 
-  // Kondisi kedua: paidType gateway & waitingPayment & !payment_method
   const gatewayOrders = await prisma.order.findMany({
     where: {
       createdAt: {
@@ -37,7 +35,6 @@ const cancelUnpaidOrders = async () => {
     },
   });
 
-  // Kondisi ketiga: paidType manual & waitingPayment & ada paidAt & lewat 1 jam sejak checkedAt
   const checkedManualOrders = await prisma.order.findMany({
     where: {
       checkedAt: {
@@ -54,7 +51,6 @@ const cancelUnpaidOrders = async () => {
     },
   });
 
-  // Kondisi keempat: paidType gateway & waitingPayment & ada payment_method & !paidAt & lewat 1 jam sejak updatedAt
   const updatedGatewayOrders = await prisma.order.findMany({
     where: {
       expiry_time: {
@@ -81,7 +77,6 @@ const cancelUnpaidOrders = async () => {
 
   for (const order of allOrders) {
     if (order.paidType === 'gateway' && order.payment_method) {
-      // Cancel order ke Midtrans
       try {
         const coreApi = new midtransClient.CoreApi({
           isProduction: false,
@@ -103,7 +98,6 @@ const cancelUnpaidOrders = async () => {
         );
       }
     } else {
-      // Update order status
       await prisma.order.update({
         where: { id: order.id },
         data: {
@@ -113,9 +107,8 @@ const cancelUnpaidOrders = async () => {
         },
       });
 
-      // Update stock & create stock history
       for (const item of order.OrderItem) {
-        await prisma.stock.update({
+        const updatedStock = await prisma.stock.update({
           where: {
             productId_storeId: {
               productId: item.productId,
@@ -129,6 +122,7 @@ const cancelUnpaidOrders = async () => {
 
         await prisma.stockHistory.create({
           data: {
+            stockId: updatedStock.id,
             quantityChange: item.quantity,
             reason: 'orderCancellation',
             changeType: 'in',
@@ -141,7 +135,7 @@ const cancelUnpaidOrders = async () => {
     }
   }
 
-  console.log(`Cancelled ${allOrders.length} orders`);
+  console.log(`Cancelled ${allOrders.length} orders at ${new Date()}`);
 };
 
 cron.schedule('*/5 * * * *', async () => {

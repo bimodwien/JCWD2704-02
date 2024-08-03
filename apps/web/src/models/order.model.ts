@@ -32,6 +32,7 @@ type TUser = {
 };
 
 export type TOrderItem = {
+  id: string;
   product: {
     id: string;
     name: string;

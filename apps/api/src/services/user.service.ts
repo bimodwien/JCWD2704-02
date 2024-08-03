@@ -94,15 +94,18 @@ class UserService {
 
     delete (data as any).password;
 
-    const accessToken = createToken({
-      user: {
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        role: data.role,
+    const accessToken = createToken(
+      {
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        },
+        type: 'access-token',
       },
-      type: 'access-token',
-    });
+      '20 hr',
+    );
     const refreshToken = createToken({ id: data.id }, '20 hr');
 
     return { accessToken, refreshToken };
@@ -167,15 +170,18 @@ class UserService {
       throw new Error('User not found');
     }
 
-    const accessToken = createToken({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+    const accessToken = createToken(
+      {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        type: 'access-token',
       },
-      type: 'access-token',
-    });
+      '20 hr',
+    );
     const refreshToken = createToken({ id: user.id }, '20hr');
 
     return { accessToken, refreshToken };

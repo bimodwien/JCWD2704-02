@@ -41,11 +41,10 @@ export default class App {
     // not found
     this.app.use(
       (error: unknown, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/')) {
-          res.status(404).send('Not found !');
-        } else {
-          next();
-        }
+        if (error instanceof Error)
+          res.status(500).send({
+            message: error.message,
+          });
       },
     );
   }

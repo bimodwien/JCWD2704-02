@@ -32,7 +32,7 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
 
     if (result.isConfirmed) {
       try {
-        await axiosInstance().patch(`/order/c/${order.id}`);
+        await axiosInstance().patch(`/order/cu/${order.id}`);
         Swal.fire('Cancelled!', 'Your order has been cancelled.', 'success');
         onConfirm();
       } catch (error) {
@@ -44,6 +44,32 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
       }
     }
   };
+
+  const confirmOrder = async () => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to confirm this order?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'No',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axiosInstance().patch(`/order/co/${order.id}`);
+        Swal.fire('Confirmed!', 'Your order has been confirmed.', 'success');
+        onConfirm();
+      } catch (error) {
+        Swal.fire(
+          'Error!',
+          'There was an error confirmed your order.',
+          'error',
+        );
+      }
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col gap-2">
@@ -66,6 +92,15 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
           {formatPrice(order.totalPrice)}
         </div>
         <hr />
+        {order.paidType === 'manual' && order.status !== 'waitingPayment' && (
+          <button
+            onClick={seeProof}
+            className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50"
+          >
+            See Payment Proof
+          </button>
+        )}
+
         {order.status === 'waitingPayment' && countdown !== 0 && (
           <button
             onClick={payNow}
@@ -75,20 +110,21 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
           </button>
         )}
       </div>
-      {order.status === 'waitingConfirmation' && (
-        <button
-          onClick={seeProof}
-          className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50"
-        >
-          See Payment Proof
-        </button>
-      )}
+
       {order.status === 'waitingPayment' && countdown !== 0 && (
         <button
           onClick={cancelOrder}
           className="flex justify-center bg-red-600 text-white text-lg rounded-full p-2 font-semibold"
         >
           Cancel Order
+        </button>
+      )}
+      {order.status === 'shipped' && (
+        <button
+          onClick={confirmOrder}
+          className="flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold"
+        >
+          Confirm Order
         </button>
       )}
     </>

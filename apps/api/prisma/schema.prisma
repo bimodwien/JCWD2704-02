@@ -241,6 +241,7 @@ model Order {
   addressId         String
   shippingCost      Float?
   shippedAt         DateTime?
+  shippedBy         UpdatedBy?
   paidType          Paid
   snap_token        String?
   snap_redirect_url String?

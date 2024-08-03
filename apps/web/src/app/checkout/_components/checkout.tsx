@@ -19,7 +19,7 @@ const Checkout = () => {
   );
   const router = useRouter();
 
-  const userId = 'clz5p3y8f0000ldvnbx966ss6';
+  const userId = 'clz9fsqf60000103hg0a7vi11';
 
   const fetchCart = async () => {
     try {

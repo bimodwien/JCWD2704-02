@@ -66,9 +66,6 @@ const Detail = () => {
         if (timeLeft <= 0) {
           setCountdown(0);
           clearInterval(intervalId!);
-          if (order.status === 'waitingPayment') {
-            window.location.reload();
-          }
         } else {
           setCountdown(timeLeft);
         }
@@ -158,9 +155,29 @@ const Detail = () => {
 
       <div className="rounded-xl bg-white w-full md:w-[450px] h-full p-5 shadow-md border border-gray-200">
         <div className="flex flex-col gap-3">
-          <div className="font-semibold text-xl lg:text-2xl flex gap-3 items-center">
-            <MdOutlinePayment />
-            Payment
+          <div className="flex items-center justify-between">
+            <div className="font-semibold text-xl lg:text-2xl flex gap-3 items-center">
+              <MdOutlinePayment />
+              Payment
+            </div>
+            {order?.status === 'waitingConfirmation' ? (
+              <div className="border-2 border-amber-500 text-amber-700 bg-amber-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                unchecked
+              </div>
+            ) : order?.paidType === 'manual' &&
+              order?.status === 'waitingPayment' &&
+              order.paidAt ? (
+              <div className="border-2 border-red-500 text-red-700 bg-red-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                denied
+              </div>
+            ) : order?.paidType === 'manual' &&
+              order?.status === 'processed' ? (
+              <div className="border-2 border-blue-500 text-blue-700 bg-blue-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                approve
+              </div>
+            ) : (
+              ''
+            )}
           </div>
           <hr />
           {order?.status === 'waitingPayment' && countdown !== 0 && (

@@ -1,14 +1,14 @@
 import React from 'react';
 import OrderList from './_components/orderList';
 
-const cart = () => {
+const list = () => {
   return (
     <>
-      <main className="h-full bg-[#F4F7FE]">
+      <main className="bg-gray-100 h-screen">
         <OrderList />
       </main>
     </>
   );
 };
 
-export default cart;
+export default list;

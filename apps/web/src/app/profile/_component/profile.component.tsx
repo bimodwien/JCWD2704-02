@@ -51,7 +51,7 @@ export default function ProfileComponent() {
                   <DialogHeader>
                     <DialogTitle>Edit profile</DialogTitle>
                     <DialogDescription>
-                      Make changes to your profile here. Click save when you're
+                      Make changes to your profile here. Click save when youre
                       done.
                     </DialogDescription>
                   </DialogHeader>
