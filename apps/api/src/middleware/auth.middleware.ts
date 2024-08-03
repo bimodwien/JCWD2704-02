@@ -13,10 +13,10 @@ export const validateToken = (
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     const decode = verify(token!, SECRET_KEY) as TDecode;
-    if (decode.type != 'access-token') throw new Error('invalid token');
+    if (decode.type != 'access_token') throw new Error('invalid token');
     req.user = decode.user;
 
-    console.log(req.user, 'cccccc');
+    // console.log(req.user, 'cccccc');
 
     next();
   } catch (error) {
@@ -30,10 +30,13 @@ export const validateRefreshToken = (
   next: NextFunction,
 ) => {
   try {
+    //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..mo-HEWiMC96FXI-fX3r0rYJgBaveQ8svZdAjDJFewYg
     const token = req.headers.authorization?.replace('Bearer ', '');
     const decode = verify(token!, SECRET_KEY) as TDecode;
-    if (decode.type != 'refresh-token') throw new Error('invalid token');
+    if (decode.type != 'refresh_token') throw new Error('invalid token ----');
     req.user = decode.user;
+
+    // console.log(req.user, 'cccccc');
 
     next();
   } catch (error) {

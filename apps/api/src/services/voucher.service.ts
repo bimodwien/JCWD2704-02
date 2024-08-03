@@ -7,25 +7,124 @@ import { $Enums, CategoryVoucher, Type } from '@prisma/client';
 
 class VoucherService {
   static async getAll(req: Request) {
-    const { storeId, productId } = req.query;
+    const { productName, storeName, page, limit } = req.query;
+    const pageNumber = parseInt(page as string) || 1;
+    const pageSize = parseInt(limit as string) || 10;
+    const skip = (pageNumber - 1) * pageSize;
+
     const whereClause: any = {
-      storeId,
-      isValid: false,
+      isValid: true,
       isDeleted: false,
+      endDate: {
+        gte: new Date(),
+      },
     };
-    if (productId) {
-      whereClause.productId = productId;
+
+    if (productName) {
+      whereClause.product = { name: { contains: productName as string } };
     }
-    const vouchers = await prisma.voucher.findMany({
+    if (storeName) {
+      whereClause.store = { name: { contains: storeName as string } };
+    }
+
+    const voucherData = await prisma.voucher.findMany({
       where: whereClause,
+      skip: skip,
+      take: pageSize,
+      select: {
+        id: true,
+        productId: true,
+        storeId: true,
+        description: true,
+        category: true,
+        type: true,
+        value: true,
+        maxDiscount: true,
+        minTransaction: true,
+        minTotalPurchase: true,
+        voucherCode: true,
+        startDate: true,
+        endDate: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        store: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
-    const currentDate = new Date();
-    const validVouchers = vouchers.filter(
-      (voucher) => voucher.endDate >= currentDate,
-    );
+    const total = await prisma.voucher.count({ where: whereClause });
 
-    return validVouchers as TVoucher[];
+    const result = {
+      data: voucherData.map((voucher) => ({
+        ...voucher,
+        productName: voucher.product?.name || null,
+        storeName: voucher.store?.name || null,
+      })),
+      page: pageNumber,
+      limit: pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
+
+    return result;
+  }
+
+  static async getById(req: Request): Promise<TVoucher | null> {
+    const id = req.params.id;
+
+    const voucher = await prisma.voucher.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        productId: true,
+        storeId: true,
+        description: true,
+        category: true,
+        type: true,
+        value: true,
+        maxDiscount: true,
+        minTransaction: true,
+        minTotalPurchase: true,
+        voucherCode: true,
+        startDate: true,
+        endDate: true,
+        isValid: true,
+        isDeleted: true,
+        createdAt: true,
+        updatedAt: true,
+        product: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        store: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        VoucherUser: true,
+      },
+    });
+
+    if (!voucher) {
+      throw new Error('Voucher not found');
+    }
+
+    return {
+      ...voucher,
+      productName: voucher.product?.name || null,
+      storeName: voucher.store?.name || null,
+    } as TVoucher;
   }
 
   static async create(req: Request): Promise<TVoucher> {
@@ -47,27 +146,35 @@ class VoucherService {
       !storeId ||
       !description ||
       !category ||
-      !typeInput ||
-      !value ||
       !startDate ||
-      !endDate
+      !endDate ||
+      (category !== CategoryVoucher.shippingCost && (!typeInput || !value))
     ) {
       throw new Error(
         'product, store, category, type, value, start Date, and end Date are required',
       );
     }
-    if (category === CategoryVoucher.totalPurchase && !minTotalPurchase) {
-      throw new Error(
-        'minTotalPurchase are required for category totalPurchase',
-      );
-    } else if (category === CategoryVoucher.totalPurchase && !maxDiscount) {
-      throw new Error('maxDiscount are required for category totalPurchase');
-    } else if (category === CategoryVoucher.shippingCost && !minTransaction) {
-      throw new Error('minTransaction are required for category shippingCost');
-    } else if (category === CategoryVoucher.product && !maxDiscount) {
-      throw new Error('maxDiscount are required for category voucher product');
-    }
 
+    if (category === CategoryVoucher.totalPurchase) {
+      if (!minTotalPurchase) {
+        throw new Error(
+          'minTotalPurchase is required for category totalPurchase',
+        );
+      }
+      if (typeInput === 'percentage' && !maxDiscount) {
+        throw new Error(
+          'maxDiscount is required for category totalPurchase with type percentage',
+        );
+      }
+    } else if (category === CategoryVoucher.shippingCost) {
+      if (!minTransaction) {
+        throw new Error('minTransaction is required for category shippingCost');
+      }
+    } else if (category === CategoryVoucher.product) {
+      if (!maxDiscount) {
+        throw new Error('maxDiscount is required for category voucher product');
+      }
+    }
     const existingProduct = await prisma.product.findUnique({
       where: { id: productId },
     });
@@ -79,8 +186,11 @@ class VoucherService {
     if (!existingStore) throw new Error('Store not found');
 
     const type =
-      (typeInput == 'percentage' && $Enums.Type.percentage) ||
-      (typeInput == 'nominal' && $Enums.Type.nominal);
+      category === CategoryVoucher.shippingCost
+        ? null
+        : typeInput === 'percentage'
+          ? Type.percentage
+          : Type.nominal;
 
     const voucherCode = randomBytes(6).toString('hex');
 
@@ -94,14 +204,20 @@ class VoucherService {
       minTotalPurchase,
       maxDiscount,
       minTransaction,
+      isValid: true,
       category: category as CategoryVoucher,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
     };
 
+    if (type) voucherData.type = type;
+    if (value) voucherData.value = value;
+
     if (category === CategoryVoucher.totalPurchase) {
       voucherData.minTotalPurchase = minTotalPurchase;
-      voucherData.maxDiscount = maxDiscount;
+      if (type === Type.percentage) {
+        voucherData.maxDiscount = maxDiscount;
+      }
     } else if (category === CategoryVoucher.shippingCost) {
       voucherData.minTransaction = minTransaction;
     } else if (category === CategoryVoucher.product) {

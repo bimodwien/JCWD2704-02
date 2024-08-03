@@ -95,12 +95,11 @@ const Users = () => {
                         <Table.Cell>{user.name}</Table.Cell>
                         <Table.Cell>{user.email}</Table.Cell>
                         <Table.Cell>
-                          {user.store && user.store.length > 0
-                            ? user.store[0].name
-                            : 'No Store'}
+                          {user.store ? user.store.name : 'No Store'}
                         </Table.Cell>
                         <Table.Cell
                           onClick={() =>
+                            user.id &&
                             deleteUser(user.id, page, limit, value, setUsers)
                           }
                           className="font-medium text-red-600 cursor-pointer"
@@ -108,7 +107,9 @@ const Users = () => {
                           Delete
                         </Table.Cell>
                         <Table.Cell className="font-medium text-green-600">
-                          <button onClick={() => onClickEdit(user.id)}>
+                          <button
+                            onClick={() => user.id && onClickEdit(user.id)}
+                          >
                             Edit
                           </button>
                         </Table.Cell>

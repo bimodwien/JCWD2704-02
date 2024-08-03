@@ -68,7 +68,7 @@ const Checkout = () => {
     try {
       const response = await axiosInstance().post(`/order/${userId}`, {
         // addressId: shippingAddress?.id,
-        addressId: 'clz5q65x40001qphbhrmsfq0a',
+        addressId: 'clzebpr5u000214475u5yhu04',
         paidType: paidType,
       });
       Swal.fire({

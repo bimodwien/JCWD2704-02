@@ -13,6 +13,17 @@ export class VoucherController {
       next(error);
     }
   }
+  async getById(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await VoucherService.getById(req);
+      res.status(200).send({
+        message: 'Get data voucher by ID',
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await VoucherService.create(req);

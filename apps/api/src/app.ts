@@ -20,6 +20,8 @@ import { StoreRouter } from './routers/store.router';
 import { StockRouter } from './routers/stock.router';
 import { DiscountRouter } from './routers/discount.router';
 import { VoucherRouter } from './routers/voucher.router';
+import { ReportRouter } from './routers/sales.report.router';
+import { StockHistoryRouter } from './routers/stock.history.router';
 
 export default class App {
   private app: Express;
@@ -58,8 +60,10 @@ export default class App {
     const storeRouter = new StoreRouter();
     const categoryRouter = new CategoryRouter();
     const stockRouter = new StockRouter();
+    const stockHistory = new StockHistoryRouter();
     const discountRouter = new DiscountRouter();
     const voucherRouter = new VoucherRouter();
+    const reportRouter = new ReportRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
@@ -73,8 +77,10 @@ export default class App {
     this.app.use('/store', storeRouter.getRouter());
     this.app.use('/category', categoryRouter.getRouter());
     this.app.use('/stocks', stockRouter.getRouter());
+    this.app.use('/stock-history', stockHistory.getRouter());
     this.app.use('/discounts', discountRouter.getRouter());
     this.app.use('/vouchers', voucherRouter.getRouter());
+    this.app.use('/reports', reportRouter.getRouter());
   }
 
   public start(): void {

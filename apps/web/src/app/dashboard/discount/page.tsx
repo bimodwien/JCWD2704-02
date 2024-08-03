@@ -1,13 +1,29 @@
 'use client';
 import Sidebar from '@/components/Sidebar';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { RxAvatar } from 'react-icons/rx';
+import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { Table } from 'flowbite-react';
+import { TDiscount } from '@/models/discount';
+import { useDebounce } from 'use-debounce';
+import { fetchDiscount } from '@/helpers/fetchDiscount';
+import dayjs from 'dayjs';
 
-type Props = {};
+function Discount() {
+  const [searchProduct, setSearchProduct] = useState('');
+  const [searchStore, setSearchStore] = useState('');
+  const [discounts, setDiscounts] = useState<TDiscount[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [valueProduct] = useDebounce(searchProduct, 1000);
+  const [valueStore] = useDebounce(searchStore, 1000);
 
-function Discount({}: Props) {
+  useEffect(() => {
+    fetchDiscount(page, limit, valueProduct, valueStore, setDiscounts);
+  }, [page, limit, valueProduct, valueStore]);
+
+  const isLastPage = discounts.length < limit;
   return (
     <section className="bg-[#F4F7FE] flex w-full top[49px] left-[290px] h-lvh">
       <Sidebar />
@@ -26,7 +42,16 @@ function Discount({}: Props) {
               <input
                 type="text"
                 className="bg-[#F4F7FE] rounded-full pl-5 py-1 font-dm-sans text-14px"
-                placeholder="Search..."
+                placeholder="Product..."
+                value={searchProduct}
+                onChange={(e) => setSearchProduct(e.target.value)}
+              />
+              <input
+                type="text"
+                className="bg-[#F4F7FE] rounded-full pl-5 py-1 font-dm-sans text-14px"
+                placeholder="Store..."
+                value={searchStore}
+                onChange={(e) => setSearchStore(e.target.value)}
               />
               <Link
                 href={'/dashboard/discount/add'}
@@ -53,11 +78,62 @@ function Discount({}: Props) {
                 <Table.HeadCell>Value</Table.HeadCell>
                 <Table.HeadCell>Start From</Table.HeadCell>
                 <Table.HeadCell>End Date</Table.HeadCell>
-                <Table.HeadCell className="sr-only">edit</Table.HeadCell>
                 <Table.HeadCell className="sr-only">delete</Table.HeadCell>
               </Table.Head>
+              <Table.Body>
+                {Array.isArray(discounts) && discounts.length > 0 ? (
+                  discounts.map((discount, index) => {
+                    return (
+                      <Table.Row key={discount.id} className="bg-white">
+                        <Table.Cell>{index + 1}</Table.Cell>
+                        <Table.Cell>{discount.product.name}</Table.Cell>
+                        <Table.Cell>{discount.store.name}</Table.Cell>
+                        <Table.Cell>{discount.description}</Table.Cell>
+                        <Table.Cell>
+                          {discount.type ? discount.type : '-'}
+                        </Table.Cell>
+                        <Table.Cell>{discount.category}</Table.Cell>
+                        <Table.Cell>
+                          {discount.value ? discount.value : '-'}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {dayjs(discount.startDate).format('YYYY-MM-DD')}
+                        </Table.Cell>
+                        <Table.Cell>
+                          {dayjs(discount.endDate).format('YYYY-MM-DD')}
+                        </Table.Cell>
+                        <Table.Cell className="font-medium text-red-600">
+                          Delete
+                        </Table.Cell>
+                      </Table.Row>
+                    );
+                  })
+                ) : (
+                  <Table.Row className="bg-white">
+                    <Table.Cell colSpan={10} className="text-center">
+                      No Discount found
+                    </Table.Cell>
+                  </Table.Row>
+                )}
+              </Table.Body>
             </Table>
           </div>
+        </div>
+        <div className="flex justify-center items-center gap-5 pb-14">
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+            className={`flex items-center font-bold gap-1  px-5 py-1 rounded-full ${page === 1 ? 'bg-gray-400 text-gray-200' : 'bg-[#11047A] text-white'}`}
+          >
+            <MdNavigateBefore /> Prev
+          </button>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={isLastPage}
+            className={`flex items-center font-bold gap-1 px-5 py-1 rounded-full ${isLastPage ? 'bg-gray-400 text-gray-200' : 'bg-[#11047A] text-white'}`}
+          >
+            Next <MdNavigateNext />
+          </button>
         </div>
       </div>
     </section>

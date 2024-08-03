@@ -7,7 +7,7 @@ class OrderService {
   async paymentProof(req: Request) {
     const { orderId } = req.params;
     const { file } = req;
-    const userId = 'clz9fsqf60000103hg0a7vi11';
+    const userId = req.user.id;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId, paidType: 'manual' },
@@ -40,7 +40,7 @@ class OrderService {
 
   async cancelByUser(req: Request) {
     const { orderId } = req.params;
-    const userId = 'clz5p3y8f0000ldvnbx966ss6';
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -156,7 +156,7 @@ class OrderService {
   }
 
   async confirmOrder(req: Request) {
-    const userId = 'clz9fsqf60000103hg0a7vi11';
+    const userId = req.user.id;
     const { orderId } = req.params;
 
     const order = await prisma.order.findFirst({

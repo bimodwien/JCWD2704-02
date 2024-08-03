@@ -127,11 +127,13 @@ CREATE TABLE `stocks` (
 CREATE TABLE `stock_histories` (
     `id` VARCHAR(191) NOT NULL,
     `quantityChange` INTEGER NOT NULL,
-    `reason` VARCHAR(191) NOT NULL,
+    `changeType` ENUM('in', 'out') NOT NULL,
+    `reason` ENUM('restock', 'orderCancellation', 'orderPlacement', 'other') NOT NULL,
     `isDeleted` BOOLEAN NOT NULL DEFAULT false,
     `productId` VARCHAR(191) NULL,
     `stockId` VARCHAR(191) NULL,
     `storeId` VARCHAR(191) NULL,
+    `orderId` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -161,15 +163,21 @@ CREATE TABLE `orders` (
     `addressId` VARCHAR(191) NOT NULL,
     `shippingCost` DOUBLE NULL,
     `shippedAt` DATETIME(3) NULL,
+    `shippedBy` ENUM('user', 'superAdmin', 'storeAdmin', 'system') NULL,
     `paidType` ENUM('manual', 'gateway') NOT NULL,
     `snap_token` VARCHAR(191) NULL,
     `snap_redirect_url` VARCHAR(191) NULL,
     `payment_method` VARCHAR(191) NULL,
+    `expiry_time` DATETIME(3) NULL,
     `paymentProof` LONGBLOB NULL,
     `paidAt` DATETIME(3) NULL,
+    `checkedAt` DATETIME(3) NULL,
+    `checkedBy` ENUM('user', 'superAdmin', 'storeAdmin', 'system') NULL,
     `processedAt` DATETIME(3) NULL,
     `confirmedAt` DATETIME(3) NULL,
+    `confirmedBy` ENUM('user', 'superAdmin', 'storeAdmin', 'system') NULL,
     `cancelledAt` DATETIME(3) NULL,
+    `cancelledBy` ENUM('user', 'superAdmin', 'storeAdmin', 'system') NULL,
     `status` ENUM('waitingPayment', 'waitingConfirmation', 'processed', 'shipped', 'confirmed', 'cancelled') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -197,7 +205,7 @@ CREATE TABLE `product_discounts` (
     `description` VARCHAR(191) NOT NULL,
     `productId` VARCHAR(191) NOT NULL,
     `storeId` VARCHAR(191) NOT NULL,
-    `stockId` VARCHAR(191) NOT NULL,
+    `stockId` VARCHAR(191) NULL,
     `type` ENUM('percentage', 'nominal') NULL,
     `value` DOUBLE NULL,
     `category` ENUM('buyGet', 'discount') NOT NULL,
@@ -273,6 +281,9 @@ ALTER TABLE `stock_histories` ADD CONSTRAINT `stock_histories_stockId_fkey` FORE
 ALTER TABLE `stock_histories` ADD CONSTRAINT `stock_histories_storeId_fkey` FOREIGN KEY (`storeId`) REFERENCES `store`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `stock_histories` ADD CONSTRAINT `stock_histories_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `orders`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `carts` ADD CONSTRAINT `carts_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -306,7 +317,7 @@ ALTER TABLE `product_discounts` ADD CONSTRAINT `product_discounts_productId_fkey
 ALTER TABLE `product_discounts` ADD CONSTRAINT `product_discounts_storeId_fkey` FOREIGN KEY (`storeId`) REFERENCES `store`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `product_discounts` ADD CONSTRAINT `product_discounts_stockId_fkey` FOREIGN KEY (`stockId`) REFERENCES `stocks`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `product_discounts` ADD CONSTRAINT `product_discounts_stockId_fkey` FOREIGN KEY (`stockId`) REFERENCES `stocks`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `vouchers` ADD CONSTRAINT `vouchers_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

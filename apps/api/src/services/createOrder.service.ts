@@ -25,7 +25,7 @@ class CreateOrderService {
   }
 
   async createOrder(req: Request) {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const { addressId, paidType } = req.body as TOrder;
 
     const cart = await prisma.cart.findMany({

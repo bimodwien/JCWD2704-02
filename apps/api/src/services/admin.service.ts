@@ -1,8 +1,10 @@
 'use strict';
 import prisma from '@/prisma';
 import { Request } from 'express';
-import { hashPassword } from '@/lib/bcrypt';
+import { comparePassword, hashPassword } from '@/lib/bcrypt';
 import { $Enums, Prisma, Role } from '@prisma/client';
+import { TUser } from '@/models/admin.model';
+import { createToken } from '@/lib/jwt';
 
 class AdminService {
   static async getAll(req: Request) {
@@ -57,38 +59,39 @@ class AdminService {
     return data;
   }
 
+  static async login(req: Request) {
+    const role = req.body.role;
+
+    const access_token = createToken({ user: { role }, type: 'access_token' });
+
+    return { access_token };
+  }
+
+  static async validate(req: Request) {
+    const user = {
+      role: req.user?.role,
+    };
+    return createToken({ user, type: 'access_token' });
+  }
+
   static async create(req: Request) {
-    await prisma.$transaction(async (prisma: any) => {
+    await prisma.$transaction(async (prisma) => {
       const email: string = req.body.email;
       const name: string = req.body.name;
       const password: string = req.body.password;
-      const storeId: string = req.body.storeId;
-
       const existingUser = await prisma.user.findFirst({
         where: { OR: [{ name }, { email }] },
       });
       if (existingUser) throw new Error('this store admin has been used');
       const hashed = await hashPassword(String(password));
       const role = Role.storeAdmin;
-
       const data: Prisma.UserCreateInput = {
         email,
         name,
         password: hashed,
         role,
         isVerified: true,
-        store: {
-          connect: {
-            id: storeId,
-          },
-        },
       };
-
-      await prisma.store.update({
-        where: { id: storeId },
-        data: { isChosen: true },
-      });
-
       const newAdmin = await prisma.user.create({
         data,
       });
@@ -97,74 +100,31 @@ class AdminService {
   }
 
   static async update(req: Request) {
-    const id = req.params.id;
-    const { email, name, password, storeId: newStoreId } = req.body;
-
-    const updatedUser = await prisma.$transaction(async (prisma: any) => {
+    await prisma.$transaction(async (prisma) => {
+      const id = req.params.id;
+      const email: string = req.body.email;
+      const name: string = req.body.name;
+      const password: string = req.body.password;
       const user = await prisma.user.findUnique({
         where: { id },
-        include: { store: true },
       });
-
-      if (!user) throw { message: 'User not found' };
-
-      console.log('Current User:', user);
-
-      const hashedPassword = await hashPassword(String(password));
-
-      const updatedUser = await prisma.user.update({
-        data: {
-          email,
-          name,
-          password: hashedPassword,
-        },
+      if (!user) throw new Error('User not found');
+      const hashed = await hashPassword(String(password));
+      const data: Prisma.UserUpdateInput = {
+        email,
+        name,
+        password: hashed,
+      };
+      const editedData = await prisma.user.update({
+        data,
         where: { id },
       });
-
-      console.log('Updated User:', updatedUser);
-
-      if (user.store && user.store.length > 0) {
-        console.log('Updating old store to isChosen: false', user.store[0].id);
-        await prisma.store.update({
-          where: { id: user.store[0].id },
-          data: { isChosen: false, userId: 'superAdmin' },
-        });
-      }
-
-      if (newStoreId) {
-        console.log('Updating new store to isChosen: true', newStoreId);
-        await prisma.store.update({
-          where: { id: newStoreId },
-          data: { isChosen: true, userId: id },
-        });
-      }
-
-      return updatedUser;
+      return editedData;
     });
-
-    return updatedUser;
   }
-
-  static async deleteUser(req: Request): Promise<void> {
-    const id = req.params.id;
-
-    await prisma.$transaction(async (prisma: any) => {
-      const user = await prisma.user.findUnique({
-        where: { id },
-        include: { store: true }, // Sertakan store untuk mendapatkan informasi toko
-      });
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      if (user.store && user.store.length > 0) {
-        await prisma.store.update({
-          where: { id: user.store[0].id },
-          data: { isChosen: false, userId: 'superAdmin' },
-        });
-      }
-
+  static async deleteUser(req: Request) {
+    await prisma.$transaction(async (prisma) => {
+      const id = req.params.id;
       await prisma.user.delete({
         where: { id },
       });

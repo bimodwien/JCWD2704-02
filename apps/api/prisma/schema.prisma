@@ -154,7 +154,7 @@ model Stock {
   updatedAt       DateTime          @updatedAt
   Cart            Cart[]
   StockHistory    StockHistory[]
-  ProductDiscount ProductDiscount[]
+  ProductDiscount ProductDiscount[] @relation("StockDiscount")
 
   @@unique([productId, storeId])
   @@map("stocks")
@@ -167,6 +167,7 @@ enum StockChangeType {
 
 enum StockChangeReason {
   restock
+  newStock
   orderCancellation
   orderPlacement
   other
@@ -304,8 +305,8 @@ model ProductDiscount {
   productId   String
   store       Store        @relation(fields: [storeId], references: [id])
   storeId     String
-  stock       Stock        @relation(fields: [stockId], references: [id])
-  stockId     String
+  stock       Stock?       @relation("StockDiscount", fields: [stockId], references: [id])
+  stockId     String?
   type        Type?
   value       Float?
   category    CategoryDisc

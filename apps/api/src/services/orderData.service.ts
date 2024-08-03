@@ -6,7 +6,7 @@ class OrderDataServie {
   async getAll(req: Request) {
     const { store, sort, invoice, status, paid, startDate, endDate, byDate } =
       req.query;
-    const userId = 'superAdmin';
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -131,17 +131,30 @@ class OrderDataServie {
 
   async detailAdmin(req: Request) {
     const { orderId } = req.params;
-    const userId = 'superAdmin';
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { name: true, role: true, store: true },
     });
 
-    if (!user) throw new Error('user not found');
+    if (!user) throw new Error('User not found');
+
+    const isSuperAdmin = user.role === 'superAdmin';
+    const isStoreAdmin = user.role === 'storeAdmin';
+
+    if (!isSuperAdmin && !isStoreAdmin) {
+      throw new Error('Access denied');
+    }
+
+    let orderQuery: any = { id: orderId };
+
+    if (isStoreAdmin && user.store) {
+      orderQuery.storeId = user.store.id;
+    }
 
     const detail = await prisma.order.findUnique({
-      where: { id: orderId },
+      where: orderQuery,
       include: {
         OrderItem: {
           include: {
@@ -154,13 +167,14 @@ class OrderDataServie {
         store: true,
       },
     });
+
     if (!detail) throw new Error('Order not found');
     return detail;
   }
 
   async getByUser(req: Request) {
-    const userId = 'clz9fsqf60000103hg0a7vi11';
-    const { store, sort, invoice, status, paid, startDate, endDate, byDate } =
+    const userId = req.user.id;
+    const { sort, invoice, status, paid, startDate, endDate, byDate } =
       req.query;
 
     const page = parseInt(req.query.page as string) || 1;
@@ -253,8 +267,10 @@ class OrderDataServie {
 
   async getDetail(req: Request) {
     const { invoice } = req.params;
+    const userId = req.user.id;
+
     const detail = await prisma.order.findUnique({
-      where: { invoice: invoice },
+      where: { invoice: invoice, userId: userId },
       include: {
         OrderItem: {
           include: {

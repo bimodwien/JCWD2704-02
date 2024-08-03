@@ -7,7 +7,7 @@ class OrderAdminService {
   async checkPayment(req: Request) {
     const { orderId } = req.params;
     const { check } = req.body as { check: string };
-    const userId = 'clz5pp21w0005v0gaqyr1c7q8';
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -62,7 +62,7 @@ class OrderAdminService {
 
   async adminCancel(req: Request) {
     const { orderId } = req.params;
-    const userId = 'clz5pp21w0005v0gaqyr1c7q8';
+    const userId = req.user.id;
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -162,7 +162,7 @@ class OrderAdminService {
 
   async shipped(req: Request) {
     const { orderId } = req.params;
-    const userId = 'clz5pp21w0005v0gaqyr1c7q8';
+    const userId = req.user.id;
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { role: true, store: { select: { id: true } } },

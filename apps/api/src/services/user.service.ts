@@ -79,6 +79,7 @@ class UserService {
 
   async signIn(req: Request) {
     const { email, password } = req.body;
+    // console.log(req.body);
 
     const data = await prisma.user.findFirst({
       where: {
@@ -89,6 +90,7 @@ class UserService {
     if (!data) throw new Error('wrong email');
 
     const checkUser = await comparePassword(String(data.password), password);
+    // console.log(data);
 
     if (!checkUser) throw new Error('incorrect password');
 
@@ -102,18 +104,33 @@ class UserService {
           email: data.email,
           role: data.role,
         },
-        type: 'access-token',
+        type: 'access_token',
       },
       '20 hr',
     );
-    const refreshToken = createToken({ id: data.id }, '20 hr');
+    // const refreshToken = createToken({ id: data.id }, '20 hr');
+    const refreshToken = createToken(
+      {
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        },
+        type: 'refresh_token',
+      },
+      '20 hr',
+    );
+    // console.log('access token: ', accessToken);
+    // console.log('refresh token: ', refreshToken);
 
     return { accessToken, refreshToken };
   }
 
   async Location(req: Request) {
     try {
-      const userId = req.params.id;
+      // const userId = req.params.id;
+      const userId = req.user?.id;
       const { latitude, longitude } = req.body;
 
       if (!userId) throw new Error('need user id');
@@ -139,10 +156,20 @@ class UserService {
   }
 
   async regisWithGoogle(req: Request) {
-    const { uid, email, name, referralCode } = req.body;
+    const { uid, email, name, referralCode, photoURL } = req.body;
     const userExists = await prisma.user.findMany({ where: { googleId: uid } });
 
     const finalReferralCode = referralCode || referalCode.generate();
+
+    let profilePictureBuffer: Buffer | undefined;
+    try {
+      const response = await axios.get(photoURL, {
+        responseType: 'arraybuffer',
+      });
+      profilePictureBuffer = Buffer.from(response.data, 'base64');
+    } catch (error) {
+      console.error('Error fetching image:', error);
+    }
 
     if (!userExists || userExists.length === 0) {
       const userData = await prisma.user.create({
@@ -152,6 +179,7 @@ class UserService {
           name,
           isVerified: true,
           referralCode: finalReferralCode,
+          profilePicture: profilePictureBuffer,
         },
       });
       return userData;
@@ -178,11 +206,23 @@ class UserService {
           email: user.email,
           role: user.role,
         },
-        type: 'access-token',
+        type: 'access_token',
       },
       '20 hr',
     );
-    const refreshToken = createToken({ id: user.id }, '20hr');
+    // const refreshToken = createToken({ id: user.id }, '20hr');
+    const refreshToken = createToken(
+      {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        type: 'refresh_token',
+      },
+      '20 hr',
+    );
 
     return { accessToken, refreshToken };
   }

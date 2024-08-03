@@ -14,10 +14,18 @@ export class CartRouter {
 
   private initializeRoutes(): void {
     this.router.get('/a', validateToken, this.cartController.getByUser);
-    this.router.get('/t/:userId', this.cartController.sumCart);
-    this.router.post('/c', this.cartController.addCart);
-    this.router.patch('/:cartId', this.cartController.updateCart);
-    this.router.delete('/:cartId', this.cartController.deleteCart);
+    this.router.get('/t/:userId', validateToken, this.cartController.sumCart);
+    this.router.post('/c', validateToken, this.cartController.addCart);
+    this.router.patch(
+      '/:cartId',
+      validateToken,
+      this.cartController.updateCart,
+    );
+    this.router.delete(
+      '/:cartId',
+      validateToken,
+      this.cartController.deleteCart,
+    );
   }
 
   getRouter(): Router {
