@@ -142,7 +142,6 @@ class VoucherService {
       endDate,
     } = req.body;
     if (
-      !productId ||
       !storeId ||
       !description ||
       !category ||
@@ -175,10 +174,12 @@ class VoucherService {
         throw new Error('maxDiscount is required for category voucher product');
       }
     }
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-    if (!existingProduct) throw new Error('Product not found');
+    if (category === CategoryVoucher.product) {
+      const existingProduct = await prisma.product.findUnique({
+        where: { id: productId },
+      });
+      if (!existingProduct) throw new Error('Product not found');
+    }
 
     const existingStore = await prisma.store.findUnique({
       where: { id: storeId },
@@ -210,6 +211,10 @@ class VoucherService {
       endDate: new Date(endDate),
     };
 
+    if (category === CategoryVoucher.product) {
+      voucherData.productId = productId;
+    }
+
     if (type) voucherData.type = type;
     if (value) voucherData.value = value;
 
@@ -236,12 +241,7 @@ class VoucherService {
   static async deleteVoucher(req: Request) {
     const id = req.params.id;
     await prisma.$transaction(async (prisma) => {
-      return prisma.voucher.update({
-        where: { id },
-        data: {
-          isValid: true,
-        },
-      });
+      return prisma.voucher.delete({ where: { id } });
     });
   }
 }

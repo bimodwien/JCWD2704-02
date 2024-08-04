@@ -37,7 +37,10 @@ export class VoucherController {
   }
   async deleteVoucher(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = {};
+      const data = await VoucherService.deleteVoucher(req);
+      res.status(201).send({
+        message: 'Delete voucher success',
+      });
     } catch (error) {
       next(error);
     }

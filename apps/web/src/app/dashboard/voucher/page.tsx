@@ -129,7 +129,9 @@ function Vouchers() {
                       return (
                         <Table.Row key={voucher.id} className="bg-white">
                           <Table.Cell>{index + 1}</Table.Cell>
-                          <Table.Cell>{voucher.product.name}</Table.Cell>
+                          <Table.Cell>
+                            {voucher.product?.name || 'N/A'}
+                          </Table.Cell>
                           <Table.Cell>{voucher.store.name}</Table.Cell>
                           <Table.Cell>{voucher.voucherCode}</Table.Cell>
                           <Table.Cell>{voucher.description}</Table.Cell>

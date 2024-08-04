@@ -40,7 +40,6 @@ const AddVoucher = () => {
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object().shape({
-      productId: Yup.string().required('Product is required'),
       storeId: Yup.string().required('Store wajib diisi'),
       description: Yup.string().required('Description wajib diisi'),
       category: Yup.string().required('Category wajib diisi'),
@@ -51,21 +50,36 @@ const AddVoucher = () => {
       minTransaction: Yup.number(),
       startDate: Yup.date().required('Start Date wajib diisi'),
       endDate: Yup.date().required('End Date wajib diisi'),
+      productId: Yup.string().when('category', {
+        is: (category: string) => category === 'product',
+        then: (schema) =>
+          schema.required('Product is required for category product'),
+        otherwise: (schema) => schema.notRequired(),
+      }),
     }),
     onSubmit: async (values) => {
       try {
-        const formattedValues = {
-          ...values,
-          startDate: values.startDate.toISOString(),
-          endDate: values.endDate.toISOString(),
+        const { startDate, endDate, ...restValues } = values;
+        const formattedValues: Partial<
+          Omit<typeof values, 'startDate' | 'endDate'>
+        > & {
+          startDate: string;
+          endDate: string;
+        } = {
+          ...restValues,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
         };
+        if (formattedValues.category !== 'product') {
+          delete formattedValues.productId;
+        }
         const { data } = await axiosInstance().post(
           '/vouchers',
           formattedValues,
         );
         Swal.fire({
           title: 'Success!',
-          text: 'Voucher has been added.',
+          text: data.message,
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#3085d6',

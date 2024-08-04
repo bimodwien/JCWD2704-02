@@ -30,7 +30,7 @@ export default class App {
     this.app = express();
     this.configure();
     this.routes();
-    this.handleError();
+    // this.handleError();
   }
 
   private configure(): void {
@@ -39,18 +39,18 @@ export default class App {
     this.app.use(urlencoded({ extended: true }));
   }
 
-  private handleError(): void {
-    // not found
-    this.app.use(
-      (error: unknown, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/')) {
-          res.status(404).send('Not found !');
-        } else {
-          next();
-        }
-      },
-    );
-  }
+  // private handleError(): void {
+  //   // not found
+  //   this.app.use(
+  //     (error: unknown, req: Request, res: Response, next: NextFunction) => {
+  //       if (req.path.includes('/')) {
+  //         res.status(404).send('Not found !');
+  //       } else {
+  //         next();
+  //       }
+  //     },
+  //   );
+  // }
 
   private routes(): void {
     const cartRouter = new CartRouter();
