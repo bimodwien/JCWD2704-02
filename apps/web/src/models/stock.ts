@@ -11,4 +11,6 @@ export type TStock = {
     id: string;
     name: string;
   };
+  originalPrice: number;
+  discountedPrice: number;
 };

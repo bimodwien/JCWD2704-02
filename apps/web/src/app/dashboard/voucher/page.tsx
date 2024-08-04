@@ -6,9 +6,10 @@ import { RxAvatar } from 'react-icons/rx';
 import { Table } from 'flowbite-react';
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { useDebounce } from 'use-debounce';
-import { fetchVoucher } from '@/helpers/fetchVoucher';
+import { fetchVoucher, deleteVoucher } from '@/helpers/fetchVoucher';
 import { TVoucher } from '@/models/voucher';
 import dayjs from 'dayjs';
+import Swal from 'sweetalert2';
 
 function Vouchers() {
   const [searchProduct, setSearchProduct] = useState('');
@@ -25,6 +26,46 @@ function Vouchers() {
   }, [page, limit, valueProduct, valueStore]);
 
   const isLastPage = vouchers.length < limit;
+
+  function handleDelete(id: string) {
+    Swal.fire({
+      title: 'Are you sure you want to delete this category?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#EF5A6F',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteVoucher(
+            id,
+            page,
+            limit,
+            valueProduct,
+            valueStore,
+            setVouchers,
+          );
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Category has been deleted.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6',
+          });
+        } catch (error) {
+          Swal.fire({
+            title: 'Error!',
+            text: 'There was a problem deleting the category.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33',
+          });
+        }
+      }
+    });
+  }
 
   return (
     <>
@@ -105,7 +146,10 @@ function Vouchers() {
                               Detail
                             </Link>
                           </Table.Cell>
-                          <Table.Cell className="font-medium text-red-600">
+                          <Table.Cell
+                            className="font-medium text-red-600 cursor-pointer"
+                            onClick={() => handleDelete(voucher.id)}
+                          >
                             Delete
                           </Table.Cell>
                         </Table.Row>

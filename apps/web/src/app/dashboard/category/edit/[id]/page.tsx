@@ -6,6 +6,7 @@ import * as Yup from 'yup';
 import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 const EditCategory = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -50,11 +51,25 @@ const EditCategory = ({ params }: { params: { id: string } }) => {
           values,
           { headers: { 'Content-Type': 'multipart/form-data' } },
         );
-        alert(data.message);
-        router.push('/dashboard/category');
+        Swal.fire({
+          title: 'Success!',
+          text: 'Category has been updated.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/category');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) throw error.response?.data?.message;
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            title: 'Error!',
+            text: error.response?.data?.message || 'Something went wrong',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });

@@ -5,6 +5,7 @@ import { RxAvatar } from 'react-icons/rx';
 import { axiosInstance } from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { Table } from 'flowbite-react';
+import Swal from 'sweetalert2';
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { useDebounce } from 'use-debounce';
 import { fetchUser, deleteUser } from '@/helpers/fetchUser';
@@ -34,6 +35,37 @@ const Users = () => {
   }, [page, limit, value]);
 
   const isLastPage = users.length < limit;
+
+  function handleDelete(id: string) {
+    Swal.fire({
+      title: 'Are you sure you want to delete this?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteUser(id, page, limit, value, setUsers);
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Your file has been deleted.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6',
+          });
+        } catch (error) {
+          Swal.fire(
+            'Error!',
+            'There was a problem deleting the user.',
+            'error',
+          );
+        }
+      }
+    });
+  }
 
   return (
     <>
@@ -79,7 +111,7 @@ const Users = () => {
                   <Table.HeadCell>No</Table.HeadCell>
                   <Table.HeadCell>Name</Table.HeadCell>
                   <Table.HeadCell>Email</Table.HeadCell>
-                  <Table.HeadCell>Store Name</Table.HeadCell>
+
                   <Table.HeadCell className="sr-only">
                     <span>Delete</span>
                   </Table.HeadCell>
@@ -94,15 +126,9 @@ const Users = () => {
                         <Table.Cell>{index + 1}</Table.Cell>
                         <Table.Cell>{user.name}</Table.Cell>
                         <Table.Cell>{user.email}</Table.Cell>
-                        <Table.Cell>
-                          {user.Store && user.Store.length > 0
-                            ? user.Store[0].name
-                            : 'No Store'}
-                        </Table.Cell>
+
                         <Table.Cell
-                          onClick={() =>
-                            deleteUser(user.id, page, limit, value, setUsers)
-                          }
+                          onClick={() => handleDelete(user.id)}
                           className="font-medium text-red-600 cursor-pointer"
                         >
                           Delete

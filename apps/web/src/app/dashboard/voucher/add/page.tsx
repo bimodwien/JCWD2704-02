@@ -11,6 +11,7 @@ import { fetchStores } from '@/helpers/fetchStore';
 import { TProduct } from '@/models/product';
 import { TStore } from '@/models/store.model';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 const AddVoucher = () => {
   const router = useRouter();
@@ -62,11 +63,25 @@ const AddVoucher = () => {
           '/vouchers',
           formattedValues,
         );
-        alert(data.message);
-        router.push('/dashboard/voucher');
+        Swal.fire({
+          title: 'Success!',
+          text: 'Voucher has been added.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/voucher');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            title: 'Error!',
+            text: error.response?.data?.message || 'Something went wrong',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });

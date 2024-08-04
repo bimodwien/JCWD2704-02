@@ -36,7 +36,6 @@ export async function deleteCategory(
   const axios = axiosInstance();
   try {
     await axios.delete(`/category/${id}`);
-    alert('Data berhasil dihapus');
     fetchCategory(page, limit, name, setCategory);
   } catch (error) {
     console.log(error);

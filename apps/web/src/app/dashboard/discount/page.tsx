@@ -7,8 +7,9 @@ import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { Table } from 'flowbite-react';
 import { TDiscount } from '@/models/discount';
 import { useDebounce } from 'use-debounce';
-import { fetchDiscount } from '@/helpers/fetchDiscount';
+import { fetchDiscount, deleteDiscount } from '@/helpers/fetchDiscount';
 import dayjs from 'dayjs';
+import Swal from 'sweetalert2';
 
 function Discount() {
   const [searchProduct, setSearchProduct] = useState('');
@@ -24,6 +25,46 @@ function Discount() {
   }, [page, limit, valueProduct, valueStore]);
 
   const isLastPage = discounts.length < limit;
+
+  function handleDelete(id: string) {
+    Swal.fire({
+      title: 'Are you sure you want to delete this discount?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#EF5A6F',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteDiscount(
+            id,
+            page,
+            limit,
+            valueProduct,
+            valueStore,
+            setDiscounts,
+          );
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Discount has been deleted.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6',
+          });
+        } catch (error) {
+          Swal.fire({
+            title: 'Error!',
+            text: 'There was a problem deleting the discount.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#EF5A6F',
+          });
+        }
+      }
+    });
+  }
   return (
     <section className="bg-[#F4F7FE] flex w-full top[49px] left-[290px] h-lvh">
       <Sidebar />
@@ -102,7 +143,10 @@ function Discount() {
                         <Table.Cell>
                           {dayjs(discount.endDate).format('YYYY-MM-DD')}
                         </Table.Cell>
-                        <Table.Cell className="font-medium text-red-600">
+                        <Table.Cell
+                          className="font-medium text-red-600 cursor-pointer"
+                          onClick={() => handleDelete(discount.id)}
+                        >
                           Delete
                         </Table.Cell>
                       </Table.Row>

@@ -11,6 +11,7 @@ import { TProduct } from '@/models/product';
 import { TStore } from '@/models/store.model';
 import { useRouter } from 'next/navigation';
 import { Datepicker } from 'flowbite-react';
+import Swal from 'sweetalert2';
 
 function AddDiscount() {
   const router = useRouter();
@@ -56,11 +57,33 @@ function AddDiscount() {
           '/discounts',
           formattedValues,
         );
-        alert(data.message);
-        router.push(`/dashboard/discount`);
+        Swal.fire({
+          title: 'Success!',
+          text: data.message,
+          icon: 'success',
+          confirmButtonColor: '#3085d6',
+          confirmButtonText: 'OK',
+        }).then(() => {
+          router.push(`/dashboard/discount`);
+        });
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            title: 'Error!',
+            text: error.response?.data?.message,
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK',
+          });
+        } else if (error instanceof Error) {
+          Swal.fire({
+            title: 'Error!',
+            text: error.message,
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK',
+          });
+        }
       }
     },
   });

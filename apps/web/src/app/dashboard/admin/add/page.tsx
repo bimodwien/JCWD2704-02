@@ -1,28 +1,20 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { axiosInstance } from '@/lib/axios';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-import { Loader } from '@googlemaps/js-api-loader';
-import { availableStores, getAllStore } from '@/helpers/fetchStore';
-import { TStore } from '@/models/store.model';
+import Swal from 'sweetalert2';
 
 const AddAdmin = () => {
   const router = useRouter();
-  const mapRef = useRef<HTMLDivElement>(null);
-  const addressInputRef = useRef<HTMLInputElement>(null);
-  const [stores, setStores] = useState<TStore[]>([]);
-
   const initialValues = {
     name: '',
     email: '',
     password: '',
-    address: '',
   };
-
   const formik = useFormik({
     initialValues,
     validationSchema: Yup.object().shape({
@@ -33,19 +25,25 @@ const AddAdmin = () => {
     onSubmit: async (values) => {
       try {
         const { data } = await axiosInstance().post('/admins', values);
-        alert(data.message);
-        router.push('/dashboard/admin');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: data.message,
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/admin');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.response?.data?.message || 'Something went wrong',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });
-
-  useEffect(() => {
-    availableStores(setStores);
-  }, []);
-
   return (
     <>
       <section className="bg-[#f4f7fe] w-full h-lvh">
@@ -53,7 +51,7 @@ const AddAdmin = () => {
           <div className="flex items-center mb-6 text-2xl font-semibold text-gray-900">
             Nama Toko
           </div>
-          <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+          <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 ">
             <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                 Add Admin
@@ -75,16 +73,13 @@ const AddAdmin = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     {...formik.getFieldProps('name')}
                   />
-                  {formik.touched.name && formik.errors.name ? (
-                    <div className="text-red-500">{formik.errors.name}</div>
-                  ) : null}
                 </div>
                 <div>
                   <label
                     htmlFor="email"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Email
+                    email
                   </label>
                   <input
                     type="text"
@@ -92,9 +87,6 @@ const AddAdmin = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     {...formik.getFieldProps('email')}
                   />
-                  {formik.touched.email && formik.errors.email ? (
-                    <div className="text-red-500">{formik.errors.email}</div>
-                  ) : null}
                 </div>
                 <div>
                   <label
@@ -109,45 +101,36 @@ const AddAdmin = () => {
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
                     {...formik.getFieldProps('password')}
                   />
-                  {formik.touched.password && formik.errors.password ? (
-                    <div className="text-red-500">{formik.errors.password}</div>
-                  ) : null}
                 </div>
-                <div>
+                <div className="pt-1">
                   <label
-                    htmlFor="storeId"
+                    htmlFor=""
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Store
+                    Store Location
                   </label>
                   <select
-                    id="storeId"
+                    name=""
+                    id=""
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    {...formik.getFieldProps('storeId')}
                   >
-                    <option value="">Pilih Store</option>
-                    {stores.map((store) => (
-                      <option key={store.id} value={store.id}>
-                        {store.name}
-                      </option>
-                    ))}
+                    <option value="">Select a location</option>
                   </select>
-                  {/* {formik.touched.storeId && formik.errors.storeId ? (
-                    <div className="text-red-500">{formik.errors.storeId}</div>
-                  ) : null} */}
                 </div>
-                <button
-                  type="submit"
-                  className="text-white bg-blue-700 rounded-lg p-2"
-                >
-                  Add Admin
-                </button>
-                <Link
-                  href="/dashboard/admin"
-                  className="w-full text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  Cancel
-                </Link>
+                <div className="flex items-center gap-5 pt-5">
+                  <button
+                    type="submit"
+                    className=" text-white bg-blue-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  >
+                    Create an admin
+                  </button>
+                  <Link
+                    href={'/dashboard/admin'}
+                    className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-1.5 text-center"
+                  >
+                    Back
+                  </Link>
+                </div>
               </form>
             </div>
           </div>

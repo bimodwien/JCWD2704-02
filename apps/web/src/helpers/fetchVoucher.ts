@@ -39,3 +39,20 @@ export async function fetchDetailVoucher(
     console.log(error);
   }
 }
+
+export async function deleteVoucher(
+  id: string,
+  page: number,
+  limit: number,
+  productName: string,
+  storeName: string,
+  setVoucher: (value: React.SetStateAction<TVoucher[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    await axios.delete(`/vouchers/${id}`);
+    fetchVoucher(page, limit, productName, storeName, setVoucher);
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -10,6 +10,7 @@ import { fetchCategory, deleteCategory } from '@/helpers/fetchCategory';
 import { TCategory } from '@/models/category';
 import { axiosInstance } from '@/lib/axios';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 const Category = () => {
   const [search, setSearch] = useState('');
@@ -34,6 +35,39 @@ const Category = () => {
   }, [page, limit, value]);
 
   const isLastPage = categories.length < limit;
+
+  function handleDelete(id: string) {
+    Swal.fire({
+      title: 'Are you sure you want to delete this category?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#EF5A6F',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteCategory(id, page, limit, value, setCategories);
+          Swal.fire({
+            title: 'Deleted!',
+            text: 'Category has been deleted.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#3085d6',
+          });
+        } catch (error) {
+          Swal.fire({
+            title: 'Error!',
+            text: 'There was a problem deleting the category.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33',
+          });
+        }
+      }
+    });
+  }
 
   return (
     <>
@@ -99,13 +133,7 @@ const Category = () => {
                           <Table.Cell>{category.name}</Table.Cell>
                           <Table.Cell
                             onClick={() => {
-                              deleteCategory(
-                                category.id,
-                                page,
-                                limit,
-                                value,
-                                setCategories,
-                              );
+                              handleDelete(category.id);
                             }}
                             className="font-medium text-red-600 cursor-pointer"
                           >

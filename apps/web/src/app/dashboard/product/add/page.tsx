@@ -8,6 +8,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import { TCategory } from '@/models/category';
 import { fetchCategory } from '@/helpers/fetchCategory';
+import Swal from 'sweetalert2';
 
 const AddProduct = () => {
   const initialValues = {
@@ -41,11 +42,22 @@ const AddProduct = () => {
             'Content-Type': 'multipart/form-data',
           },
         });
-        alert(data.message);
-        router.push('/dashboard/product');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: data.message,
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/product');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.response?.data?.message || 'Something went wrong',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });

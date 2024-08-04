@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
 
-  console.log(refresh_token, 'refresh_token');
+  // console.log(refresh_token, 'refresh_token');
   const isLogin = await fetch('http://localhost:8000/admins/validate', {
     method: 'GET',
     headers: {
@@ -26,15 +26,15 @@ export async function middleware(request: NextRequest) {
       return false;
     });
 
-  console.log(isLogin);
+  // console.log(isLogin);
 
   const token = response.cookies.get('access_token')?.value;
 
   const decode = token ? (jwtDecode(token) as { user: TUser }) : undefined;
-  console.log(decode, 'decode');
+  // console.log(decode, 'decode');
 
   const isSuperAdmin = decode?.user?.role === 'superAdmin';
-  // const isStoreAdmin = decode?.role === 'storeAdmin';
+  const isStoreAdmin = decode?.user?.role === 'storeAdmin';
   if (!isSuperAdmin && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }

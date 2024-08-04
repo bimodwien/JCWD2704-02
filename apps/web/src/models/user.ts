@@ -1,5 +1,5 @@
 export type TUser = {
-  id: string | null;
+  id: string;
   name: string | null;
   email: string;
   isVerified?: boolean | null;

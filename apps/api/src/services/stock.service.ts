@@ -43,20 +43,11 @@ class StockService {
         },
       },
     });
-
-    console.log('Stock Data:', JSON.stringify(stockData, null, 2));
-
     const updatedStocks = await prisma.$transaction(async (prisma) => {
       return Promise.all(
         stockData.map(async (stock) => {
           let finalPrice = stock.product.price;
           if (stock.ProductDiscount && stock.ProductDiscount.length > 0) {
-            console.log(
-              'Product Discounts for Stock ID',
-              stock.id,
-              ':',
-              stock.ProductDiscount,
-            );
             stock.ProductDiscount.forEach((discount) => {
               const discountValue = discount.value ?? 0;
               if (discount.type === 'percentage') {
@@ -82,11 +73,6 @@ class StockService {
         }),
       );
     });
-
-    console.log(
-      'Updated Stock with Discounts:',
-      JSON.stringify(updatedStocks, null, 2),
-    );
 
     const total = await prisma.stock.count({
       where: {
