@@ -9,13 +9,6 @@ import AddToCartButton from './addToCart';
 type Props = { dataProduct: any };
 
 const DetailComponent = ({ dataProduct }: Props) => {
-  const handleSuccess = () => {
-    alert('Product added to cart successfully');
-  };
-
-  const handleError = (error: any) => {
-    alert('Failed to add product to cart');
-  };
   return (
     <>
       <section className="py-8 flex justify-center items-center bg-[#FAF9F6] min-h-lvh md:py-16 antialiased">
@@ -49,11 +42,7 @@ const DetailComponent = ({ dataProduct }: Props) => {
                 >
                   Back to Home
                 </Link>
-                <AddToCartButton
-                  productId={dataProduct.id}
-                  onSuccess={handleSuccess}
-                  onError={handleError}
-                />
+                <AddToCartButton productId={dataProduct.id} />
               </div>
               <hr className="my-6 md:my-8 border-gray-200" />
               <p className="mb-6 text-gray-500">{dataProduct.description}</p>

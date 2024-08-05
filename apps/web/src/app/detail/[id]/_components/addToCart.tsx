@@ -4,19 +4,9 @@ import { axiosInstance } from '@/lib/axios';
 import { TStock } from '@/models/stock';
 import { TStore } from '@/models/store.model';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
-type AddToCartButtonProps = {
-  productId: string;
-  onSuccess: () => void;
-  onError: (error: any) => void;
-};
-
-const AddToCartButton = ({
-  productId,
-  onSuccess,
-  onError,
-}: AddToCartButtonProps) => {
+const AddToCartButton = ({ productId }: { productId: string }) => {
   const [stores, setStores] = useState<TStore[]>([]);
   const [selectedStoreId, setSelectedStoreId] = useState<string>('');
   const [stock, setStock] = useState<TStock | null>(null);
@@ -66,7 +56,11 @@ const AddToCartButton = ({
   const handleAddToCart = async () => {
     try {
       if (!selectedStoreId || quantity <= 0) {
-        toast.error('Please select a store and specify a valid quantity.');
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Please select a store and specify a valid quantity.',
+        });
         return;
       }
 
@@ -77,11 +71,19 @@ const AddToCartButton = ({
       });
 
       if (response.status === 200) {
-        onSuccess();
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Product added to cart successfully.',
+        });
       }
     } catch (error) {
       console.error('Error adding product to cart:', error);
-      onError(error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while adding the product to the cart.',
+      });
     }
   };
 
