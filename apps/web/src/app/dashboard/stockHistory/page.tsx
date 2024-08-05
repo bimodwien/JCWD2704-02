@@ -1,5 +1,5 @@
 'use client';
-
+import '../../dashboard.css';
 import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import { RxAvatar } from 'react-icons/rx';

@@ -1,9 +1,8 @@
 'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { IoCartOutline, IoReceiptOutline } from 'react-icons/io5';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation'; // Import usePathname
+import { usePathname } from 'next/navigation';
 import { axiosInstance } from '@/lib/axios';
 
 const Navbar = () => {
@@ -11,7 +10,7 @@ const Navbar = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userPhotoRef = useRef<HTMLButtonElement>(null);
   const [sumCart, setSumCart] = useState(0);
-  const pathname = usePathname(); // Use usePathname to get the current pathname
+  const pathname = usePathname();
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -35,11 +34,9 @@ const Navbar = () => {
     };
   }, []);
 
-  const userId = 'clz9fsqf60000103hg0a7vi11';
-
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/t/${userId}`);
+      const response = await axiosInstance().get(`/cart/t`);
       const { data } = response.data;
       setSumCart(data);
     } catch (error) {
@@ -49,7 +46,7 @@ const Navbar = () => {
 
   useEffect(() => {
     fetchCart();
-  }, [pathname]); // Trigger fetchCart when pathname changes
+  }, [pathname]);
 
   return (
     <nav className="border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
@@ -73,8 +70,8 @@ const Navbar = () => {
               {sumCart > 0 && (
                 <span
                   className={`absolute ${
-                    sumCart > 99 ? '-right-4 w-8' : '-right-2 w-5'
-                  } -top-2 bg-red-500 text-white border-2 font-semibold border-white rounded-full h-5 flex items-center justify-center text-xs`}
+                    sumCart > 99 ? '-right-4 w-8 h-8' : '-right-3 w-6 h-6 '
+                  } -top-3 bg-red-500 text-white border-2 font-semibold border-white rounded-full flex items-center justify-center text-xs`}
                 >
                   {sumCart > 99 ? '+99' : sumCart}
                 </span>

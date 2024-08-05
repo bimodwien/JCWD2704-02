@@ -10,12 +10,16 @@ import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { LuExternalLink } from 'react-icons/lu';
 import { RxAvatar } from 'react-icons/rx';
 import { useDebounce } from 'use-debounce';
-import Sidebar from './Sidebar';
+// import Sidebar from './Sidebar';
+import '../../../dashboard.css';
 import { DateRange, Range, RangeKeyDict } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import Sidebar from '@/components/Sidebar';
+import { FaRegCalendar } from 'react-icons/fa6';
+import { IoIosArrowDown, IoIosCloseCircleOutline } from 'react-icons/io';
 
 const OrderList = () => {
   const [search, setSearch] = useState<string>('');
@@ -30,23 +34,38 @@ const OrderList = () => {
   const [orderData, setOrderData] = useState<TOrder[]>([]);
   const [dateRange, setDateRange] = useState<Range[]>([
     {
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: undefined,
+      endDate: undefined,
       key: 'selection',
     },
   ]);
   const [showDateRange, setShowDateRange] = useState<boolean>(false);
   const [byDate, setByDate] = useState<string>('no');
-  const [tempDateRange, setTempDateRange] = useState<Range[]>(dateRange);
+  const [tempDateRange, setTempDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: 'selection',
+    },
+  ]);
   dayjs.extend(relativeTime);
 
   const handleDateOpen = () => {
     if (showDateRange) {
       setShowDateRange(false);
+      setTempDateRange([
+        {
+          startDate: new Date(),
+          endDate: new Date(),
+          key: 'selection',
+        },
+      ]);
     } else {
       setShowDateRange(true);
     }
   };
+
+  const dateRangeRef = useRef<HTMLDivElement>(null);
 
   const handleDateRangeChange = (rangesByKey: RangeKeyDict) => {
     const { selection } = rangesByKey;
@@ -112,11 +131,6 @@ const OrderList = () => {
     if (page > 1) setPage(page - 1);
   };
 
-  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLimit(parseInt(e.target.value));
-    setPage(1);
-  };
-
   useEffect(() => {
     fetchOrder();
   }, [
@@ -135,6 +149,24 @@ const OrderList = () => {
     setPage(1);
   }, [value, valueInv, sortBy, filterStatus, filterPaid, dateRange]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dateRangeRef.current &&
+        !dateRangeRef.current.contains(event.target as Node)
+      ) {
+        setShowDateRange(false);
+      }
+    };
+
+    if (showDateRange) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDateRange]);
   return (
     <section className="bg-[#F4F7FE] flex w-full h-full">
       <Sidebar />
@@ -165,6 +197,15 @@ const OrderList = () => {
         </div>
         <div className="flex flex-col justify-between gap-5 mt-5 ">
           <div className="flex gap-5 items-center">
+            <div className="flex gap-5 py-1">
+              <input
+                type="text"
+                placeholder="Search store..."
+                className="bg-[#F4F7FE] rounded-full pl-5 py-1 font-dm-sans text-14px"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
             <div className="flex items-center">
               <select
                 id="status"
@@ -205,15 +246,13 @@ const OrderList = () => {
                 <option value="asc">latest</option>
               </select>
             </div>
-            <div className="relative z-50">
-              <div className="flex justify-center sm:text-sm border rounded-xl border-gray-200 p-0.5 bg-white items-center w-80">
-                <button
-                  onClick={handleDateOpen}
-                  className="px-3 rounded-xl w-full h-full py-2"
-                >
+            <div className="relative z-10" ref={dateRangeRef}>
+              <div className="flex justify-center gap-1 text-sm lg:text-sm text-gray-500 border rounded-xl border-gray-300 bg-white items-center w-full h-full lg:w-64 min-h-10">
+                <button onClick={handleDateOpen} className="w-full h-full ml-3">
                   <span>
                     {dateRange[0]?.startDate && dateRange[0]?.endDate ? (
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-start gap-2">
+                        <FaRegCalendar />
                         <div>
                           {dayjs(dateRange[0].startDate).format('DD MMM YYYY')}
                         </div>
@@ -223,23 +262,25 @@ const OrderList = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-center gap-2">
-                        <div>Start Date</div>
-                        <div>-</div>
-                        <div>End Date</div>
+                      <div className="flex items-center justify-start gap-2">
+                        <FaRegCalendar />
+                        Select the order date
                       </div>
                     )}
                   </span>
                 </button>
-                <button
-                  onClick={handleResetDateRange}
-                  className="bg-blue-500 text-white py-1 px-3 rounded-xl m-1"
-                >
-                  reset
-                </button>
+                {dateRange[0]?.startDate && dateRange[0]?.endDate ? (
+                  <button onClick={handleResetDateRange} className="mr-3">
+                    <IoIosCloseCircleOutline className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button onClick={handleDateOpen} className="mr-3">
+                    <IoIosArrowDown className="w-4 h-4" />
+                  </button>
+                )}
               </div>
               {showDateRange && (
-                <div className="absolute top-0 bg-white p-4 shadow-lg rounded-xl overflow-hidden">
+                <div className="absolute top-0 right-0 bg-white p-4 shadow-lg rounded-xl overflow-hidden border border-gray-300">
                   <DateRange
                     ranges={tempDateRange}
                     onChange={handleDateRangeChange}

@@ -1,5 +1,4 @@
 'use client';
-
 import { axiosInstance } from '@/lib/axios';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -73,6 +72,23 @@ const DetailOrder = () => {
                 <MdOutlinePayment />
                 Payment
               </div>
+              {order?.status === 'waitingConfirmation' ? (
+                <div className="border-2 border-amber-500 text-amber-700 bg-amber-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                  unchecked
+                </div>
+              ) : order?.paidType === 'manual' &&
+                order?.status === 'waitingPayment' &&
+                order.paidAt ? (
+                <div className="border-2 border-red-500 text-red-700 bg-red-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                  denied
+                </div>
+              ) : order?.status === 'processed' ? (
+                <div className="border-2 border-blue-500 text-blue-700 bg-blue-100 font-medium px-3 py-1 h-full rounded-full text-sm">
+                  approve
+                </div>
+              ) : (
+                ''
+              )}
             </div>
             <hr />
             <PaymentOrder

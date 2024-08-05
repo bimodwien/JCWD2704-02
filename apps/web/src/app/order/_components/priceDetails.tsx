@@ -19,6 +19,11 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
   countdown,
 }) => {
   if (!order) return null;
+  const calculateSubtotal = (): number => {
+    return order.OrderItem.reduce((total, item) => total + item.price, 0);
+  };
+
+  const subtotal = calculateSubtotal();
 
   const cancelOrder = async () => {
     const result = await Swal.fire({
@@ -76,30 +81,34 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
         <div className="text-lg lg:text-xl font-semibold">Price Details</div>
         <div className="flex justify-between items-center font-semibold ">
           <span className="font-normal ">Subtotal</span>
-          {/* {formatPrice()} */}
+          {formatPrice(subtotal)}
         </div>
         <div className="flex justify-between items-center font-semibold ">
           <span className="font-normal ">Shipping</span>
-          Rp XX.XXX
+          {formatPrice(order.shippingCost)}
         </div>
-        <div className="flex justify-between items-center font-semibold ">
-          <span className="font-normal ">Discount</span>
-          Rp XX.XXX
-        </div>
+        {order.discountPrice > 0 && (
+          <div className="flex justify-between items-center font-semibold ">
+            <span className="font-normal ">Voucher</span>-
+            {formatPrice(order.discountPrice)}
+          </div>
+        )}
         <hr />
         <div className="flex justify-between items-center font-semibold text-lg">
           <span className="">Total Payment</span>
           {formatPrice(order.totalPrice)}
         </div>
         <hr />
-        {order.paidType === 'manual' && order.status !== 'waitingPayment' && (
-          <button
-            onClick={seeProof}
-            className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50"
-          >
-            See Payment Proof
-          </button>
-        )}
+        {order.paidAt &&
+          order.paidType === 'manual' &&
+          order.status !== 'waitingPayment' && (
+            <button
+              onClick={seeProof}
+              className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold hover:bg-blue-50"
+            >
+              See Payment Proof
+            </button>
+          )}
 
         {order.status === 'waitingPayment' && countdown !== 0 && (
           <button

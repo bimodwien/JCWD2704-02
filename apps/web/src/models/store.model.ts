@@ -9,4 +9,5 @@ export type TStore = {
   postalCode: number;
   latitude: number;
   longitude: number;
+  distance: number;
 };

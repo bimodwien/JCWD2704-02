@@ -1,7 +1,9 @@
 import { Request } from 'express';
 import prisma from '../prisma';
 import { $Enums, Paid, Status } from '@prisma/client';
-import { equal } from 'joi';
+import fs from 'fs';
+import path from 'path';
+import { transporter } from '@/lib/nodemailer';
 
 class OrderAdminService {
   async checkPayment(req: Request) {
@@ -45,6 +47,37 @@ class OrderAdminService {
           checkedBy: role,
         },
       });
+
+      const templatePath = path.join(
+        __dirname,
+        '../../templates/deny.template.html',
+      );
+      const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+      const userData = await prisma.order.findFirst({
+        where: { id: orderId },
+        select: {
+          invoice: true,
+          user: { select: { name: true, email: true } },
+        },
+      });
+
+      if (userData) {
+        const userEmail = userData.user.email;
+        const userName = userData.user.name || userData.user.email;
+        const orderInvoice = userData.invoice;
+        const html = htmlTemplate
+          .replace(/{CustomerName}/g, orderInvoice)
+          .replace(/{OrderNumber}/g, userName);
+
+        await transporter.sendMail({
+          from: 'bbhstore01@gmail.com',
+          to: userEmail,
+          subject: 'Payment Denied',
+          html,
+        });
+      }
+
       return update;
     } else {
       const update = await prisma.order.update({
@@ -56,6 +89,36 @@ class OrderAdminService {
           checkedBy: role,
         },
       });
+
+      const templatePath = path.join(
+        __dirname,
+        '../../templates/processed.template.html',
+      );
+      const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+      const userData = await prisma.order.findFirst({
+        where: { id: orderId },
+        select: {
+          invoice: true,
+          user: { select: { name: true, email: true } },
+        },
+      });
+
+      if (userData) {
+        const userEmail = userData.user.email;
+        const userName = userData.user.name || userData.user.email;
+        const orderInvoice = userData.invoice;
+        const html = htmlTemplate
+          .replace(/{orderNumber}/g, orderInvoice)
+          .replace(/{customerName}/g, userName);
+
+        await transporter.sendMail({
+          from: 'bbhstore01@gmail.com',
+          to: userEmail,
+          subject: 'Payment Approve',
+          html,
+        });
+      }
       return update;
     }
   }
@@ -154,6 +217,36 @@ class OrderAdminService {
         }
       }
 
+      const templatePath = path.join(
+        __dirname,
+        '../../templates/cancelled.template.html',
+      );
+      const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+      const userData = await prisma.order.findFirst({
+        where: { id: orderId },
+        select: {
+          invoice: true,
+          user: { select: { name: true, email: true } },
+        },
+      });
+
+      if (userData) {
+        const userEmail = userData.user.email;
+        const userName = userData.user.name || userData.user.email;
+        const orderInvoice = userData.invoice;
+        const html = htmlTemplate
+          .replace(/{orderNumber}/g, orderInvoice)
+          .replace(/{customerName}/g, userName);
+
+        await transporter.sendMail({
+          from: 'bbhstore01@gmail.com',
+          to: userEmail,
+          subject: 'Order Cancelled',
+          html,
+        });
+      }
+
       return updatedOrder;
     });
 
@@ -201,6 +294,36 @@ class OrderAdminService {
         shippedBy: role,
       },
     });
+
+    const templatePath = path.join(
+      __dirname,
+      '../../templates/shipped.template.html',
+    );
+    const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+    const userData = await prisma.order.findFirst({
+      where: { id: orderId },
+      select: {
+        invoice: true,
+        user: { select: { name: true, email: true } },
+      },
+    });
+
+    if (userData) {
+      const userEmail = userData.user.email;
+      const userName = userData.user.name || userData.user.email;
+      const orderInvoice = userData.invoice;
+      const html = htmlTemplate
+        .replace(/{orderNumber}/g, orderInvoice)
+        .replace(/{customerName}/g, userName);
+
+      await transporter.sendMail({
+        from: 'bbhstore01@gmail.com',
+        to: userEmail,
+        subject: 'Order Shipped',
+        html,
+      });
+    }
 
     return shippedOrder;
   }

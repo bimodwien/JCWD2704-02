@@ -3,10 +3,19 @@
 import React from 'react';
 import { PiTrolleyFill } from 'react-icons/pi';
 import Link from 'next/link';
+import { axiosInstance } from '@/lib/axios';
+import AddToCartButton from './addToCart';
 
 type Props = { dataProduct: any };
 
 const DetailComponent = ({ dataProduct }: Props) => {
+  const handleSuccess = () => {
+    alert('Product added to cart successfully');
+  };
+
+  const handleError = (error: any) => {
+    alert('Failed to add product to cart');
+  };
   return (
     <>
       <section className="py-8 flex justify-center items-center bg-[#FAF9F6] min-h-lvh md:py-16 antialiased">
@@ -33,16 +42,18 @@ const DetailComponent = ({ dataProduct }: Props) => {
                   </p>
                 </div>
               </div>
-              <div className="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8">
+              <div className="mt-6 sm:gap-4 sm:flex sm:flex-col sm:mt-8">
                 <Link
                   href={'/'}
                   className="flex items-center justify-center py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
                 >
                   Back to Home
                 </Link>
-                <button className="w-full sm:w-fit text-white mt-4 sm:mt-0 bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none flex items-center justify-center">
-                  <PiTrolleyFill className="mr-2" /> Add to cart
-                </button>
+                <AddToCartButton
+                  productId={dataProduct.id}
+                  onSuccess={handleSuccess}
+                  onError={handleError}
+                />
               </div>
               <hr className="my-6 md:my-8 border-gray-200" />
               <p className="mb-6 text-gray-500">{dataProduct.description}</p>

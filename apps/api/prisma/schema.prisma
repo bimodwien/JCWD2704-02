@@ -45,6 +45,7 @@ model Address {
   id         String   @id @default(cuid())
   user       User     @relation(fields: [userId], references: [id])
   userId     String
+  name       String?
   address    String
   postalCode Int
   city       String
@@ -53,6 +54,7 @@ model Address {
   latitude   Float?
   longitude  Float?
   isChosen   Boolean  @default(false)
+  isDefault  Boolean  @default(false)
   Order      Order[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -202,7 +204,9 @@ model Cart {
   store     Store    @relation(fields: [storeId], references: [id])
   storeId   String
   quantity  Int
-  stock     Stock    @relation(fields: [productId, storeId], references: [productId, storeId])
+  stock     Stock?   @relation(fields: [stockId], references: [id])
+  stockId   String?
+  // stock     Stock?   @relation(fields: [productId, storeId], references: [productId, storeId])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -262,22 +266,30 @@ model Order {
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
   StockHistory      StockHistory[]
+  discountPrice     Float?
+  voucher           Voucher?       @relation(fields: [voucherId], references: [id])
+  voucherId         String?
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   String
-  product   Product  @relation(fields: [productId], references: [id])
-  productId String
+  id                String           @id @default(cuid())
+  order             Order            @relation(fields: [orderId], references: [id])
+  orderId           String
+  product           Product          @relation(fields: [productId], references: [id])
+  productId         String
   // store     Store    @relation(fields: [storeId], references: [id])
   // storeId   String
-  quantity  Int
-  price     Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  quantity          Int
+  get               Int?
+  price             Float
+  discountPrice     Float?
+  normalPrice       Float?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  productDiscount   ProductDiscount? @relation(fields: [productDiscountId], references: [id])
+  productDiscountId String?
 
   @@map("order_items")
 }
@@ -315,6 +327,7 @@ model ProductDiscount {
   isDeleted   Boolean      @default(false)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  OrderItem   OrderItem[]
 
   @@map("product_discounts")
 }
@@ -340,6 +353,7 @@ model Voucher {
   isDeleted        Boolean         @default(false)
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+  Order            Order[]
 
   @@map("vouchers")
 }

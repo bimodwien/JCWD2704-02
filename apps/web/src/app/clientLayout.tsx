@@ -18,7 +18,14 @@ export default function ClientLayout({
     const isInvoicePage =
       pathname?.startsWith('/order/') && pathname?.split('/').length === 3;
 
-    if (pathsWithFooterAndNavbar.includes(pathname) || isInvoicePage) {
+    const detailPage =
+      pathname?.startsWith('/detail/') && pathname?.split('/').length === 3;
+
+    if (
+      pathsWithFooterAndNavbar.includes(pathname) ||
+      isInvoicePage ||
+      detailPage
+    ) {
       setShowFooter(true);
       setShowNavbar(true);
     } else {

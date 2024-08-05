@@ -66,3 +66,25 @@ export const verifyUser = async (
 
   next();
 };
+
+export const verifyAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const userId = req.user.id;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user || (user.role !== 'superAdmin' && user.role !== 'storeAdmin')) {
+    return res.status(403).json({
+      message: 'Unauthorized: Only admin can accses.',
+    });
+  }
+
+  next();
+};

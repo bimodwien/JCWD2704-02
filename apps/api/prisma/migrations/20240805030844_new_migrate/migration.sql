@@ -25,6 +25,7 @@ CREATE TABLE `users` (
 CREATE TABLE `addresses` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NULL,
     `address` VARCHAR(191) NOT NULL,
     `postalCode` INTEGER NOT NULL,
     `city` VARCHAR(191) NOT NULL,
@@ -33,6 +34,7 @@ CREATE TABLE `addresses` (
     `latitude` DOUBLE NULL,
     `longitude` DOUBLE NULL,
     `isChosen` BOOLEAN NOT NULL DEFAULT false,
+    `isDefault` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -128,7 +130,7 @@ CREATE TABLE `stock_histories` (
     `id` VARCHAR(191) NOT NULL,
     `quantityChange` INTEGER NOT NULL,
     `changeType` ENUM('in', 'out') NOT NULL,
-    `reason` ENUM('restock', 'orderCancellation', 'orderPlacement', 'other') NOT NULL,
+    `reason` ENUM('restock', 'newStock', 'orderCancellation', 'orderPlacement', 'other') NOT NULL,
     `isDeleted` BOOLEAN NOT NULL DEFAULT false,
     `productId` VARCHAR(191) NULL,
     `stockId` VARCHAR(191) NULL,
@@ -147,6 +149,7 @@ CREATE TABLE `carts` (
     `productId` VARCHAR(191) NOT NULL,
     `storeId` VARCHAR(191) NOT NULL,
     `quantity` INTEGER NOT NULL,
+    `stockId` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -181,6 +184,8 @@ CREATE TABLE `orders` (
     `status` ENUM('waitingPayment', 'waitingConfirmation', 'processed', 'shipped', 'confirmed', 'cancelled') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `discountPrice` DOUBLE NULL,
+    `voucherId` VARCHAR(191) NULL,
 
     UNIQUE INDEX `orders_invoice_key`(`invoice`),
     PRIMARY KEY (`id`)
@@ -192,9 +197,13 @@ CREATE TABLE `order_items` (
     `orderId` VARCHAR(191) NOT NULL,
     `productId` VARCHAR(191) NOT NULL,
     `quantity` INTEGER NOT NULL,
+    `get` INTEGER NULL,
     `price` DOUBLE NOT NULL,
+    `discountPrice` DOUBLE NULL,
+    `normalPrice` DOUBLE NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `productDiscountId` VARCHAR(191) NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -293,7 +302,7 @@ ALTER TABLE `carts` ADD CONSTRAINT `carts_productId_fkey` FOREIGN KEY (`productI
 ALTER TABLE `carts` ADD CONSTRAINT `carts_storeId_fkey` FOREIGN KEY (`storeId`) REFERENCES `store`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `carts` ADD CONSTRAINT `carts_productId_storeId_fkey` FOREIGN KEY (`productId`, `storeId`) REFERENCES `stocks`(`productId`, `storeId`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `carts` ADD CONSTRAINT `carts_stockId_fkey` FOREIGN KEY (`stockId`) REFERENCES `stocks`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `orders` ADD CONSTRAINT `orders_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -305,10 +314,16 @@ ALTER TABLE `orders` ADD CONSTRAINT `orders_storeId_fkey` FOREIGN KEY (`storeId`
 ALTER TABLE `orders` ADD CONSTRAINT `orders_addressId_fkey` FOREIGN KEY (`addressId`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `orders` ADD CONSTRAINT `orders_voucherId_fkey` FOREIGN KEY (`voucherId`) REFERENCES `vouchers`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `order_items` ADD CONSTRAINT `order_items_orderId_fkey` FOREIGN KEY (`orderId`) REFERENCES `orders`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `order_items` ADD CONSTRAINT `order_items_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order_items` ADD CONSTRAINT `order_items_productDiscountId_fkey` FOREIGN KEY (`productDiscountId`) REFERENCES `product_discounts`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `product_discounts` ADD CONSTRAINT `product_discounts_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `products`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

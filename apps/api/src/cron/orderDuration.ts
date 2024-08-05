@@ -2,6 +2,9 @@ import prisma from '@/prisma';
 const midtransClient = require('midtrans-client');
 const dayjs = require('dayjs');
 const cron = require('node-cron');
+import fs from 'fs';
+import path from 'path';
+import { transporter } from '@/lib/nodemailer';
 
 const cancelUnpaidOrders = async () => {
   const oneHourAgo = dayjs().subtract(1, 'hour').toDate();
@@ -130,6 +133,36 @@ const cancelUnpaidOrders = async () => {
             storeId: order.storeId,
             orderId: order.id,
           },
+        });
+      }
+
+      const templatePath = path.join(
+        __dirname,
+        '../../templates/cancelled.template.html',
+      );
+      const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+      const userData = await prisma.order.findFirst({
+        where: { id: order.id },
+        select: {
+          invoice: true,
+          user: { select: { name: true, email: true } },
+        },
+      });
+
+      if (userData) {
+        const userEmail = userData.user.email;
+        const userName = userData.user.name || userData.user.email;
+        const orderInvoice = userData.invoice;
+        const html = htmlTemplate
+          .replace(/{orderNumber}/g, orderInvoice)
+          .replace(/{customerName}/g, userName);
+
+        await transporter.sendMail({
+          from: 'bbhstore01@gmail.com',
+          to: userEmail,
+          subject: 'Order Cancelled',
+          html,
         });
       }
     }

@@ -100,6 +100,7 @@ class DiscountService {
     }
     const existingStock = await prisma.stock.findFirst({
       where: { productId, storeId },
+      include: { product: true },
     });
     if (!existingStock) {
       console.log("Product isn't found in this store");
@@ -140,13 +141,46 @@ class DiscountService {
       discountData.value = discountValue;
       discountData.type = type;
     }
+    // try {
+    //   const discount = await prisma.$transaction(async (prisma) => {
+    //     const createdDiscount = await prisma.productDiscount.create({
+    //       data: discountData,
+    //     });
+    //     return createdDiscount;
+    //   });
+    //   return discount;
     try {
       const discount = await prisma.$transaction(async (prisma) => {
         const createdDiscount = await prisma.productDiscount.create({
           data: discountData,
         });
+
+        if (
+          category === CategoryDisc.discount &&
+          createdDiscount.value !== null
+        ) {
+          let priceDiscount: number = 0;
+          if (type === $Enums.Type.nominal) {
+            priceDiscount = existingStock.product.price - createdDiscount.value;
+          } else if (type === $Enums.Type.percentage) {
+            priceDiscount =
+              existingStock.product.price -
+              existingStock.product.price * createdDiscount.value;
+          }
+
+          await prisma.stock.update({
+            where: {
+              id: existingStock.id,
+            },
+            data: {
+              priceDiscount: priceDiscount,
+            },
+          });
+        }
+
         return createdDiscount;
       });
+
       return discount;
     } catch (error) {
       console.error('Error creating discount:', error);
