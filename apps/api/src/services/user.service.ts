@@ -96,8 +96,33 @@ class UserService {
 
     delete (data as any).password;
 
-    const accessToken = createToken(data, '1hr');
-    const refreshToken = createToken({ id: data.id }, '20 hr');
+    const accessToken = createToken(
+      {
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        },
+        type: 'access_token',
+      },
+      '20 hr',
+    );
+    // const refreshToken = createToken({ id: data.id }, '20 hr');
+    const refreshToken = createToken(
+      {
+        user: {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
+        },
+        type: 'refresh_token',
+      },
+      '20 hr',
+    );
+    // console.log('access token: ', accessToken);
+    // console.log('refresh token: ', refreshToken);
 
     console.log('access token: ', accessToken);
     console.log('refresh token: ', refreshToken);
@@ -107,7 +132,8 @@ class UserService {
 
   async Location(req: Request) {
     try {
-      const userId = req.params.id;
+      // const userId = req.params.id;
+      const userId = req.user?.id;
       const { latitude, longitude } = req.body;
 
       if (!userId) throw new Error('need user id');
@@ -175,8 +201,31 @@ class UserService {
       throw new Error('User not found');
     }
 
-    const accessToken = createToken({ id: user.id });
-    const refreshToken = createToken({ id: user.id }, '20hr');
+    const accessToken = createToken(
+      {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        type: 'access_token',
+      },
+      '20 hr',
+    );
+    // const refreshToken = createToken({ id: user.id }, '20hr');
+    const refreshToken = createToken(
+      {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        type: 'refresh_token',
+      },
+      '20 hr',
+    );
 
     return { accessToken, refreshToken };
   }

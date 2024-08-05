@@ -4,7 +4,7 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    // "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,6 +13,7 @@
     "paths": {
       "@/*": ["./src/*"]
     }
+    // "typeRoots": ["./src/models"]
   },
   // "include": ["src/**/*"],
   "include": ["**/*.ts"],

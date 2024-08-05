@@ -4,7 +4,8 @@ import { TCart } from '@/models/cart.model';
 
 class CartService {
   async getByUser(req: Request) {
-    const { userId } = req.params;
+    // const { userId } = req.params;
+    const userId = req.user.id;
     const data = await prisma.cart.findMany({
       where: {
         userId: userId,
@@ -20,7 +21,7 @@ class CartService {
   }
 
   async sumCart(req: Request) {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const totalQuantity = await prisma.cart.aggregate({
       where: {
         userId: userId,
@@ -33,7 +34,8 @@ class CartService {
   }
 
   async addCart(req: Request) {
-    const { productId, storeId, quantity, userId } = req.body as TCart;
+    const { productId, storeId, quantity } = req.body as TCart;
+    const userId = req.user.id;
 
     if (Number(quantity) <= 0) {
       throw new Error('quantity must be greater than 0');
@@ -90,9 +92,10 @@ class CartService {
     const { cartId } = req.params;
     // const { quantity, userId } = req.body as TCart;
     const { quantity } = req.body as TCart;
+    const userId = req.user.id;
 
     const checkCart = await prisma.cart.findUnique({
-      where: { id: cartId },
+      where: { id: cartId, userId: userId },
     });
 
     if (!checkCart) {
@@ -133,7 +136,7 @@ class CartService {
 
   async delete(req: Request) {
     const { cartId } = req.params;
-    const { userId } = req.body as TCart;
+    const userId = req.user.id;
 
     const deletedCart = await prisma.cart.delete({
       where: { id: cartId, userId: userId },

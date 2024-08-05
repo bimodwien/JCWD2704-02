@@ -1,4 +1,5 @@
 import prisma from '@/prisma';
+import { StockChangeReason } from '@prisma/client';
 import { Request } from 'express';
 
 class stockHistoryService {
@@ -12,7 +13,8 @@ class stockHistoryService {
       where: {
         productId: productId ? (productId as string) : undefined,
         storeId: storeId ? (storeId as string) : undefined,
-        reason: reason ? { contains: reason as string } : undefined,
+        // reason: reason ? { contains: reason as string } : undefined,
+        reason: reason as StockChangeReason,
         isDeleted: false,
       },
       skip: skip,
@@ -36,7 +38,8 @@ class stockHistoryService {
       where: {
         productId: productId ? (productId as string) : undefined,
         storeId: storeId ? (storeId as string) : undefined,
-        reason: reason ? { contains: reason as string } : undefined,
+        // reason: reason ? { contains: reason as string } : undefined,
+        reason: reason as StockChangeReason,
         isDeleted: false,
       },
     });

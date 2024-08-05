@@ -19,11 +19,11 @@ const Checkout = () => {
   );
   const router = useRouter();
 
-  const userId = 'clz5p3y8f0000ldvnbx966ss6';
+  const userId = 'clz9fsqf60000103hg0a7vi11';
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/${userId}`);
+      const response = await axiosInstance().get(`/cart/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {
@@ -68,7 +68,7 @@ const Checkout = () => {
     try {
       const response = await axiosInstance().post(`/order/${userId}`, {
         // addressId: shippingAddress?.id,
-        addressId: 'clz5q65x40001qphbhrmsfq0a',
+        addressId: 'clzebpr5u000214475u5yhu04',
         paidType: paidType,
       });
       Swal.fire({

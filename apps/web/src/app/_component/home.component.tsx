@@ -30,12 +30,12 @@ export default function HomeComponent() {
 
   const getLocation = async (latitude: any, longitude: any) => {
     try {
-      if (!user.id) {
-        console.error('User ID is not available');
-        return;
-      }
+      // if (!user.id) {
+      //   console.error('User ID is not available');
+      //   return;
+      // }
 
-      const response = await axiosInstance().patch(`/v1/location/${user.id}`, {
+      const response = await axiosInstance().patch(`/v1/location`, {
         latitude,
         longitude,
       });
@@ -69,12 +69,13 @@ export default function HomeComponent() {
       }
     };
 
-    if (user && user.id) {
-      getUserLocation();
-    } else {
-      console.error('User ID is not available');
-    }
-  }, [user]);
+    // if (user && user.id) {
+    //   getUserLocation();
+    // } else {
+    //   console.error('User ID is not available');
+    // }
+    getUserLocation();
+  }, []);
 
   useEffect(() => {
     getAll(setCategory);

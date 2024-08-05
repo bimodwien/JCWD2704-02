@@ -102,6 +102,29 @@ class UserService2 {
 
     return data;
   }
+
+  async validate(req: Request) {
+    const user = await prisma.user.findUnique({
+      select: {
+        id: true,
+        email: true,
+        isVerified: true,
+        name: true,
+        role: true,
+      },
+      where: {
+        id: req.user?.id,
+      },
+    });
+
+    return createToken(
+      {
+        user,
+        type: 'access_token',
+      },
+      '20 hr',
+    );
+  }
 }
 
 export default new UserService2();

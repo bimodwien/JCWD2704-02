@@ -7,6 +7,7 @@ import { LuClipboardList } from 'react-icons/lu';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,

@@ -6,7 +6,7 @@ export const verifySuperAdmin = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user?.id;
+  const userId = req.user.id;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -28,7 +28,7 @@ export const verifyStoreAdmin = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user?.id;
+  const userId = req.user.id;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -50,7 +50,7 @@ export const verifyUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const userId = req.user?.id;
+  const userId = req.user.id;
 
   const user = await prisma.user.findUnique({
     where: {

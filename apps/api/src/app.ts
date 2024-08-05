@@ -39,18 +39,17 @@ export default class App {
     this.app.use(urlencoded({ extended: true }));
   }
 
-  // private handleError(): void {
-  //   // not found
-  //   this.app.use(
-  //     (error: unknown, req: Request, res: Response, next: NextFunction) => {
-  //       if (req.path.includes('/')) {
-  //         res.status(404).send('Not found !');
-  //       } else {
-  //         next();
-  //       }
-  //     },
-  //   );
-  // }
+  private handleError(): void {
+    // not found
+    this.app.use(
+      (error: unknown, req: Request, res: Response, next: NextFunction) => {
+        if (error instanceof Error)
+          res.status(500).send({
+            message: error.message,
+          });
+      },
+    );
+  }
 
   private routes(): void {
     const cartRouter = new CartRouter();

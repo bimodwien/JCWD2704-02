@@ -29,10 +29,10 @@ export class AdminController {
 
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { access_token } = await AdminService.login(req);
-      res.status(200).cookie('access_token', access_token).send({
+      const { refresh_token } = await AdminService.login(req);
+      res.status(200).cookie('refresh_token', refresh_token).send({
         message: 'login success',
-        access_token: access_token,
+        refresh_token: refresh_token,
       });
     } catch (error) {
       next(error);
@@ -41,8 +41,8 @@ export class AdminController {
 
   async validate(req: Request, res: Response, next: NextFunction) {
     try {
-      const access_token = await AdminService.validate(req);
-      res.send({ access_token });
+      const refresh_token = await AdminService.validate(req);
+      res.send({ refresh_token });
     } catch (error) {
       next(error);
     }

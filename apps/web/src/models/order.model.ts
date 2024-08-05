@@ -20,6 +20,9 @@ export type TOrder = {
   paidType: string;
   snap_token: string;
   store: TStore;
+  checkedAt: Date;
+  updatedAt: Date;
+  expiry_time: Date;
 };
 
 type TUser = {
@@ -29,6 +32,7 @@ type TUser = {
 };
 
 export type TOrderItem = {
+  id: string;
   product: {
     id: string;
     name: string;

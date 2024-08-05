@@ -160,19 +160,35 @@ model Stock {
   @@map("stocks")
 }
 
+enum StockChangeType {
+  in
+  out
+}
+
+enum StockChangeReason {
+  restock
+  newStock
+  orderCancellation
+  orderPlacement
+  other
+}
+
 model StockHistory {
-  id             String   @id @default(cuid())
+  id             String            @id @default(cuid())
   quantityChange Int
-  reason         String
-  isDeleted      Boolean  @default(false)
-  Product        Product? @relation(fields: [productId], references: [id])
+  changeType     StockChangeType
+  reason         StockChangeReason
+  isDeleted      Boolean           @default(false)
+  Product        Product?          @relation(fields: [productId], references: [id])
   productId      String?
-  Stock          Stock?   @relation(fields: [stockId], references: [id])
+  Stock          Stock?            @relation(fields: [stockId], references: [id])
   stockId        String?
-  Store          Store?   @relation(fields: [storeId], references: [id])
+  Store          Store?            @relation(fields: [storeId], references: [id])
   storeId        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  Order          Order?            @relation(fields: [orderId], references: [id])
+  orderId        String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
   @@map("stock_histories")
 }
@@ -207,31 +223,45 @@ enum Paid {
   gateway
 }
 
+enum UpdatedBy {
+  user
+  superAdmin
+  storeAdmin
+  system
+}
+
 model Order {
-  id                String      @id @default(cuid())
-  invoice           String      @unique
-  user              User        @relation(fields: [userId], references: [id])
+  id                String         @id @default(cuid())
+  invoice           String         @unique
+  user              User           @relation(fields: [userId], references: [id])
   userId            String
-  store             Store       @relation(fields: [storeId], references: [id])
+  store             Store          @relation(fields: [storeId], references: [id])
   storeId           String
   totalPrice        Float
-  address           Address     @relation(fields: [addressId], references: [id])
+  address           Address        @relation(fields: [addressId], references: [id])
   addressId         String
   shippingCost      Float?
   shippedAt         DateTime?
+  shippedBy         UpdatedBy?
   paidType          Paid
   snap_token        String?
   snap_redirect_url String?
   payment_method    String?
-  paymentProof      Bytes?      @db.LongBlob
+  expiry_time       DateTime?
+  paymentProof      Bytes?         @db.LongBlob
   paidAt            DateTime?
+  checkedAt         DateTime?
+  checkedBy         UpdatedBy?
   processedAt       DateTime?
   confirmedAt       DateTime?
+  confirmedBy       UpdatedBy?
   cancelledAt       DateTime?
+  cancelledBy       UpdatedBy?
   status            Status
   OrderItem         OrderItem[]
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  StockHistory      StockHistory[]
 
   @@map("orders")
 }

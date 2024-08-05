@@ -7,7 +7,7 @@ import { LiaShippingFastSolid } from 'react-icons/lia';
 import { MdOutlineStorefront } from 'react-icons/md';
 
 interface StatusAndDetailProps {
-  order: TOrder | undefined;
+  order: TOrder | null;
 }
 
 const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
@@ -157,14 +157,14 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
             <div>Store Address</div>
           </div>
           <hr />
-          <div>{order.address.address}</div>
+          <div>{order.store.address}</div>
         </div>
         <div className="flex flex-col gap-1 p-3 border-y lg:border-y-0 lg:border-x border-gray-300 lg:w-72">
           <div className="font-medium flex gap-1 items-center">
             <div>
               <IoHomeOutline className="text-base text-center" />
             </div>
-            <div>Your Address</div>
+            <div>Customer Address</div>
           </div>
           <hr />
           <div>{order.address.address}</div>

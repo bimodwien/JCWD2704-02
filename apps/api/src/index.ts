@@ -1,4 +1,5 @@
 import App from './app';
+import './cron/orderDuration';
 
 const main = () => {
   // init db here

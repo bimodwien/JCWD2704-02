@@ -25,7 +25,7 @@ class CreateOrderService {
   }
 
   async createOrder(req: Request) {
-    const { userId } = req.params;
+    const userId = req.user.id;
     const { addressId, paidType } = req.body as TOrder;
 
     const cart = await prisma.cart.findMany({
@@ -83,7 +83,7 @@ class CreateOrderService {
       return { token: snapToken, createdOrder };
     }
 
-    await this.cartAndStock(cart);
+    await this.cartAndStock(createdOrder.id, cart);
     return createdOrder;
   }
 
@@ -137,7 +137,7 @@ class CreateOrderService {
         },
       });
 
-      await this.cartAndStock(cart);
+      await this.cartAndStock(order.id, cart);
 
       return snapToken;
       // return redirectUrl;
@@ -147,14 +147,14 @@ class CreateOrderService {
     }
   }
 
-  private async cartAndStock(cart: TCart[]): Promise<void> {
+  private async cartAndStock(orderId: string, cart: TCart[]): Promise<void> {
     const cartIdsToDelete = cart.map((item) => item.id);
     await prisma.cart.deleteMany({
       where: { id: { in: cartIdsToDelete } },
     });
 
     for (const item of cart) {
-      await prisma.stock.update({
+      const updatedStock = await prisma.stock.update({
         where: {
           productId_storeId: {
             productId: item.productId,
@@ -165,6 +165,33 @@ class CreateOrderService {
           quantity: { decrement: item.quantity },
         },
       });
+
+      const stock = await prisma.stock.findUnique({
+        where: {
+          productId_storeId: {
+            productId: item.productId,
+            storeId: item.storeId,
+          },
+        },
+      });
+
+      if (stock) {
+        await prisma.stockHistory.create({
+          data: {
+            quantityChange: item.quantity,
+            reason: 'orderPlacement',
+            changeType: 'out',
+            productId: item.productId,
+            stockId: stock.id,
+            storeId: item.storeId,
+            orderId: orderId,
+          },
+        });
+      } else {
+        throw new Error(
+          `stock not found for product ${item.productId} and store ${item.storeId}`,
+        );
+      }
     }
   }
 

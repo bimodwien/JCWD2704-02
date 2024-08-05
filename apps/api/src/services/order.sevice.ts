@@ -1,39 +1,13 @@
 import { Request } from 'express';
 import prisma from '@/prisma';
-import crypto from 'crypto';
 import sharp from 'sharp';
+const midtransClient = require('midtrans-client');
 
 class OrderService {
-  async getByUser(req: Request) {
-    const { userId } = req.params;
-    const order = await prisma.order.findMany({
-      where: { userId: userId },
-    });
-    if (!order) throw new Error('Order empty');
-    return order;
-  }
-
-  async getDetail(req: Request) {
-    const { invoice } = req.params;
-    const detail = await prisma.order.findUnique({
-      where: { invoice: invoice },
-      include: {
-        OrderItem: {
-          include: {
-            product: { include: { ProductImage: { select: { id: true } } } },
-          },
-        },
-        address: true,
-      },
-    });
-    if (!detail) throw new Error('Order not found');
-    return detail;
-  }
-
   async paymentProof(req: Request) {
     const { orderId } = req.params;
     const { file } = req;
-    const userId = 'clz5p3y8f0000ldvnbx966ss6';
+    const userId = req.user.id;
 
     const order = await prisma.order.findUnique({
       where: { id: orderId, paidType: 'manual' },
@@ -64,108 +38,154 @@ class OrderService {
     return data?.paymentProof;
   }
 
-  async updateStatus(req: Request) {
+  async cancelByUser(req: Request) {
     const { orderId } = req.params;
+    const userId = req.user.id;
 
-    const update = await prisma.order.update({
-      where: {
-        id: orderId,
-      },
-      data: {
-        status: 'processed',
-      },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
     });
-  }
 
-  async updateByMidtrans(req: Request) {
-    try {
-      const data = req.body;
+    if (!user) throw new Error('user not found');
 
-      if (!data || typeof data !== 'object') {
-        throw new Error(
-          'Invalid request data. Missing or invalid data object.',
-        );
-      }
+    const order = await prisma.order.findUnique({
+      where: { id: orderId, userId: userId },
+    });
 
-      // console.log('Received data:', data);
+    if (!order) throw new Error('order not found');
 
-      const order = await prisma.order.findUnique({
-        where: {
-          invoice: data.order_id,
-        },
-      });
+    if (order.status !== 'waitingPayment') {
+      throw new Error('order cannot be cancelled');
+    }
 
-      if (!order) {
-        throw new Error('Order not found');
-      }
-
-      const hash = crypto
-        .createHash('sha512')
-        .update(
-          `${data.order_id}${data.status_code}${data.gross_amount}${process.env.SERVER_KEY}`,
-        )
-        .digest('hex');
-
-      if (data.signature_key !== hash) {
-        throw new Error('Invalid signature key');
-      }
-
-      let responData = null;
-      let orderStatus = data.transaction_status;
-      let fraudStatus = data.fraud_status;
-
-      if (orderStatus === 'capture' && fraudStatus === 'accept') {
+    if (
+      order.paidType === 'manual' ||
+      (order.paidType === 'gateway' && !order.payment_method)
+    ) {
+      const cancel = await prisma.$transaction(async (prisma) => {
         const updatedOrder = await prisma.order.update({
-          where: { invoice: data.order_id },
-          data: {
-            status: 'processed',
-            payment_method: data.payment_type,
-            paidAt: new Date(data.transaction_time),
-            processedAt: new Date(data.transaction_time),
-          },
-        });
-        responData = updatedOrder;
-      } else if (orderStatus === 'settlement') {
-        const updatedOrder = await prisma.order.update({
-          where: { invoice: data.order_id },
-          data: {
-            status: 'processed',
-            payment_method: data.payment_type,
-            paidAt: new Date(data.transaction_time),
-            processedAt: new Date(data.transaction_time),
-          },
-        });
-        responData = updatedOrder;
-      } else if (
-        orderStatus === 'cancel' ||
-        orderStatus === 'deny' ||
-        orderStatus === 'expire'
-      ) {
-        const updatedOrder = await prisma.order.update({
-          where: { invoice: data.order_id },
+          where: { id: orderId, userId: userId },
           data: {
             status: 'cancelled',
+            cancelledAt: new Date(),
+            cancelledBy: 'user',
           },
         });
-        responData = updatedOrder;
-      } else if (orderStatus === 'pending') {
-        const updatedOrder = await prisma.order.update({
-          where: { invoice: data.order_id },
+
+        const orderItems = await prisma.orderItem.findMany({
+          where: { orderId: orderId },
+        });
+
+        for (const item of orderItems) {
+          const updatedStock = await prisma.stock.update({
+            where: {
+              productId_storeId: {
+                productId: item.productId,
+                storeId: updatedOrder.storeId,
+              },
+            },
+            data: {
+              quantity: { increment: item.quantity },
+            },
+          });
+
+          const stock = await prisma.stock.findUnique({
+            where: {
+              productId_storeId: {
+                productId: item.productId,
+                storeId: updatedOrder.storeId,
+              },
+            },
+          });
+
+          if (stock) {
+            await prisma.stockHistory.create({
+              data: {
+                quantityChange: item.quantity,
+                reason: 'orderCancellation',
+                changeType: 'in',
+                productId: item.productId,
+                stockId: stock.id,
+                storeId: updatedOrder.storeId,
+                orderId: updatedOrder.id,
+              },
+            });
+          } else {
+            throw new Error(
+              `stock not found for product ${item.productId} and store ${updatedOrder.storeId}`,
+            );
+          }
+        }
+
+        return updatedOrder;
+      });
+
+      return cancel;
+    } else if (
+      order.paidType === 'gateway' &&
+      order.payment_method &&
+      !order.paidAt
+    ) {
+      try {
+        const coreApi = new midtransClient.CoreApi({
+          isProduction: false,
+          serverKey: process.env.SERVER_KEY,
+          clientKey: process.env.CLIENT_KEY,
+        });
+
+        await coreApi.transaction.cancel(order.invoice);
+
+        const cancelledOrder = await prisma.order.update({
+          where: { id: orderId, userId: userId },
           data: {
-            status: 'waitingPayment',
-            payment_method: data.payment_type,
+            cancelledBy: 'user',
           },
         });
-        responData = updatedOrder;
+
+        console.log(
+          `cancellation request sent to midtrans for ${order.invoice}`,
+        );
+
+        return cancelledOrder;
+      } catch (error) {
+        throw new Error('error while cancelling order with midtrans');
       }
-
-      // console.log('Response data:', responData);
-
-      return responData;
-    } catch (error) {
-      console.error('Error in updateByMidtrans:', error);
-      throw error;
     }
+
+    throw new Error('cancellation criteria not met');
+  }
+
+  async confirmOrder(req: Request) {
+    const userId = req.user.id;
+    const { orderId } = req.params;
+
+    const order = await prisma.order.findFirst({
+      where: { id: orderId, userId: userId },
+    });
+    if (!order) throw new Error('Order not found');
+
+    if (order.status !== 'shipped')
+      throw new Error('Cannot confirm this order');
+
+    const currentDate = new Date();
+    const shippedAt = new Date(order.shippedAt as Date);
+    const diffTime = Math.abs(currentDate.getTime() - shippedAt.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 7) {
+      throw new Error('Confirmation period has expired');
+    }
+
+    const confirm = await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: 'confirmed',
+        confirmedAt: new Date(),
+        confirmedBy: 'user',
+      },
+    });
+
+    return confirm;
   }
 }
 

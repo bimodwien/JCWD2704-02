@@ -111,7 +111,7 @@ const Users = () => {
                   <Table.HeadCell>No</Table.HeadCell>
                   <Table.HeadCell>Name</Table.HeadCell>
                   <Table.HeadCell>Email</Table.HeadCell>
-
+                  <Table.HeadCell>Store</Table.HeadCell>
                   <Table.HeadCell className="sr-only">
                     <span>Delete</span>
                   </Table.HeadCell>
@@ -126,15 +126,22 @@ const Users = () => {
                         <Table.Cell>{index + 1}</Table.Cell>
                         <Table.Cell>{user.name}</Table.Cell>
                         <Table.Cell>{user.email}</Table.Cell>
-
+                        <Table.Cell>
+                          {user.store ? user.store.name : 'No Store'}
+                        </Table.Cell>
                         <Table.Cell
-                          onClick={() => handleDelete(user.id)}
+                          onClick={() =>
+                            user.id &&
+                            deleteUser(user.id, page, limit, value, setUsers)
+                          }
                           className="font-medium text-red-600 cursor-pointer"
                         >
                           Delete
                         </Table.Cell>
                         <Table.Cell className="font-medium text-green-600">
-                          <button onClick={() => onClickEdit(user.id)}>
+                          <button
+                            onClick={() => user.id && onClickEdit(user.id)}
+                          >
                             Edit
                           </button>
                         </Table.Cell>
