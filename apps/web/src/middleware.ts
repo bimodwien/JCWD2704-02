@@ -15,7 +15,6 @@ export async function middleware(request: NextRequest) {
   })
     .then(async (res) => {
       const data = await res.json();
-      console.log(`Response from token validation: ${JSON.stringify(data)}`);
       if (!data.access_token) throw new Error('Token not found ---');
       response.cookies.set('access_token', data.access_token);
       return true;
