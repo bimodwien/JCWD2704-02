@@ -130,10 +130,7 @@ const Users = () => {
                           {user.store ? user.store.name : 'No Store'}
                         </Table.Cell>
                         <Table.Cell
-                          onClick={() =>
-                            user.id &&
-                            deleteUser(user.id, page, limit, value, setUsers)
-                          }
+                          onClick={() => user.id && handleDelete(user.id)}
                           className="font-medium text-red-600 cursor-pointer"
                         >
                           Delete

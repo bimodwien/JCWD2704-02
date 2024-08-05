@@ -28,7 +28,7 @@ function DetailVoucher({ params }: { params: { id: string } }) {
                 Product Name
               </label>
               <div className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5">
-                {vouchers?.product.name || 'Select Product'}
+                {vouchers?.product?.name || 'Select Product'}
               </div>
             </div>
             <div className="w-full">
