@@ -3,10 +3,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 
 import Swal from 'sweetalert2';
+import { axiosInstance } from '@/lib/axios';
 
 export default function AddEmailComponent() {
   const signUpSchema = Yup.object({

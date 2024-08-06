@@ -2,5 +2,8 @@ export const formatPrice = (price: number): string => {
   return `Rp ${price.toLocaleString('id-ID')}`;
 };
 
-export const paymentSrc = 'http://localhost:8000/order/proof/';
-export const productSrc = 'http://localhost:8000/products/images/';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || 'http://localhost:8000';
+
+export const paymentSrc = `${baseUrl}/orders/proof/`;
+export const productSrc = `${baseUrl}/products/images/`;
+export const categorySrc = `${baseUrl}/category/images/`;

@@ -69,18 +69,18 @@ export default class App {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    this.app.use('/cart', cartRouter.getRouter());
-    this.app.use('/order', orderRouter.getRouter());
-    this.app.use('/v1', userRouter.getRouter());
-    this.app.use('/products', productRouter.getRouter());
-    this.app.use('/admins', adminRouter.getRouter());
-    this.app.use('/store', storeRouter.getRouter());
-    this.app.use('/category', categoryRouter.getRouter());
-    this.app.use('/stocks', stockRouter.getRouter());
-    this.app.use('/stock-history', stockHistory.getRouter());
-    this.app.use('/discounts', discountRouter.getRouter());
-    this.app.use('/vouchers', voucherRouter.getRouter());
-    this.app.use('/reports', reportRouter.getRouter());
+    this.app.use('/api/carts', cartRouter.getRouter());
+    this.app.use('/api/orders', orderRouter.getRouter());
+    this.app.use('/api/v1', userRouter.getRouter());
+    this.app.use('/api/products', productRouter.getRouter());
+    this.app.use('/api/admins', adminRouter.getRouter());
+    this.app.use('/api/store', storeRouter.getRouter());
+    this.app.use('/api/category', categoryRouter.getRouter());
+    this.app.use('/api/stocks', stockRouter.getRouter());
+    this.app.use('/api/stock-history', stockHistory.getRouter());
+    this.app.use('/api/discounts', discountRouter.getRouter());
+    this.app.use('/api/vouchers', voucherRouter.getRouter());
+    this.app.use('/api/reports', reportRouter.getRouter());
   }
 
   public start(): void {

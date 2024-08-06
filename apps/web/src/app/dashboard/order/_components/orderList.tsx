@@ -114,7 +114,7 @@ const OrderList = () => {
         limit,
       };
 
-      const response = await axiosInstance().get('/order/all', {
+      const response = await axiosInstance().get('/orders/all', {
         params: queryParams,
       });
       const { data } = response.data;

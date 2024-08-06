@@ -5,11 +5,11 @@ import Image from 'next/image';
 import RegisterIcon from '../../../../public/google.svg';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 import firebase from 'firebase/app';
 import { auth, provider, signInWithPopup } from '../../_lib/firebase';
+import { axiosInstance } from '@/lib/axios';
 
 export default function FormSignUpComponent() {
   const signUpSchema = Yup.object({

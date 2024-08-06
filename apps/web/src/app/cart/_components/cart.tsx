@@ -27,7 +27,7 @@ const Cart = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/a`);
+      const response = await axiosInstance().get(`/carts/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {
@@ -37,7 +37,7 @@ const Cart = () => {
 
   const fetchShippingAddress = async (filter: 'all' | 'chosen') => {
     try {
-      const response = await axiosInstance().get(`/order/a`, {
+      const response = await axiosInstance().get(`/orders/a`, {
         params: { filter },
       });
       if (filter === 'all') {
@@ -91,7 +91,7 @@ const Cart = () => {
   const confirmAddressSelection = async () => {
     if (selectedAddressId) {
       try {
-        await axiosInstance().patch('/cart/s', {
+        await axiosInstance().patch('/carts/s', {
           addressId: selectedAddressId,
         });
         await fetchShippingAddress('chosen');

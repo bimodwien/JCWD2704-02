@@ -2,10 +2,10 @@
 import { Input } from '../../../components/ui/input';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
 import React from 'react';
+import { axiosInstance } from '@/lib/axios';
 
 interface Props {
   id: string; // Define id as string

@@ -25,7 +25,7 @@ const Detail = () => {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axiosInstance().get(`/order/${invoice}`);
+      const response = await axiosInstance().get(`/orders/${invoice}`);
       const { data } = response.data;
       setOrder(data);
       startCountdown(data);

@@ -29,7 +29,7 @@ const Checkout = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/a`);
+      const response = await axiosInstance().get(`/carts/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {
@@ -39,7 +39,7 @@ const Checkout = () => {
 
   const fetchShippingAddress = async () => {
     try {
-      const response = await axiosInstance().get(`/order/a`, {
+      const response = await axiosInstance().get(`/orders/a`, {
         params: { filter: 'chosen' },
       });
       const { data } = response.data;
@@ -82,10 +82,13 @@ const Checkout = () => {
 
   const createOrder = async (paidType: 'manual' | 'gateway') => {
     try {
-      const response = await axiosInstance().post(`/order/`, {
+      const voucherId =
+        selectedVoucher?.voucherId ?? selectedVoucher?.id ?? null;
+
+      const response = await axiosInstance().post(`/orders/`, {
         addressId: shippingAddress?.id,
         paidType: paidType,
-        voucherId: selectedVoucher?.id,
+        voucherId: voucherId,
       });
       Swal.fire({
         title: 'Created!',
@@ -131,7 +134,7 @@ const Checkout = () => {
 
   const fetchVoucher = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/voucher`);
+      const response = await axiosInstance().get(`/carts/voucher`);
       const { userVouchers, productVouchers } = response.data.data;
       setUserVouchers(userVouchers);
       setProductVouchers(productVouchers);

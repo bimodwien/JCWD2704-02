@@ -2,7 +2,6 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import { useRouter, useParams } from 'next/navigation';
 import Swal from 'sweetalert2';

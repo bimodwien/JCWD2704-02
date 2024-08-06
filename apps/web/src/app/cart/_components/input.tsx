@@ -29,7 +29,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
 
   const updateQuantity = async (cartId: string, newQuantity: number) => {
     try {
-      await axiosInstance().patch(`/cart/${cartId}`, {
+      await axiosInstance().patch(`/carts/${cartId}`, {
         quantity: newQuantity,
       });
       fetchCart();

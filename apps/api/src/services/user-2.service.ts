@@ -104,26 +104,30 @@ class UserService2 {
   }
 
   async validate(req: Request) {
+    const userId = req.user.id;
     const user = await prisma.user.findUnique({
-      select: {
-        id: true,
-        email: true,
-        isVerified: true,
-        name: true,
-        role: true,
-        Cart: true,
-      },
       where: {
-        id: req.user?.id,
+        id: userId,
       },
+      include: { Cart: true },
     });
 
+    if (!user) throw new Error('user not found');
+    const singleCart = user.Cart.length > 0 ? user.Cart[0] : null;
+
+    console.log('alooo');
     return createToken(
       {
-        user,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          Cart: singleCart,
+        },
         type: 'access_token',
       },
-      '20 hr',
+      '1d',
     );
   }
 }

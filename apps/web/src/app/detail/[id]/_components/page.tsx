@@ -5,6 +5,7 @@ import { PiTrolleyFill } from 'react-icons/pi';
 import Link from 'next/link';
 import { axiosInstance } from '@/lib/axios';
 import AddToCartButton from './addToCart';
+import { productSrc } from '@/helpers/format';
 
 type Props = { dataProduct: any };
 
@@ -21,7 +22,7 @@ const DetailComponent = ({ dataProduct }: Props) => {
               {hasProductImage && (
                 <img
                   className="w-full border border-gray-200 rounded-lg"
-                  src={`http://localhost:8000/products/images/${dataProduct.ProductImage[0].id}`}
+                  src={`${productSrc}${dataProduct.ProductImage[0].id}`}
                   alt="sample"
                 />
               )}

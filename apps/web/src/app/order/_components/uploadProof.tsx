@@ -65,7 +65,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
 
         if (result.isConfirmed) {
           const { data } = await axiosInstance().patch(
-            `/order/${order?.id}`,
+            `/orders/${order?.id}`,
             newData,
           );
           Swal.fire('Success', data.message, 'success');

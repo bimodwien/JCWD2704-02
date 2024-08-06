@@ -20,7 +20,7 @@ const DetailOrder = () => {
 
   const fetchOrderData = async () => {
     try {
-      const response = await axiosInstance().get(`/order/admin/${orderId}`);
+      const response = await axiosInstance().get(`/orders/admin/${orderId}`);
       const { data } = response.data;
       setOrder(data);
     } catch (error) {

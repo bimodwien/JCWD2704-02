@@ -51,12 +51,18 @@ class CreateOrderService {
     const validVoucherId = voucherId !== null ? voucherId : undefined;
     const now = new Date();
 
+    console.log(voucherId);
+
     if (validVoucherId) {
-      const voucher = await prisma.voucher.findUnique({
+      const voucher = await prisma.voucher.findFirst({
         where: {
           id: validVoucherId,
-          startDate: { lte: now },
-          endDate: { gte: now },
+          startDate: {
+            lte: now,
+          },
+          endDate: {
+            gte: now,
+          },
         },
       });
 

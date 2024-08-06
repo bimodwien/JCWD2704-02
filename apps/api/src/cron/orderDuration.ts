@@ -138,7 +138,7 @@ const cancelUnpaidOrders = async () => {
 
       const templatePath = path.join(
         __dirname,
-        '../../templates/cancelled.template.html',
+        '../templates/cancelled.template.html',
       );
       const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 

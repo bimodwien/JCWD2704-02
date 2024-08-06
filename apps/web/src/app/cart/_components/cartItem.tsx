@@ -24,7 +24,7 @@ const CartList: React.FC<CartTableProps> = ({
       });
 
       if (result.isConfirmed) {
-        await axiosInstance().delete(`/cart/${cartId}`);
+        await axiosInstance().delete(`/carts/${cartId}`);
         Swal.fire({
           title: 'Deleted!',
           text: 'Your cart item has been deleted.',

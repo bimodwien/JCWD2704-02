@@ -12,6 +12,7 @@ import { TCategory } from '@/models/category';
 import { axiosInstance } from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import { categorySrc } from '@/helpers/format';
 
 const Category = () => {
   const [search, setSearch] = useState('');
@@ -126,7 +127,7 @@ const Category = () => {
                           <Table.Cell>{index + 1}</Table.Cell>
                           <Table.Cell>
                             <img
-                              src={`http://localhost:8000/category/images/${category.id}`}
+                              src={`${categorySrc}${category.id}`}
                               alt="Image"
                               className="h-8 w-9 "
                             />

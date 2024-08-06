@@ -39,7 +39,7 @@ const PaymentOrder: React.FC<PriceDetailsProps> = ({
 
     if (result.isConfirmed) {
       try {
-        await axiosInstance().patch(`/order/cp/${order.id}`, { check });
+        await axiosInstance().patch(`/orders/cp/${order.id}`, { check });
         Swal.fire(
           'Success',
           `Payment has been ${check}ed successfully.`,

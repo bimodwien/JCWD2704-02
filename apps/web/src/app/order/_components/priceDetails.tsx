@@ -37,7 +37,7 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
 
     if (result.isConfirmed) {
       try {
-        await axiosInstance().patch(`/order/cu/${order.id}`);
+        await axiosInstance().patch(`/orders/cu/${order.id}`);
         Swal.fire('Cancelled!', 'Your order has been cancelled.', 'success');
         onConfirm();
       } catch (error) {
@@ -62,7 +62,7 @@ const PriceDetails: React.FC<PriceDetailsProps> = ({
 
     if (result.isConfirmed) {
       try {
-        await axiosInstance().patch(`/order/co/${order.id}`);
+        await axiosInstance().patch(`/orders/co/${order.id}`);
         Swal.fire('Confirmed!', 'Your order has been confirmed.', 'success');
         onConfirm();
       } catch (error) {

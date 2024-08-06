@@ -55,7 +55,7 @@ class MidtransService {
 
         const templatePath = path.join(
           __dirname,
-          '../../templates/processed.template.html',
+          '../templates/processed.template.html',
         );
         const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -96,7 +96,7 @@ class MidtransService {
 
         const templatePath = path.join(
           __dirname,
-          '../../templates/processed.template.html',
+          '../templates/processed.template.html',
         );
         const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 

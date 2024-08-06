@@ -18,7 +18,7 @@ const AddToCartButton = ({ productId }: { productId: string }) => {
   useEffect(() => {
     const fetchStores = async () => {
       try {
-        const response = await axiosInstance().get('/cart/store');
+        const response = await axiosInstance().get('/carts/store');
         const { data } = response.data;
 
         if (Array.isArray(data)) {
@@ -78,7 +78,7 @@ const AddToCartButton = ({ productId }: { productId: string }) => {
         return;
       }
 
-      const response = await axiosInstance().post('/cart/c', {
+      const response = await axiosInstance().post('/carts/c', {
         productId,
         quantity,
         storeId: selectedStoreId,
@@ -109,7 +109,7 @@ const AddToCartButton = ({ productId }: { productId: string }) => {
 
     if (storeId) {
       try {
-        const response = await axiosInstance().get('/cart/stock', {
+        const response = await axiosInstance().get('/carts/stock', {
           params: { productId, storeId },
         });
         const { data } = response.data;
