@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import { formatPrice } from '@/helpers/format';
 import { axiosInstance } from '@/lib/axios';
 import { TOrder } from '@/models/order.model';
+import Image from 'next/image';
 
 interface PriceDetailsProps {
   order: TOrder | null;
@@ -16,7 +17,11 @@ const PaymentOrder: React.FC<PriceDetailsProps> = ({
   onConfirm,
 }) => {
   if (!order) return null;
+  const calculateSubtotal = (): number => {
+    return order.OrderItem.reduce((total, item) => total + item.price, 0);
+  };
 
+  const subtotal = calculateSubtotal();
   const handleCheck = async (check: 'deny' | 'confirm') => {
     const confirmationMessage =
       check === 'deny'
@@ -50,21 +55,82 @@ const PaymentOrder: React.FC<PriceDetailsProps> = ({
 
   return (
     <>
+      <div className="flex flex-col gap-3">
+        <div className="text-lg lg:text-xl font-semibold">
+          Payment Method -{' '}
+          {order.paidType === 'manual'
+            ? 'Manual'
+            : order.paidType === 'gateway'
+              ? 'Other'
+              : ''}
+        </div>
+        {(order.paidType === 'manual' && order.status === 'waitingPayment') ||
+          (order.status === 'waitingConfirmation' && (
+            <div className="rounded-xl border border-blue-500 bg-blue-50 p-3 flex flex-col gap-1">
+              <div className="flex flex-col items-center font-semibold justify-center">
+                BANK ACCOUNT
+                <span className="font-semibold text-red-700 flex justify-center gap-2">
+                  10923874651928
+                </span>
+              </div>
+              <div className="flex justify-center gap-2 items-center">
+                Merchant Name: <span className="font-semibold">BBH Store</span>
+              </div>
+            </div>
+          ))}
+        {order.paidType === 'gateway' && (
+          <div className="text-sm flex gap-2">
+            <Image
+              src="/payment/gopay.svg"
+              alt="gopay"
+              width={32}
+              height={32}
+            />
+            <Image src="/payment/ovo.svg" alt="ovo" width={32} height={32} />
+            <Image src="/payment/bniva.svg" alt="bni" width={32} height={32} />
+            <Image
+              src="/payment/mandiriva.svg"
+              alt="mandiri"
+              width={32}
+              height={32}
+            />
+            <Image
+              src="/payment/alfamart.svg"
+              alt="alfamart"
+              width={32}
+              height={32}
+            />
+            <Image
+              src="/payment/indomaret.svg"
+              alt="indomaret"
+              width={32}
+              height={32}
+            />
+            <div className="rounded-full bg-gray-200 p-1 w-4 h-4 flex items-center">
+              +
+            </div>
+          </div>
+        )}
+      </div>
+      <hr />
       <div className="flex flex-col gap-2">
         <div className="text-lg lg:text-xl font-semibold">Price Details</div>
         <div className="flex justify-between items-center font-semibold ">
           <span className="font-normal ">Subtotal</span>
-          {/* {formatPrice()} */}
+          {formatPrice(subtotal)}
         </div>
         <div className="flex justify-between items-center font-semibold ">
           <span className="font-normal ">Shipping</span>
-          Rp XX.XXX
+          {formatPrice(order.shippingCost)}
         </div>
-        <div className="flex justify-between items-center font-semibold ">
-          <span className="font-normal ">Discount</span>
-          Rp XX.XXX
-        </div>
+        {order.discountPrice > 0 && (
+          <div className="flex justify-between items-center font-semibold ">
+            <span className="font-normal ">Voucher</span>-
+            {formatPrice(order.discountPrice)}
+          </div>
+        )}
         <hr />
+
         <div className="flex justify-between items-center font-semibold text-lg">
           <span className="">Total Payment</span>
           {formatPrice(order.totalPrice)}

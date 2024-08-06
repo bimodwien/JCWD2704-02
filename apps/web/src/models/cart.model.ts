@@ -9,6 +9,7 @@ export type TCart = {
   };
   stock: {
     quantity: number;
+    priceDiscount?: number;
   };
   store?: {
     name?: string;
@@ -19,11 +20,10 @@ export type TCart = {
 export type TAddress = {
   id: string;
   address: string;
-  city: {
-    province: string;
-    cityName: string;
-    postalCode: string;
-  };
+  city: string;
+  name: string;
+  postalCode: string;
+  province: string;
 };
 
 export interface CartTableProps {
@@ -37,3 +37,11 @@ export interface QtyProps {
   cart: any;
   fetchCart: () => void;
 }
+
+export type TUserVoucher = {
+  voucher: any;
+  category: string;
+  value: number;
+  maxDiscount: number;
+  type: string;
+};

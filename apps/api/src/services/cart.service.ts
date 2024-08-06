@@ -1,148 +1,228 @@
 import { Request } from 'express';
 import prisma from '@/prisma';
 import { TCart } from '@/models/cart.model';
+import haversine from 'haversine';
+import { MAX_DISTANCE } from '@/utils/maxDistance';
+import { TStore } from '@/models/store.model';
+import { TStock } from '@/models/product.model';
 
 class CartService {
-  async getByUser(req: Request) {
-    // const { userId } = req.params;
-    const userId = req.user.id;
-    const data = await prisma.cart.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        // product: true,
-        product: { include: { ProductImage: { select: { id: true } } } },
-        store: true,
-        stock: true,
-      },
-    });
-    return data;
-  }
-
-  async sumCart(req: Request) {
-    const userId = req.user.id;
-    const totalQuantity = await prisma.cart.aggregate({
-      where: {
-        userId: userId,
-      },
-      _sum: {
-        quantity: true,
-      },
-    });
-    return totalQuantity._sum?.quantity || 0;
-  }
-
   async addCart(req: Request) {
-    const { productId, storeId, quantity } = req.body as TCart;
+    const { productId, quantity, storeId } = req.body as TCart;
     const userId = req.user.id;
 
     if (Number(quantity) <= 0) {
-      throw new Error('quantity must be greater than 0');
+      throw new Error('Quantity must be greater than 0');
     }
 
-    const checkStock = await prisma.stock.findFirst({
-      where: {
-        productId: productId,
-        storeId: storeId,
-      },
-      select: { quantity: true },
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { latitude: true, longitude: true },
     });
 
-    const checkCart = await prisma.cart.findFirst({
-      where: {
-        userId: userId,
-        productId: productId,
-        storeId: storeId,
-      },
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { Stock: { where: { productId: productId } } },
     });
+
+    if (!store) {
+      throw new Error('Store not found');
+    }
+
+    const checkStock = store.Stock.find(
+      (stock: TStock) => stock.productId === productId,
+    );
 
     if (!checkStock) {
-      throw new Error(`stock not found`);
+      throw new Error(
+        'Stock not found for the selected product in the chosen store',
+      );
     }
 
-    const totalNeeded = Number(quantity) + Number(checkCart?.quantity || 0);
+    const now = new Date();
+    const productDiscounts = await prisma.productDiscount.findMany({
+      where: {
+        productId: productId,
+        storeId: storeId,
+        category: 'buyGet',
+        startDate: { lte: now },
+        endDate: { gte: now },
+      },
+    });
 
-    if (checkStock.quantity <= 0) {
-      throw new Error('stock is empty');
-    } else if (checkStock.quantity < totalNeeded) {
-      throw new Error('not enough stock available');
+    if (productDiscounts.length > 0) {
+      const maxQuantity = Math.floor(checkStock.quantity / 2);
+      if (Number(quantity) > maxQuantity) {
+        throw new Error(
+          `Quantity cannot exceed ${maxQuantity} for buy one get one discount`,
+        );
+      }
     }
 
-    if (checkCart) {
+    const carts = await prisma.cart.findMany({
+      where: { userId: userId },
+    });
+
+    await Promise.all(
+      carts.map(async (cart: TCart) => {
+        const stock = await prisma.stock.findFirst({
+          where: { productId: cart.productId, storeId: storeId },
+        });
+
+        if (!stock) {
+          await prisma.cart.update({
+            where: { id: cart.id },
+            data: {
+              stockId: null,
+              storeId: storeId,
+            },
+          });
+        } else {
+          await prisma.cart.update({
+            where: { id: cart.id },
+            data: {
+              storeId: storeId,
+              stockId: stock.id,
+            },
+          });
+        }
+      }),
+    );
+
+    // Check if the cart item already exists
+    const existingCart = await prisma.cart.findFirst({
+      where: { userId: userId, productId: productId, storeId: storeId },
+    });
+
+    if (existingCart) {
       const updatedCart = await prisma.cart.update({
-        where: { id: checkCart.id },
-        data: { quantity: checkCart.quantity + Number(quantity) },
+        where: { id: existingCart.id },
+        data: {
+          quantity: existingCart.quantity + Number(quantity),
+          stockId: checkStock.id,
+        },
       });
       return updatedCart;
     }
 
+    // Add new cart item
     const newCart = await prisma.cart.create({
       data: {
         userId: userId,
         productId: productId,
         storeId: storeId,
         quantity: Number(quantity),
+        stockId: checkStock.id,
       },
     });
+
     return newCart;
   }
 
-  async updateCart(req: Request) {
-    const { cartId } = req.params;
-    // const { quantity, userId } = req.body as TCart;
-    const { quantity } = req.body as TCart;
-    const userId = req.user.id;
-
-    const checkCart = await prisma.cart.findUnique({
-      where: { id: cartId, userId: userId },
+  private async findClosestStore(userId: string, productId: string) {
+    const userAddress = await prisma.address.findFirst({
+      where: { userId: userId, isChosen: true },
     });
 
-    if (!checkCart) {
-      throw new Error('cart not found');
+    if (
+      !userAddress ||
+      userAddress.latitude === null ||
+      userAddress.longitude === null
+    ) {
+      throw new Error(
+        'No chosen address found for user or address is incomplete',
+      );
     }
 
-    // if (quantity == 0) {
-    //   const deleteCart = await prisma.cart.delete({
-    //     where: { id: cartId },
-    //   });
-    //   return deleteCart;
-    // }
-
-    const checkStock = await prisma.stock.findFirst({
-      where: {
-        productId: checkCart.productId,
-        storeId: checkCart.storeId,
-      },
-      select: { quantity: true },
+    const stores = await prisma.store.findMany({
+      include: { Stock: true },
+      // include: { Stock: { where: { productId: productId } } },
     });
 
-    if (!checkStock) {
-      throw new Error('stock is empty');
+    let closestStore = null;
+    let minDistance = Infinity;
+
+    for (const store of stores) {
+      // if (store.Stock.length === 0) continue;
+
+      if (store.latitude === null || store.longitude === null) {
+        continue;
+      }
+
+      const distance = haversine(
+        { latitude: userAddress.latitude, longitude: userAddress.longitude },
+        { latitude: store.latitude, longitude: store.longitude },
+        { unit: 'meter' },
+      );
+
+      if (distance < minDistance && distance <= MAX_DISTANCE) {
+        minDistance = distance;
+        closestStore = store;
+      }
     }
 
-    if (checkStock.quantity < quantity) {
-      throw new Error('not enough stock available');
-    }
-
-    const updateCart = await prisma.cart.update({
-      // where: { id: cartId, userId: userId },
-      where: { id: cartId },
-      data: { quantity: Number(quantity) },
-    });
-
-    return updateCart;
+    return closestStore;
   }
 
-  async delete(req: Request) {
-    const { cartId } = req.params;
+  async updateAddress(req: Request) {
     const userId = req.user.id;
+    const { addressId } = req.body;
 
-    const deletedCart = await prisma.cart.delete({
-      where: { id: cartId, userId: userId },
+    await prisma.address.updateMany({
+      where: { userId: userId, isChosen: true },
+      data: { isChosen: false },
     });
 
-    return deletedCart;
+    await prisma.address.update({
+      where: { id: addressId },
+      data: { isChosen: true },
+    });
+
+    await this.updateStoreForCart(req);
+  }
+
+  async updateStoreForCart(req: Request) {
+    const userId = req.user.id;
+    const carts = await prisma.cart.findMany({
+      where: { userId: userId },
+    });
+
+    for (const cart of carts) {
+      const closestStore = await this.findClosestStore(userId, cart.productId);
+
+      if (!closestStore) {
+        console.warn(
+          `Tidak ada toko ditemukan dalam jarak maksimum untuk produk ${cart.productId}`,
+        );
+        continue;
+      }
+
+      const checkStock = await prisma.stock.findFirst({
+        where: { productId: cart.productId, storeId: closestStore.id },
+      });
+
+      if (!checkStock) {
+        await prisma.cart.update({
+          where: { id: cart.id },
+          data: {
+            stockId: null,
+            storeId: closestStore.id,
+          },
+        });
+      } else {
+        await prisma.cart.update({
+          where: { id: cart.id },
+          data: {
+            storeId: closestStore.id,
+            stockId: checkStock.id,
+          },
+        });
+      }
+    }
   }
 }
 

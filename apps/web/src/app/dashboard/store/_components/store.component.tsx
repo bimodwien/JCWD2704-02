@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import { RxAvatar } from 'react-icons/rx';
 import { axiosInstance } from '@/lib/axios';
+import '../../../dashboard.css';
 import { useRouter } from 'next/navigation';
 import { Table } from 'flowbite-react';
 import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';

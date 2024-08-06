@@ -18,11 +18,13 @@ export type TOrder = {
   cancelledAt: Date;
   payment_method: string;
   paidType: string;
+  discountPrice: number;
   snap_token: string;
   store: TStore;
   checkedAt: Date;
   updatedAt: Date;
   expiry_time: Date;
+  shippingCost: number;
 };
 
 type TUser = {

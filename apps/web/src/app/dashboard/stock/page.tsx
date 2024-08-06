@@ -1,4 +1,5 @@
 'use client';
+import '../../dashboard.css';
 import React, { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import { RxAvatar } from 'react-icons/rx';
@@ -87,11 +88,11 @@ const Stock = () => {
                           <Table.Cell>{stock.product.name}</Table.Cell>
                           <Table.Cell>{stock.store.name}</Table.Cell>
                           <Table.Cell>{stock.quantity}</Table.Cell>
-                          <Table.Cell>{stock.originalPrice}</Table.Cell>
+                          <Table.Cell>{stock.product.price}</Table.Cell>
                           <Table.Cell>
-                            {stock.discountedPrice === stock.originalPrice
+                            {stock.priceDiscount === stock.product.price
                               ? '-'
-                              : stock.discountedPrice}
+                              : stock.priceDiscount}
                           </Table.Cell>
                           <Table.Cell>
                             <Link

@@ -26,6 +26,7 @@ class StockService {
         productId: true,
         storeId: true,
         quantity: true,
+        priceDiscount: true,
         product: { select: { id: true, name: true, price: true } },
         store: { select: { id: true, name: true } },
         ProductDiscount: {
@@ -43,42 +44,50 @@ class StockService {
         },
       },
     });
-    const updatedStocks = await prisma.$transaction(async (prisma) => {
-      return Promise.all(
-        stockData.map(async (stock) => {
-          let finalPrice = stock.product.price;
-          if (stock.ProductDiscount && stock.ProductDiscount.length > 0) {
-            console.log(
-              'Product Discounts for Stock ID',
-              stock.id,
-              ':',
-              stock.ProductDiscount,
-            );
-            stock.ProductDiscount.forEach((discount) => {
-              const discountValue = discount.value ?? 0;
-              if (discount.type === 'percentage') {
-                finalPrice -= finalPrice * discountValue;
-              } else if (discount.type === 'nominal') {
-                finalPrice -= discountValue;
-              }
-            });
-          }
 
-          const updatedStock = await prisma.stock.update({
-            where: { id: stock.id },
-            data: {
-              priceDiscount: finalPrice,
-            },
-          });
+    console.log('Stock Data:', JSON.stringify(stockData, null, 2));
 
-          return {
-            ...stock,
-            originalPrice: stock.product.price,
-            discountedPrice: finalPrice,
-          };
-        }),
-      );
-    });
+    // const updatedStocks = await prisma.$transaction(async (prisma) => {
+    //   return Promise.all(
+    //     stockData.map(async (stock) => {
+    //       let finalPrice = stock.product.price;
+    //       if (stock.ProductDiscount && stock.ProductDiscount.length > 0) {
+    //         console.log(
+    //           'Product Discounts for Stock ID',
+    //           stock.id,
+    //           ':',
+    //           stock.ProductDiscount,
+    //         );
+    //         stock.ProductDiscount.forEach((discount) => {
+    //           const discountValue = discount.value ?? 0;
+    //           if (discount.type === 'percentage') {
+    //             finalPrice -= finalPrice * discountValue;
+    //           } else if (discount.type === 'nominal') {
+    //             finalPrice -= discountValue;
+    //           }
+    //         });
+    //       }
+
+    //       const updatedStock = await prisma.stock.update({
+    //         where: { id: stock.id },
+    //         data: {
+    //           priceDiscount: finalPrice,
+    //         },
+    //       });
+
+    //       return {
+    //         ...stock,
+    //         originalPrice: stock.product.price,
+    //         discountedPrice: finalPrice,
+    //       };
+    //     }),
+    //   );
+    // });
+
+    // console.log(
+    //   'Updated Stock with Discounts:',
+    //   JSON.stringify(updatedStocks, null, 2),
+    // );
 
     const total = await prisma.stock.count({
       where: {
@@ -93,7 +102,7 @@ class StockService {
     });
 
     return {
-      data: updatedStocks,
+      data: stockData,
       page,
       limit,
       total,

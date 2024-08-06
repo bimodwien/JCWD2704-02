@@ -30,7 +30,7 @@ const Sidebar = () => {
     pathname === path ? 'text-[#4318FF]' : '';
 
   return (
-    <div className="w-[300px] bg-white">
+    <div className="w-44 bg-white">
       <h1 className="py-5 h-24 flex items-center justify-center border-b-4 text-[#2B3674] border-[#F4F7FE] font-bold font-poppins text-26px font-700 text-left">
         BBH <span className="font-normal">STORE</span>
       </h1>

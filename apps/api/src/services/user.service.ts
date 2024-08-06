@@ -106,7 +106,7 @@ class UserService {
         },
         type: 'access_token',
       },
-      '20 hr',
+      '1d',
     );
     // const refreshToken = createToken({ id: data.id }, '20 hr');
     const refreshToken = createToken(
@@ -119,7 +119,7 @@ class UserService {
         },
         type: 'refresh_token',
       },
-      '20 hr',
+      '1d',
     );
     // console.log('access token: ', accessToken);
     // console.log('refresh token: ', refreshToken);
@@ -211,7 +211,7 @@ class UserService {
         },
         type: 'access_token',
       },
-      '20 hr',
+      '1d',
     );
     // const refreshToken = createToken({ id: user.id }, '20hr');
     const refreshToken = createToken(
@@ -224,7 +224,7 @@ class UserService {
         },
         type: 'refresh_token',
       },
-      '20 hr',
+      '1d',
     );
 
     return { accessToken, refreshToken };

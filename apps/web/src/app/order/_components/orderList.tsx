@@ -125,11 +125,6 @@ const OrderList = () => {
     if (page > 1) setPage(page - 1);
   };
 
-  const handleLimitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLimit(parseInt(e.target.value));
-    setPage(1);
-  };
-
   useEffect(() => {
     fetchOrder();
   }, [valueInv, byDate, sortBy, filterStatus, dateRange, page, limit]);
@@ -160,14 +155,9 @@ const OrderList = () => {
   const isActive = (status: string) => filterStatus === status;
 
   return (
-    <div className="p-5 md:p-10 flex gap-10 bg-gray-100">
-      {/* <div className=" hidden lg:flex flex-col gap-5 w-48 p-5 rounded-xl bg-white h-full shadow-sm border border-gray-200">
-        <Link href="/order">My Order</Link>
-        <hr />
-        <Link href="/order">My Voucher</Link>
-      </div> */}
-      <div className="flex flex-col gap-5 w-full">
-        {/* <div className="font-semibold text-2xl">Order History</div> */}
+    <div className="p-5 md:p-10 flex gap-10 bg-gray-100 justify-center w-full">
+      <div className="flex flex-col gap-5 w-full lg:px-10 max-w-[1000px]">
+        <div className="font-semibold text-2xl lg:text-3xl">Order History</div>
         <div className="flex flex-col gap-3 w-full bg-white rounded-xl px-5 pt-3 shadow-sm border border-gray-200">
           <div className="flex gap-5 items-center w-full lg:justify-between lg:flex-row flex-col">
             <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-2 shadow-sm w-full lg:w-96 border border-gray-300">
@@ -322,33 +312,29 @@ const OrderList = () => {
               >
                 <div className="font-semibold w-full border-b border-gray-300 pb-2 flex justify-between">
                   <div>Order #{order.invoice}</div>
-                  {order.status === 'cancelled' ? (
-                    <div className="w-24 text-center border-2 text-sm border-red-500 text-red-700 bg-red-100 font-medium px-3 py-1 h-full rounded-full">
-                      cancelled
-                    </div>
-                  ) : order.status === 'confirmed' ? (
-                    <div className="w-24 text-center border-2 text-sm border-green-500 text-green-700 bg-green-100 font-medium px-3 py-1 h-full rounded-full">
-                      confirmed
-                    </div>
-                  ) : (
-                    <div className="w-24 text-center border-2 text-sm border-blue-500 text-blue-700 bg-blue-100 font-medium px-3 py-1 h-full rounded-full">
-                      {order.status === 'waitingPayment'
-                        ? 'waiting payment'
-                        : order.status === 'waitingConfirmation'
-                          ? 'waiting confirmation'
-                          : order.status === 'processed'
-                            ? 'processed'
-                            : order.status === 'shipped'
-                              ? 'shipped'
-                              : order.status === 'confirmed'
-                                ? 'confirmed'
-                                : ''}
-                    </div>
-                  )}
+                  <div
+                    className={`border-2 w-24 text-sm font-medium px-2 py-1 h-full rounded-full text-center ${order.status === 'cancelled' ? 'border-red-400 text-red-500 bg-red-100' : order.status === 'confirmed' ? 'border-green-400 text-green-500 bg-green-100' : order.status === 'waitingPayment' ? 'border-amber-400 text-amber-500 bg-amber-100' : 'border-blue-400 text-blue-500 bg-blue-100'}`}
+                  >
+                    {order.status === 'cancelled'
+                      ? 'cancelled'
+                      : order.status == 'confirmed'
+                        ? 'confirmed'
+                        : order.status === 'waitingPayment'
+                          ? 'unpaid'
+                          : order.status === 'waitingConfirmation'
+                            ? 'unchecked'
+                            : order.status === 'processed'
+                              ? 'processed'
+                              : order.status === 'shipped'
+                                ? 'shipped'
+                                : order.status === 'confirmed'
+                                  ? 'confirmed'
+                                  : ''}
+                  </div>
                 </div>
                 <div>
                   {order.OrderItem && order.OrderItem.length > 0 ? (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 text-sm lg:text-base">
                       <div className="flex justify-between">
                         <div className="flex gap-3 items-center">
                           <img
@@ -356,12 +342,14 @@ const OrderList = () => {
                             alt={order.OrderItem[0].product.name}
                             className="w-14 h-14 rounded object-cover"
                           />
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 w-36 lg:w-96">
                             <div>{order.OrderItem[0].product.name}</div>
                             <div>{order.OrderItem[0].quantity}x</div>
                           </div>
                         </div>
-                        <div>{formatPrice(order.OrderItem[0].price)}</div>
+                        <div className="w-28 lg:w-40 text-right">
+                          {formatPrice(order.OrderItem[0].price)}
+                        </div>
                       </div>
                       {order.OrderItem.length > 1 && (
                         <div className="text-center pt-1 border-t border-gray-300">
@@ -370,9 +358,7 @@ const OrderList = () => {
                       )}
                       <div className="flex justify-between pt-1 border-t border-gray-300">
                         <div>{order.OrderItem.length} product</div>
-                        <div>
-                          Total Payment: {formatPrice(order.totalPrice)}
-                        </div>
+                        <div>Total: {formatPrice(order.totalPrice)}</div>
                       </div>
                     </div>
                   ) : (

@@ -148,6 +148,11 @@ const Detail = () => {
                 cancelled
               </div>
             )}
+            {order?.status === 'confirmed' && (
+              <div className="border-2 border-green-500 text-green-700 bg-green-100 font-medium px-3 py-1 h-full rounded-full">
+                confirmed
+              </div>
+            )}
           </div>
           <StatusAndDetail order={order} />
         </div>
@@ -170,8 +175,7 @@ const Detail = () => {
               <div className="border-2 border-red-500 text-red-700 bg-red-100 font-medium px-3 py-1 h-full rounded-full text-sm">
                 denied
               </div>
-            ) : order?.paidType === 'manual' &&
-              order?.status === 'processed' ? (
+            ) : order?.status === 'processed' ? (
               <div className="border-2 border-blue-500 text-blue-700 bg-blue-100 font-medium px-3 py-1 h-full rounded-full text-sm">
                 approve
               </div>
@@ -184,7 +188,7 @@ const Detail = () => {
             <>
               <div className="text-red-600 font-semibold text-lg">
                 {countdown !== null && (
-                  <>Countdown: {formatCountdown(countdown)}</>
+                  <>Pay before: {formatCountdown(countdown)}</>
                 )}
               </div>
               <hr />

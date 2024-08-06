@@ -37,7 +37,7 @@ class StoreService {
           city: checkCity.cityName,
           province,
           postalCode: Number(postalCode),
-          userId: 'clzgja1sa00018ue0t83i4fxc',
+          userId: 'clzhtdj970001149i5rjnb408',
         },
       });
 

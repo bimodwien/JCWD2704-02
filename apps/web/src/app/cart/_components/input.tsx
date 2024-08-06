@@ -9,7 +9,8 @@ import { QtyProps } from '@/models/cart.model';
 
 const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
   const [quantity, setQuantity] = useState(cart.quantity);
-  const [debouncedQuantity] = useDebounce(quantity, 1500);
+  const [prevQuantity, setPrevQuantity] = useState(cart.quantity);
+  const [debouncedQuantity] = useDebounce(quantity, 1000);
 
   useEffect(() => {
     if (debouncedQuantity !== undefined) {
@@ -22,18 +23,29 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
 
   const updateQuantity = async (cartId: string, newQuantity: number) => {
     try {
-      const response = await axiosInstance().patch(`/cart/${cartId}`, {
+      await axiosInstance().patch(`/cart/${cartId}`, {
         quantity: newQuantity,
       });
       fetchCart();
     } catch (error) {
       console.error('Error updating quantity:', error);
+      toast.error('Failed to update quantity. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      setQuantity(prevQuantity);
     }
   };
 
   const handleDecrement = () => {
     if (quantity > 1) {
       const newQuantity = quantity - 1;
+      setPrevQuantity(quantity);
       setQuantity(newQuantity);
     } else {
       toast.warning('Minimum Quantity Reached', {
@@ -61,6 +73,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
         progress: undefined,
       });
     } else {
+      setPrevQuantity(quantity);
       setQuantity(newQuantity);
     }
   };
@@ -72,6 +85,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
     } else {
       newQuantity = Math.min(Math.max(0, newQuantity), cart.stock.quantity);
     }
+    setPrevQuantity(quantity);
     setQuantity(newQuantity);
   };
 
@@ -91,7 +105,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
         style={{ outline: 'none' }}
       />
       <button
-        className={`text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600 `}
+        className={`text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600`}
         onClick={handleIncrement}
       >
         <FaPlus />

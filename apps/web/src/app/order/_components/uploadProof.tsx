@@ -7,6 +7,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -59,14 +60,31 @@ const UploadModal: React.FC<UploadModalProps> = ({
           Object.fromEntries(newData.entries()),
         );
 
-        const { data } = await axiosInstance().patch(
-          `/order/${order?.id}`,
-          newData,
-        );
-        alert(data.message);
-        onConfirm();
+        // Display SweetAlert2 confirmation dialog
+        const result = await Swal.fire({
+          title: 'Are you sure?',
+          text: 'Do you want to submit the payment proof?',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, submit',
+          cancelButtonText: 'No, cancel',
+        });
+
+        if (result.isConfirmed) {
+          const { data } = await axiosInstance().patch(
+            `/order/${order?.id}`,
+            newData,
+          );
+          Swal.fire('Success', data.message, 'success');
+          onConfirm();
+        }
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
+        if (error instanceof AxiosError)
+          Swal.fire(
+            'Error',
+            error.response?.data?.message || 'An error occurred',
+            'error',
+          );
         else if (error instanceof Error) console.log(error.message);
       }
     },

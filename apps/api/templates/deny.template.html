@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Failure Notification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+      }
+      .container {
+        width: 80%;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #ff0000;
+        font-size: 24px;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        color: #ffffff;
+        background-color: #007bff;
+        border-radius: 4px;
+        text-decoration: none;
+        margin-top: 20px;
+      }
+      .footer {
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Payment Failed</h1>
+      <p>Dear {CustomerName},</p>
+      <p>
+        We regret to inform you that your recent payment attempt for Order
+        #{OrderNumber} has been unsuccessful.
+      </p>
+      <p>
+        Please make a repayment within a maximum of 1 hour from when you receive
+        this message.
+      </p>
+      <p>
+        If you have any questions or need further assistance, please do not
+        hesitate to contact our support team.
+      </p>
+      <p>Thank you for your prompt attention to this matter.</p>
+      <p>Best regards,<br />The BBH Store Team</p>
+      <div class="footer">&copy; 2024 BBH Store. All rights reserved.</div>
+    </div>
+  </body>
+</html>

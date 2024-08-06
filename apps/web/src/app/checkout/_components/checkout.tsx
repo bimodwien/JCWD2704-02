@@ -1,25 +1,30 @@
 'use client';
 import { axiosInstance } from '@/lib/axios';
-import React, { useEffect, useState } from 'react';
-import { BiSolidDiscount } from 'react-icons/bi';
-import { IoReceiptOutline } from 'react-icons/io5';
-import { MdOutlinePayment } from 'react-icons/md';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
+import { IoReceiptOutline, IoTimeOutline } from 'react-icons/io5';
 import { TAddress, TCart } from '@/models/cart.model';
-import { formatPrice } from '@/helpers/format';
 import Swal from 'sweetalert2';
+import { useRouter } from 'next/navigation';
+import PaymentMethod from './payment';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import { formatPrice } from '@/helpers/format';
+import { IoIosCloseCircleOutline } from 'react-icons/io';
 
 const Checkout = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [userVouchers, setUserVouchers] = useState<any[]>([]);
+  const [productVouchers, setProductVouchers] = useState<any[]>([]);
   const [cartData, setCartData] = useState<TCart[]>([]);
   const [shippingAddress, setShippingAddress] = useState<TAddress | null>(null);
   const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [paymentType, setPaymentType] = useState<'manual' | 'gateway'>(
-    'manual',
-  );
+  const [paymentType, setPaymentType] = useState<
+    'manual' | 'gateway' | undefined
+  >();
+  const [selectedVoucher, setSelectedVoucher] = useState<any | null>(null);
   const router = useRouter();
-
-  const userId = 'clz9fsqf60000103hg0a7vi11';
+  dayjs.extend(relativeTime);
 
   const fetchCart = async () => {
     try {
@@ -33,7 +38,9 @@ const Checkout = () => {
 
   const fetchShippingAddress = async () => {
     try {
-      const response = await axiosInstance().get(`/order/a/${userId}`);
+      const response = await axiosInstance().get(`/order/a`, {
+        params: { filter: 'chosen' },
+      });
       const { data } = response.data;
       setShippingAddress(data);
     } catch (error) {
@@ -49,8 +56,16 @@ const Checkout = () => {
   const calculateTotalPrice = () => {
     let total = 0;
     cartData.forEach((item) => {
-      if (item.quantity <= item.stock.quantity) {
-        total += item.product.price * item.quantity;
+      const stockQuantity = item.stock?.quantity ?? 0;
+      const productPrice = item.product.price;
+      const quantity = item.quantity;
+
+      const price = item.stock?.priceDiscount
+        ? item.stock.priceDiscount * quantity
+        : productPrice * quantity;
+
+      if (quantity <= stockQuantity) {
+        total += price;
       }
     });
     return total;
@@ -66,10 +81,10 @@ const Checkout = () => {
 
   const createOrder = async (paidType: 'manual' | 'gateway') => {
     try {
-      const response = await axiosInstance().post(`/order/${userId}`, {
-        // addressId: shippingAddress?.id,
-        addressId: 'clzebpr5u000214475u5yhu04',
+      const response = await axiosInstance().post(`/order/`, {
+        addressId: shippingAddress?.id,
         paidType: paidType,
+        voucherId: selectedVoucher?.id, // Adjust based on the voucher structure
       });
       Swal.fire({
         title: 'Created!',
@@ -95,10 +110,8 @@ const Checkout = () => {
   };
 
   const handleOrderNow = async () => {
-    let paidType: 'manual' | 'gateway' = 'manual';
-    if (paymentType === 'gateway') {
-      paidType = 'gateway';
-    }
+    let paidType: 'manual' | 'gateway' =
+      paymentType === 'gateway' ? 'gateway' : 'manual';
 
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -115,10 +128,55 @@ const Checkout = () => {
     }
   };
 
+  const fetchVoucher = async () => {
+    try {
+      const response = await axiosInstance().get(`/cart/voucher`);
+      const { userVouchers, productVouchers } = response.data.data;
+      setUserVouchers(userVouchers);
+      setProductVouchers(productVouchers);
+    } catch (error) {
+      console.error('Error fetching vouchers:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (isModalOpen) {
+      fetchVoucher();
+    }
+  }, [isModalOpen]);
+
+  const toggleVoucherModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleVoucherClick = (voucher: any) => {
+    setSelectedVoucher(voucher);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        setIsModalOpen(false);
+        setSelectedVoucher(null);
+      }
+    };
+
+    if (isModalOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isModalOpen]);
+
   return (
-    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-between gap-5 md:gap-10 bg-gray-100">
-      <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200">
-        <div className="flex flex-col gap-3 ">
+    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 bg-gray-100">
+      <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200 max-w-[900px]">
+        <div className="flex flex-col gap-5">
           <div className="text-xl lg:text-2xl font-semibold flex gap-3 items-center border-b border-gray-300 pb-2">
             <IoReceiptOutline /> Order Details
           </div>
@@ -129,30 +187,46 @@ const Checkout = () => {
                 <div className="flex justify-between items-center font-semibold">
                   Store Address
                 </div>
-                <div className="text-sm">
-                  {cartData.length > 0 && (
-                    <div>
-                      <span>{cartData[0].store?.name}, </span>
+                {cartData.length > 0 && (
+                  <div className="text-sm flex flex-col">
+                    <span className="font-medium">
+                      ({cartData[0].store?.name})
+                    </span>
+                    <div
+                      className="flex flex-col overflow-hidden"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
                       {cartData[0].store?.address}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
               <div className="rounded-xl border border-gray-400 p-3 lg:w-96">
-                <div className="flex justify-between items-center  font-semibold">
+                <div className="flex justify-between items-center font-semibold">
                   Your Address
                 </div>
-                <div className="text-sm">
-                  {shippingAddress?.address}
-                  {shippingAddress?.city && (
-                    <span className="text-sm">
-                      , {''}
-                      {shippingAddress.city.province},{' '}
-                      {shippingAddress.city.cityName},{' '}
-                      {shippingAddress.city.postalCode}
+                {shippingAddress && (
+                  <div className="text-sm flex flex-col">
+                    <span className="font-medium">
+                      ({shippingAddress.name})
                     </span>
-                  )}
-                </div>
+                    <div
+                      className="flex flex-col overflow-hidden"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                      }}
+                    >
+                      {shippingAddress.address}, {shippingAddress.province},{' '}
+                      {shippingAddress.city}, {shippingAddress.postalCode}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -162,10 +236,10 @@ const Checkout = () => {
               {cartData.map((cart) => (
                 <div
                   key={cart.id}
-                  className="flex justify-between items-center gap-2 text-sm border-b border-t-gray-400 pb-1"
+                  className="flex justify-between items-center gap-2 border-b border-t-gray-400 pb-1"
                 >
                   <div className="flex gap-2 items-center">
-                    <div className="w-10 text-center text-xs">
+                    <div className="w-10 text-center text-sm">
                       {cart.quantity}x
                     </div>
                     <div
@@ -185,128 +259,114 @@ const Checkout = () => {
           </div>
         </div>
       </div>
-      <div className="rounded-xl bg-white w-full md:w-[500px] h-full p-5 shadow-md border border-gray-200">
-        <div className="flex flex-col gap-3">
-          <div className="font-semibold text-2xl flex gap-3 items-center">
-            <MdOutlinePayment />
-            Payment
-          </div>
-          <hr />
-          <div className="flex flex-col gap-3">
-            <div className="text-xl font-semibold">Payment Method</div>
-            <div className="flex flex-col gap-3">
-              <div
-                className={`border rounded-xl p-2 ${paymentType === 'manual' ? 'border-blue-500 bg-blue-50' : 'border-gray-400'}`}
-              >
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="manual"
-                    checked={paymentType === 'manual'}
-                    onChange={handlePaymentTypeChange}
-                  />
-                  <div className="flex flex-col">
-                    <div className="font-semibold">Manual</div>
-                    <div className="text-xs">
-                      Transfer to our bank account & upload your payment proof
+      <PaymentMethod
+        seeVoucher={toggleVoucherModal}
+        paymentType={paymentType}
+        handlePaymentTypeChange={handlePaymentTypeChange}
+        totalPrice={totalPrice}
+        handleOrderNow={handleOrderNow}
+        selectedVoucher={selectedVoucher}
+      />
+
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+          <div
+            className="bg-white p-5 rounded-lg shadow-lg w-[350px] h-[550px] relative"
+            ref={modalRef}
+          >
+            <div className="flex justify-between items-center flex-col gap-3 h-full overflow-auto">
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-lg font-semibold mb-3">Choose Voucher</div>
+                <div className="flex flex-col gap-5 px-2">
+                  {productVouchers.length > 0 && (
+                    <div className="flex flex-col gap-3 w-full">
+                      <div className="font-semibold">Product Vouchers</div>
+                      {productVouchers.map((voucher) => (
+                        <div
+                          key={voucher.id}
+                          className={`text-sm rounded-xl border border-gray-300 hover:border-blue-500 p-2 cursor-pointer flex flex-col gap-1 ${
+                            selectedVoucher?.id === voucher.id
+                              ? 'bg-blue-100'
+                              : ''
+                          }`}
+                          onClick={() => handleVoucherClick(voucher)}
+                        >
+                          <div className="flex justify-between gap-2 items-center">
+                            <div className="font-semibold">
+                              {voucher.voucherCode}
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <IoTimeOutline />
+                              {dayjs(voucher.endDate).format('DD MMM YYYY')}
+                            </div>
+                          </div>
+                          <div>{voucher.description}</div>
+                          <div>
+                            {voucher.maxDiscount
+                              ? `Max discount ${formatPrice(voucher.maxDiscount)}`
+                              : ''}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </label>
-              </div>
-              <div
-                className={`border rounded-xl p-2 ${paymentType === 'gateway' ? 'border-blue-500 bg-blue-50' : 'border-gray-400'}`}
-              >
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="gateway"
-                    checked={paymentType === 'gateway'}
-                    onChange={handlePaymentTypeChange}
-                  />
-                  <div className="flex flex-col">
-                    <div className="font-semibold">Other</div>
-                    <div className="text-sm flex gap-2">
-                      <Image
-                        src="/payment/gopay.svg"
-                        alt="gopay"
-                        width={32}
-                        height={32}
-                      />
-                      <Image
-                        src="/payment/ovo.svg"
-                        alt="ovo"
-                        width={32}
-                        height={32}
-                      />
-                      <Image
-                        src="/payment/bniva.svg"
-                        alt="bni"
-                        width={32}
-                        height={32}
-                      />
-                      <Image
-                        src="/payment/mandiriva.svg"
-                        alt="mandiri"
-                        width={32}
-                        height={32}
-                      />
-                      <Image
-                        src="/payment/alfamart.svg"
-                        alt="alfamart"
-                        width={32}
-                        height={32}
-                      />
-                      <Image
-                        src="/payment/indomaret.svg"
-                        alt="indomaret"
-                        width={32}
-                        height={32}
-                      />
-                      <div className="rounded-full bg-gray-200 p-1 w-4 h-4 flex items-center">
-                        +
-                      </div>
+                  )}
+                  {userVouchers.length > 0 ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="font-semibold">User Vouchers</div>
+                      {userVouchers.map((voucher) => (
+                        <div
+                          key={voucher.id}
+                          className={`text-sm rounded-xl border border-gray-300 hover:border-blue-500 p-2 cursor-pointer flex flex-col gap-1 ${
+                            selectedVoucher?.id === voucher.id
+                              ? 'bg-blue-100'
+                              : ''
+                          }`}
+                          onClick={() => handleVoucherClick(voucher)}
+                        >
+                          <div className="flex justify-between gap-2 items-center">
+                            <div className="font-semibold">
+                              {voucher.voucher.voucherCode}
+                            </div>
+                            <div className="flex items-center gap-1 text-gray-500">
+                              <IoTimeOutline />
+                              {dayjs(voucher.voucher.endDate).format(
+                                'DD MMM YYYY',
+                              )}
+                            </div>
+                          </div>
+                          <div>{voucher.voucher.description}</div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </label>
+                  ) : (
+                    <p className="text-center">No user vouchers available</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={toggleVoucherModal}
+                className="absolute top-5 right-5 text-lg font-semibold"
+              >
+                <IoIosCloseCircleOutline />
+              </button>
+              <div className="w-full bg-white sticky bottom-0 gap-2 flex justify-center pt-3">
+                <button
+                  onClick={() => setSelectedVoucher(null)}
+                  className="p-2 bg-red-500 text-white rounded-xl w-20"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 bg-blue-500 text-white rounded-xl w-20"
+                >
+                  OK
+                </button>
               </div>
             </div>
-          </div>
-          <hr />
-          <div className="flex flex-col gap-2">
-            <div className="text-xl font-semibold">Price Details</div>
-            <div className="flex justify-between items-center font-semibold ">
-              <span className="font-normal ">Subtotal</span>
-              {formatPrice(totalPrice)}
-            </div>
-            <div className="flex justify-between items-center font-semibold ">
-              <span className="font-normal ">Shipping</span>
-              Rp XX.XXX
-            </div>
-            <div className="flex justify-between items-center font-semibold ">
-              <span className="font-normal ">Discount</span>
-              Rp XX.XXX
-            </div>
-            <hr />
-            <div className="flex justify-between items-center font-semibold text-lg">
-              <span className="">Total Payment</span>
-              {formatPrice(totalPrice)}
-            </div>
-            <hr />
-            <button className="flex justify-center w-full p-2 items-center gap-2 rounded-full border-2 border-blue-500 text-blue-700 font-semibold">
-              <BiSolidDiscount className="text-2xl" />
-              Apply Voucher
-            </button>
-            <button
-              onClick={handleOrderNow}
-              className="flex justify-center bg-blue-600 text-white text-lg rounded-full p-2 font-semibold"
-            >
-              Order Now
-            </button>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
