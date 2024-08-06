@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ProductController } from '@/controllers/product.controller';
 import { blobUploader } from '@/lib/multer';
 import { validateToken } from '@/middleware/auth.middleware';
-import { verifyAdmin } from '@/middleware/role.middleware';
+import { verifyAdmin, verifyUser } from '@/middleware/role.middleware';
 
 export class ProductRouter {
   private router: Router;
@@ -23,12 +23,7 @@ export class ProductRouter {
     );
     this.router.get('/all', this.productController.getAllByDistance);
     this.router.get('/allData', this.productController.getAllData);
-    this.router.get(
-      '/:id',
-      validateToken,
-      verifyAdmin,
-      this.productController.getProductById,
-    );
+    this.router.get('/:id', this.productController.getProductById);
     this.router.post(
       '/',
       validateToken,
