@@ -6,7 +6,7 @@ import bcrypt from 'bcrypt';
 async function createSuperAdmin() {
   const email = 'superadmin@mail.com';
   const name = 'Super Admin';
-  const password = 'superadminpassword';
+  const password = 'bimobimo';
 
   const existingUser = await prisma.user.findFirst({
     where: { OR: [{ name }, { email }] },

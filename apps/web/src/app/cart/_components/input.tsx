@@ -13,8 +13,10 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
   const hasBuyGetDiscount = cart.stock?.ProductDiscount?.some(
     (discount: any) => discount.category === 'buyGet',
   );
-  const buyGetThreshold = Math.floor(cart.stock.quantity / 2);
-  const maxQuantity = hasBuyGetDiscount ? buyGetThreshold : cart.stock.quantity;
+  const buyGetThreshold = Math.floor(cart.stock?.quantity / 2);
+  const maxQuantity = hasBuyGetDiscount
+    ? buyGetThreshold
+    : cart.stock?.quantity;
 
   useEffect(() => {
     if (debouncedQuantity !== undefined) {
@@ -51,8 +53,8 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
       let newQuantity = quantity - 1;
       if (hasBuyGetDiscount && quantity > buyGetThreshold) {
         newQuantity = buyGetThreshold;
-      } else if (!hasBuyGetDiscount && quantity > cart.stock.quantity) {
-        newQuantity = cart.stock.quantity;
+      } else if (!hasBuyGetDiscount && quantity > cart.stock?.quantity) {
+        newQuantity = cart.stock?.quantity;
       }
       setPrevQuantity(quantity);
       setQuantity(newQuantity);

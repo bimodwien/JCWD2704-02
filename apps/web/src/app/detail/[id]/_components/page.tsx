@@ -14,7 +14,7 @@ const DetailComponent = ({ dataProduct }: Props) => {
 
   return (
     <>
-      <section className="py-8 flex justify-center items-center bg-[#FAF9F6] min-h-lvh md:py-16 antialiased">
+      <section className="py-8 flex justify-center items-center bg-[#F4F7FE] min-h-lvh md:py-16 antialiased">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
             <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">

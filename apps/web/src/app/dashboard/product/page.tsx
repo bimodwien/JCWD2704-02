@@ -127,58 +127,60 @@ const Store = () => {
                 </div>
               </div>
               {/* card buat product */}
-              <div className="flex flex-wrap gap-[45.5px] pb-5">
-                {/* ini cardnya */}
-                {products.map((product) => {
-                  return (
-                    <div
-                      key={product.id}
-                      className="w-[280px] h-[355px] bg-white rounded-xl"
-                    >
-                      <div className="flex justify-center items-center py-5">
-                        <img
-                          src={`http://localhost:8000/products/images/${product.ProductImage[0].id}`}
-                          alt="sample"
-                          className="h-[180px] w-[250px] rounded-xl"
-                        />
-                      </div>
-                      <div className="flex justify-between items-center gap-1 px-4 pb-8">
-                        <div>
-                          <div className="font-dm-sans font-bold text-base text-[#1B2559] truncate w-[110px]">
-                            {product.name}
+              <div className="w-full">
+                <div className="grid grid-cols-5 gap-[45px] pb-5 w-full">
+                  {products.map((product) => {
+                    return (
+                      <div
+                        key={product.id}
+                        className="w-full max-w-[280px] h-[355px] bg-white rounded-xl"
+                      >
+                        <div className="flex justify-center items-center py-5">
+                          <img
+                            src={`http://localhost:8000/products/images/${product.ProductImage[0].id}`}
+                            alt="sample"
+                            className="h-[180px] w-[250px] rounded-xl"
+                          />
+                        </div>
+                        <div className="flex justify-between items-center gap-1 px-4 pb-8">
+                          <div>
+                            <div className="font-dm-sans font-bold text-base text-[#1B2559] truncate w-[110px]">
+                              {product.name}
+                            </div>
+                            <div className="font-dm-sans font-medium text-14px text-[#A3AED0] truncate w-[110px]">
+                              {product.category
+                                ? product.category.name
+                                : 'Category'}
+                            </div>
                           </div>
-                          <div className="font-dm-sans font-medium text-14px text-[#A3AED0] truncate w-[110px]">
-                            {product.category
-                              ? product.category.name
-                              : 'Category'}
+                          <div className="font-dm-sans font-bold text-base text-[#1B2559]">
+                            IDR {product.price}
                           </div>
                         </div>
-                        <div className="font-dm-sans font-bold text-base text-[#1B2559]">
-                          IDR {product.price}
+                        <div className="flex justify-between items-center px-4">
+                          <button
+                            className="text-base text-customBlue font-semibold"
+                            onClick={() => {
+                              handleDelete(product.id);
+                            }}
+                          >
+                            Delete Product
+                          </button>
+                          <button
+                            className="bg-[#11047A] text-white px-5 py-0.5 rounded-full font-semibold"
+                            onClick={() => {
+                              onClickEdit(product.id);
+                            }}
+                          >
+                            Edit
+                          </button>
                         </div>
                       </div>
-                      <div className="flex justify-between items-center px-4">
-                        <button
-                          className="text-base text-customBlue font-semibold"
-                          onClick={() => {
-                            handleDelete(product.id);
-                          }}
-                        >
-                          Delete Product
-                        </button>
-                        <button
-                          className="bg-[#11047A] text-white px-5 py-0.5 rounded-full font-semibold"
-                          onClick={() => {
-                            onClickEdit(product.id);
-                          }}
-                        >
-                          Edit
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
+
               <div className="flex justify-center items-center gap-5 pt-5">
                 <button
                   onClick={() => setPage(page - 1)}

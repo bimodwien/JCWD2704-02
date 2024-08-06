@@ -12,7 +12,7 @@ export const validateToken = (
 ) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '') || '';
-    const decode = verify(token, SECRET_KEY) as TDecode;
+    const decode = verify(token!, SECRET_KEY) as TDecode;
     if (decode.type != 'access_token') throw new Error('invalid token');
     req.user = decode.user;
     next();

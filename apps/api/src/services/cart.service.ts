@@ -108,6 +108,7 @@ class CartService {
       return updatedCart;
     }
 
+    // Add new cart item
     const newCart = await prisma.cart.create({
       data: {
         userId: userId,

@@ -210,10 +210,7 @@ class CartData {
         voucher: {
           startDate: { lt: now },
           endDate: { gt: now },
-          AND: [
-            { productId: { in: productIds } },
-            { storeId: { in: storeIds } },
-          ],
+          storeId: { in: storeIds },
         },
       },
       include: { voucher: true },

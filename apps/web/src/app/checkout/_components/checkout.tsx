@@ -174,6 +174,13 @@ const Checkout = () => {
     };
   }, [isModalOpen]);
 
+  const reset = () => {
+    if (isModalOpen) {
+      setSelectedVoucher(null);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 bg-gray-100">
       <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200 max-w-[900px]">
@@ -230,11 +237,11 @@ const Checkout = () => {
             ref={modalRef}
           >
             <div className="flex justify-between items-center flex-col gap-3 h-full overflow-auto">
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-3  w-72 ">
                 <div className="text-lg font-semibold mb-3">Choose Voucher</div>
-                <div className="flex flex-col gap-5 px-2">
+                <div className="flex flex-col gap-5 ">
                   {productVouchers.length > 0 && (
-                    <div className="flex flex-col gap-3 w-full">
+                    <div className="flex flex-col gap-3 w-72 ">
                       <div className="font-semibold">Product Vouchers</div>
                       {productVouchers.map((voucher) => (
                         <div
@@ -266,7 +273,7 @@ const Checkout = () => {
                     </div>
                   )}
                   {userVouchers.length > 0 ? (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 w-72 ">
                       <div className="font-semibold">User Vouchers</div>
                       {userVouchers.map((voucher) => (
                         <div
@@ -294,8 +301,14 @@ const Checkout = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center">No user vouchers available</p>
+                    <></>
                   )}
+                  {productVouchers.length === 0 &&
+                    userVouchers.length === 0 && (
+                      <div className="text-center">
+                        No user vouchers available
+                      </div>
+                    )}
                 </div>
               </div>
               <button
@@ -306,7 +319,7 @@ const Checkout = () => {
               </button>
               <div className="w-full bg-white sticky bottom-0 gap-2 flex justify-center pt-3">
                 <button
-                  onClick={() => setSelectedVoucher(null)}
+                  onClick={reset}
                   className="p-2 bg-red-500 text-white rounded-xl w-20"
                 >
                   Reset

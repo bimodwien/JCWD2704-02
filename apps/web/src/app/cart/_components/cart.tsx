@@ -179,7 +179,7 @@ const Cart = () => {
           </div>
           <div className="flex items-center gap-2">
             <MdOutlineStorefront className="text-base text-center" />
-            Store: {''}
+            Nearest store: {''}
             {cartData &&
               cartData.length > 0 &&
               cartData[0].store &&

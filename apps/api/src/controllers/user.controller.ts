@@ -48,6 +48,8 @@ export class UserController {
         .cookie('refresh_token', refreshToken)
         .send({
           message: 'user login',
+          access_token: accessToken,
+          refresh_token: refreshToken,
         });
     } catch (error) {
       next(error);
@@ -57,9 +59,9 @@ export class UserController {
   async Location(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await UserService.Location(req);
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
+      // console.log('====================================');
+      // console.log(data);
+      // console.log('====================================');
       res.send({
         message: 'Location has been save',
         // data,

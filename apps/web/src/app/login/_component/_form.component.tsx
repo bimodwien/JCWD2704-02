@@ -46,9 +46,9 @@ export default function FormSignInComponent() {
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log('====================================');
-      console.log(result);
-      console.log('====================================');
+      // console.log('====================================');
+      // console.log(result);
+      // console.log('====================================');
       const email = result.user.email;
       if (email != null) {
         await loginByGoogle(email)(dispatch);
