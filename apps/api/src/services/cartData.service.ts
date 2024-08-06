@@ -1,4 +1,5 @@
 import { TCart } from '@/models/cart.model';
+import { TStore } from '@/models/store.model';
 import prisma from '@/prisma';
 import { MAX_DISTANCE } from '@/utils/maxDistance';
 import { Request } from 'express';
@@ -132,7 +133,7 @@ class CartData {
     });
 
     const nearbyStores = allStores
-      .map((store) => {
+      .map((store: any) => {
         if (store.latitude === null || store.longitude === null) {
           return null;
         }
@@ -152,7 +153,7 @@ class CartData {
           distance: parseFloat(formattedDistance),
         };
       })
-      .filter((store) => store && store.distance <= MAX_DISTANCE / 1000);
+      .filter((store: any) => store && store.distance <= MAX_DISTANCE / 1000);
 
     return nearbyStores;
   }
@@ -183,8 +184,8 @@ class CartData {
       select: { productId: true, storeId: true },
     });
 
-    const productIds = userCart.map((cart) => cart.productId);
-    const storeIds = userCart.map((cart) => cart.storeId);
+    const productIds = userCart.map((cart: any) => cart.productId);
+    const storeIds = userCart.map((cart: any) => cart.storeId);
 
     const userVouchers = await prisma.voucherUser.findMany({
       where: {

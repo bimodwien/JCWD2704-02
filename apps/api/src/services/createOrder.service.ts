@@ -21,6 +21,26 @@ class CreateOrderService {
       if (!stock || stock.quantity < item.quantity) {
         throw new Error('Not enough stock');
       }
+
+      const now = new Date();
+      const productDiscounts = await prisma.productDiscount.findMany({
+        where: {
+          productId: item.productId,
+          storeId: item.storeId,
+          category: 'buyGet',
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      });
+
+      if (productDiscounts.length > 0) {
+        const maxQuantity = Math.floor(stock.quantity / 2);
+        if (Number(item.quantity) > maxQuantity) {
+          throw new Error(
+            `Quantity cannot exceed ${maxQuantity} for buy one get one discount`,
+          );
+        }
+      }
     }
   }
 
@@ -214,66 +234,6 @@ class CreateOrderService {
     await this.cartAndStock(createdOrder.id, createdOrder.storeId, cart);
     return createdOrder;
   }
-
-  // private async createSnapToken(order: TOrder, cart: TCart[]): Promise<string> {
-  //   const orderItem = await prisma.orderItem.findMany({
-  //     where: {
-  //       orderId: order.id,
-  //     },
-  //     include: {
-  //       product: true,
-  //     },
-  //   });
-
-  //   const user = await prisma.user.findUnique({
-  //     where: { id: order.userId },
-  //   });
-
-  //   if (!user) throw new Error('user not found');
-
-  //   try {
-  //     const snap = new midtransClient.Snap({
-  //       isProduction: false,
-  //       serverKey: process.env.SERVER_KEY,
-  //       clientKey: process.env.CLIENT_KEY,
-  //     });
-
-  //     const orderData = {
-  //       transaction_details: {
-  //         order_id: order.invoice,
-  //         gross_amount: order.totalPrice,
-  //       },
-  //       item_details: orderItem.map((item) => ({
-  //         id: item.product.id,
-  //         price: item.product.price,
-  //         quantity: item.quantity,
-  //         name: item.product.name,
-  //       })),
-  //       customer_details: {
-  //         first_name: user.name,
-  //         email: user.email,
-  //       },
-  //     };
-
-  //     const snapToken = await snap.createTransactionToken(orderData);
-  //     const redirectUrl = `https://app.sandbox.midtrans.com/snap/v4/redirection/${snapToken}`;
-  //     await prisma.order.update({
-  //       where: { invoice: order.invoice },
-  //       data: {
-  //         snap_token: snapToken,
-  //         snap_redirect_url: redirectUrl,
-  //       },
-  //     });
-
-  //     await this.cartAndStock(order.id, order.storeId, cart);
-
-  //     return snapToken;
-  //     // return redirectUrl;
-  //   } catch (error) {
-  //     console.error('Error creating transaction:', error);
-  //     throw new Error('Failed to initiate payment');
-  //   }
-  // }
 
   private async createSnapToken(order: TOrder, cart: TCart[]): Promise<string> {
     try {

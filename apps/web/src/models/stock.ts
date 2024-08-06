@@ -6,9 +6,13 @@ export type TStock = {
   product: {
     id: string;
     name: string;
+    price: number;
   };
   store: {
     id: string;
     name: string;
   };
+  originalPrice: number;
+  discountedPrice: number;
+  priceDiscount: number;
 };

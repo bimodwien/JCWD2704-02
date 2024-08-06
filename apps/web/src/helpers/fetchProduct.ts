@@ -35,7 +35,6 @@ export async function deleteProduct(
   const axios = axiosInstance();
   try {
     await axios.delete(`/products/${id}`);
-    alert('Data berhasil dihapus');
     fetchProduct(page, limit, name, setProduct);
   } catch (error) {
     console.log(error);

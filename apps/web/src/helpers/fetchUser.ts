@@ -37,7 +37,6 @@ export async function deleteUser(
   const axios = axiosInstance();
   try {
     await axios.delete(`/admins/${id}`);
-    alert('data berhasil dihapus');
     fetchUser(page, limit, name, setData);
   } catch (error) {
     console.log(error);

@@ -6,8 +6,7 @@ import * as Yup from 'yup';
 import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
-import { availableStores } from '@/helpers/fetchStore';
-import { TStore } from '@/models/store.model';
+import Swal from 'sweetalert2';
 
 const EditAdmin = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -16,45 +15,24 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
     name: '',
     email: '',
     password: '',
-    storeId: '', // Menambahkan storeId
   });
-  const [stores, setStores] = useState<TStore[]>([]); // State untuk daftar toko
-
   useEffect(() => {
     async function fetchDetail() {
       try {
         const response = await axiosInstance().get(`/admins/${id}`);
         const dataAdmin = response.data.data;
-        console.log('====================================');
-        console.log(dataAdmin);
-        console.log('====================================');
         setInitialValues({
           name: dataAdmin.name,
           email: dataAdmin.email,
           password: dataAdmin.password,
-          storeId: dataAdmin.Store[0]?.id || '', // Menetapkan storeId jika ada
         });
       } catch (error) {
-        if (error instanceof AxiosError)
-          console.error(
-            'Error fetching admin details:',
-            error.response?.data?.message,
-          );
-        else if (error instanceof Error) console.error('Error:', error.message);
+        if (error instanceof AxiosError) throw error.response?.data?.message;
+        else if (error instanceof Error) console.log(error.message);
       }
     }
-
     fetchDetail();
   }, [id]);
-
-  useEffect(() => {
-    async function fetchStores() {
-      await availableStores(setStores);
-    }
-
-    fetchStores();
-  }, []);
-
   const formik = useFormik({
     initialValues,
     enableReinitialize: true,
@@ -62,16 +40,26 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
       name: Yup.string().required('Nama wajib diisi').min(5),
       email: Yup.string().required('Email wajib diisi').email(),
       password: Yup.string().required('Password wajib diisi').min(8),
-      storeId: Yup.string().required('Store Location wajib diisi'), // Validasi untuk storeId
     }),
     onSubmit: async (values) => {
       try {
         const { data } = await axiosInstance().patch(`/admins/${id}`, values);
-        alert(data.message);
-        router.push('/dashboard/admin');
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: data.message,
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/admin');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) alert(error.response?.data?.message);
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.response?.data?.message || 'Something went wrong',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });
@@ -119,7 +107,7 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                     htmlFor="email"
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Email
+                    email
                   </label>
                   <input
                     type="text"
@@ -129,7 +117,7 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                  />
+                  />{' '}
                   {formik.touched.email && formik.errors.email ? (
                     <div className="text-red-600 text-sm">
                       {formik.errors.email}
@@ -138,7 +126,7 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                 </div>
                 <div>
                   <label
-                    htmlFor="password"
+                    htmlFor=""
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
                     Password
@@ -160,36 +148,23 @@ const EditAdmin = ({ params }: { params: { id: string } }) => {
                 </div>
                 <div>
                   <label
-                    htmlFor="storeId"
+                    htmlFor=""
                     className="block mb-2 text-sm font-medium text-gray-900"
                   >
-                    Store Name
+                    Store Location
                   </label>
                   <select
-                    name="storeId"
-                    id="storeId"
+                    name=""
+                    id=""
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-                    value={formik.values.storeId}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
                   >
                     <option value="">Select a location</option>
-                    {stores.map((store) => (
-                      <option key={store.id} value={store.name}>
-                        {store.name}
-                      </option>
-                    ))}
                   </select>
-                  {formik.touched.storeId && formik.errors.storeId ? (
-                    <div className="text-red-600 text-sm">
-                      {formik.errors.storeId}
-                    </div>
-                  ) : null}
                 </div>
                 <div className="flex items-center gap-5 pt-5">
                   <button
                     type="submit"
-                    className="text-white bg-blue-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                    className=" text-white bg-blue-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                   >
                     Edit
                   </button>

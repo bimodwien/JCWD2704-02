@@ -31,6 +31,7 @@ export type TStock = {
   quantity: number;
   createdAt: Date;
   updatedAt: Date;
+  productId: string;
 };
 
 export type TProductDiscount = {

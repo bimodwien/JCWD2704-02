@@ -174,9 +174,9 @@ const Checkout = () => {
   }, [isModalOpen]);
 
   return (
-    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-between gap-5 md:gap-10 bg-gray-100">
-      <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200">
-        <div className="flex flex-col gap-3">
+    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 bg-gray-100">
+      <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200 max-w-[900px]">
+        <div className="flex flex-col gap-5">
           <div className="text-xl lg:text-2xl font-semibold flex gap-3 items-center border-b border-gray-300 pb-2">
             <IoReceiptOutline /> Order Details
           </div>
@@ -236,10 +236,10 @@ const Checkout = () => {
               {cartData.map((cart) => (
                 <div
                   key={cart.id}
-                  className="flex justify-between items-center gap-2 text-sm border-b border-t-gray-400 pb-1"
+                  className="flex justify-between items-center gap-2 border-b border-t-gray-400 pb-1"
                 >
                   <div className="flex gap-2 items-center">
-                    <div className="w-10 text-center text-xs">
+                    <div className="w-10 text-center text-sm">
                       {cart.quantity}x
                     </div>
                     <div

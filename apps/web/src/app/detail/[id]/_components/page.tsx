@@ -9,29 +9,34 @@ import AddToCartButton from './addToCart';
 type Props = { dataProduct: any };
 
 const DetailComponent = ({ dataProduct }: Props) => {
+  const hasProductImage =
+    dataProduct?.ProductImage && dataProduct.ProductImage.length > 0;
+
   return (
     <>
       <section className="py-8 flex justify-center items-center bg-[#FAF9F6] min-h-lvh md:py-16 antialiased">
         <div className="max-w-screen-xl px-4 mx-auto 2xl:px-0">
           <div className="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
             <div className="shrink-0 max-w-md lg:max-w-lg mx-auto">
-              <img
-                className="w-full border border-gray-200 rounded-lg"
-                src={`http://localhost:8000/products/images/${dataProduct.ProductImage[0].id}`}
-                alt="sample"
-              />
+              {hasProductImage && (
+                <img
+                  className="w-full border border-gray-200 rounded-lg"
+                  src={`http://localhost:8000/products/images/${dataProduct.ProductImage[0].id}`}
+                  alt="sample"
+                />
+              )}
             </div>
             <div className="mt-6 sm:mt-8 lg:mt-0">
               <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl">
-                {dataProduct.name}
+                {dataProduct?.name}
               </h1>
               <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                  IDR. {dataProduct.price}
+                  IDR. {dataProduct?.price}
                 </p>
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
                   <p className="text-sm font-medium leading-none text-gray-500">
-                    weight: {dataProduct.weight}gr.
+                    weight: {dataProduct?.weight}gr.
                   </p>
                 </div>
               </div>
@@ -42,10 +47,10 @@ const DetailComponent = ({ dataProduct }: Props) => {
                 >
                   Back to Home
                 </Link>
-                <AddToCartButton productId={dataProduct.id} />
+                <AddToCartButton productId={dataProduct?.id} />
               </div>
               <hr className="my-6 md:my-8 border-gray-200" />
-              <p className="mb-6 text-gray-500">{dataProduct.description}</p>
+              <p className="mb-6 text-gray-500">{dataProduct?.description}</p>
             </div>
           </div>
         </div>

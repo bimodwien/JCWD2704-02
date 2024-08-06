@@ -10,6 +10,7 @@ import { fetchStores } from '@/helpers/fetchStore';
 import { TProduct } from '@/models/product';
 import { TStore } from '@/models/store.model';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 const EditStock = ({ params }: { params: { id: string } }) => {
   const { id } = params;
@@ -59,11 +60,25 @@ const EditStock = ({ params }: { params: { id: string } }) => {
     onSubmit: async (values) => {
       try {
         const { data } = await axiosInstance().patch(`stocks/${id}`, values);
-        alert(data.message);
-        router.push('/dashboard/stock');
+        Swal.fire({
+          title: 'Success!',
+          text: 'Stock has been updated.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+        }).then(() => {
+          router.push('/dashboard/stock');
+        });
       } catch (error) {
-        if (error instanceof AxiosError) throw error.response?.data?.message;
-        else if (error instanceof Error) console.log(error.message);
+        if (error instanceof AxiosError) {
+          Swal.fire({
+            title: 'Error!',
+            text: error.response?.data?.message || 'Something went wrong',
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#d33',
+          });
+        } else if (error instanceof Error) console.log(error.message);
       }
     },
   });

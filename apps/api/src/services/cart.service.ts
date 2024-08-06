@@ -3,6 +3,8 @@ import prisma from '@/prisma';
 import { TCart } from '@/models/cart.model';
 import haversine from 'haversine';
 import { MAX_DISTANCE } from '@/utils/maxDistance';
+import { TStore } from '@/models/store.model';
+import { TStock } from '@/models/product.model';
 
 class CartService {
   async addCart(req: Request) {
@@ -32,7 +34,7 @@ class CartService {
     }
 
     const checkStock = store.Stock.find(
-      (stock) => stock.productId === productId,
+      (stock: TStock) => stock.productId === productId,
     );
 
     if (!checkStock) {
@@ -61,38 +63,53 @@ class CartService {
       }
     }
 
+    const carts = await prisma.cart.findMany({
+      where: { userId: userId },
+    });
+
+    await Promise.all(
+      carts.map(async (cart: TCart) => {
+        const stock = await prisma.stock.findFirst({
+          where: { productId: cart.productId, storeId: storeId },
+        });
+
+        if (!stock) {
+          await prisma.cart.update({
+            where: { id: cart.id },
+            data: {
+              stockId: null,
+              storeId: storeId,
+            },
+          });
+        } else {
+          await prisma.cart.update({
+            where: { id: cart.id },
+            data: {
+              storeId: storeId,
+              stockId: stock.id,
+            },
+          });
+        }
+      }),
+    );
+
+    // Check if the cart item already exists
     const existingCart = await prisma.cart.findFirst({
-      where: { userId: userId, productId: productId },
+      where: { userId: userId, productId: productId, storeId: storeId },
     });
 
     if (existingCart) {
-      if (existingCart.storeId !== storeId) {
-        await prisma.cart.updateMany({
-          where: {
-            userId: userId,
-            productId: productId,
-            storeId: existingCart.storeId,
-          },
-          data: {
-            storeId: storeId,
-            quantity: { increment: Number(quantity) - existingCart.quantity },
-            stockId: checkStock.id,
-          },
-        });
-
-        return existingCart;
-      } else {
-        const updatedCart = await prisma.cart.update({
-          where: { id: existingCart.id },
-          data: {
-            quantity: existingCart.quantity + Number(quantity),
-            stockId: checkStock.id,
-          },
-        });
-        return updatedCart;
-      }
+      const updatedCart = await prisma.cart.update({
+        where: { id: existingCart.id },
+        data: {
+          quantity: existingCart.quantity + Number(quantity),
+          stockId: checkStock.id,
+        },
+      });
+      return updatedCart;
     }
 
+    // Add new cart item
     const newCart = await prisma.cart.create({
       data: {
         userId: userId,
@@ -102,6 +119,7 @@ class CartService {
         stockId: checkStock.id,
       },
     });
+
     return newCart;
   }
 
@@ -191,7 +209,7 @@ class CartService {
         await prisma.cart.update({
           where: { id: cart.id },
           data: {
-            stockId: null, // Set stockId menjadi null
+            stockId: null,
             storeId: closestStore.id,
           },
         });

@@ -30,7 +30,7 @@ export default class App {
     this.app = express();
     this.configure();
     this.routes();
-    this.handleError();
+    // this.handleError();
   }
 
   private configure(): void {

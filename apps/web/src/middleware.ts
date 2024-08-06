@@ -4,11 +4,9 @@ import { jwtDecode } from 'jwt-decode';
 import { TUser } from './models/user';
 
 export async function middleware(request: NextRequest) {
-  // const refresh_token = request.cookies.get('access_token')?.value || '';
   const refresh_token = request.cookies.get('refresh_token')?.value || '';
   const response = NextResponse.next();
   const { pathname } = request.nextUrl;
-
   const isLogin = await fetch('http://localhost:8000/v1/v3', {
     method: 'GET',
     headers: {
@@ -25,30 +23,36 @@ export async function middleware(request: NextRequest) {
       if (err instanceof Error) console.log(err.message);
       return false;
     });
-
-  console.log(isLogin);
-
   const token = response.cookies.get('access_token')?.value;
-
   const decode = token ? (jwtDecode(token) as { user: TUser }) : undefined;
-  // console.log(decode, 'decode');
-
   const isCustomer = decode?.user?.role === 'user' ? true : false;
   const isSuperAdmin = decode?.user?.role === 'superAdmin';
-  // const isStoreAdmin = decode?.role === 'storeAdmin';
-  if (!isSuperAdmin && pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  } else if (
-    (pathname == '/login' || pathname == '/register') &&
-    isLogin &&
-    isCustomer
-  )
-    return NextResponse.redirect(new URL('/', request.url));
-  else if ((pathname == '/' || pathname.startsWith('/dashboard')) && !isLogin)
-    return NextResponse.redirect(new URL('/login', request.url));
-  else if (pathname == '/' && isLogin && !isCustomer)
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-
+  const isStoreAdmin = decode?.user?.role === 'storeAdmin';
+  if (!isLogin) {
+    if (pathname !== '/login' && pathname !== '/signUp') {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  } else {
+    if (isSuperAdmin) {
+      if (pathname === '/login' || pathname === '/signUp' || pathname === '/') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      if (pathname === '/dashboard') {
+        return response;
+      }
+    } else if (isStoreAdmin) {
+      if (pathname === '/' || pathname === '/login' || pathname === '/signUp') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      if (pathname === '/dashboard') {
+        return response;
+      }
+    } else if (isCustomer) {
+      if (pathname === '/login' || pathname === '/signUp') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
+  }
   return response;
 }
 export const config = {
@@ -57,7 +61,7 @@ export const config = {
     '/auth',
     '/dashboard',
     '/verification',
-    '/register',
+    '/signUp',
     '/admin',
     '/',
   ],

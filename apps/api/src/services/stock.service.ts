@@ -26,6 +26,7 @@ class StockService {
         productId: true,
         storeId: true,
         quantity: true,
+        priceDiscount: true,
         product: { select: { id: true, name: true, price: true } },
         store: { select: { id: true, name: true } },
         ProductDiscount: {

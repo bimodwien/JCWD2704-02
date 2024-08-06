@@ -62,16 +62,19 @@ class AdminService {
   static async login(req: Request) {
     const role = req.body.role;
 
-    const access_token = createToken({ user: { role }, type: 'access_token' });
+    const refresh_token = createToken({
+      user: { role },
+      type: 'refresh_token',
+    });
 
-    return { access_token };
+    return { refresh_token };
   }
 
   static async validate(req: Request) {
     const user = {
       role: req.user?.role,
     };
-    return createToken({ user, type: 'access_token' });
+    return createToken({ user, type: 'refresh_token' });
   }
 
   static async create(req: Request) {

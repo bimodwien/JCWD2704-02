@@ -27,3 +27,20 @@ export async function fetchDiscount(
     console.log(error);
   }
 }
+
+export async function deleteDiscount(
+  id: string,
+  page: number,
+  limit: number,
+  productName: string,
+  storeName: string,
+  setDiscount: (value: React.SetStateAction<TDiscount[]>) => void,
+) {
+  const axios = axiosInstance();
+  try {
+    await axios.delete(`/discounts/${id}`);
+    fetchDiscount(page, limit, productName, storeName, setDiscount);
+  } catch (error) {
+    console.log(error);
+  }
+}

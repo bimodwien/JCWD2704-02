@@ -342,7 +342,7 @@ const OrderList = () => {
                             alt={order.OrderItem[0].product.name}
                             className="w-14 h-14 rounded object-cover"
                           />
-                          <div className="flex flex-col gap-1 w-36 lg:w-80">
+                          <div className="flex flex-col gap-1 w-36 lg:w-96">
                             <div>{order.OrderItem[0].product.name}</div>
                             <div>{order.OrderItem[0].quantity}x</div>
                           </div>

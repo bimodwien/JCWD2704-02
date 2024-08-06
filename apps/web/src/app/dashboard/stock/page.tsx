@@ -73,6 +73,8 @@ const Stock = () => {
                   <Table.HeadCell>Product Name</Table.HeadCell>
                   <Table.HeadCell>Store</Table.HeadCell>
                   <Table.HeadCell>Stock</Table.HeadCell>
+                  <Table.HeadCell>Price</Table.HeadCell>
+                  <Table.HeadCell>After Discount</Table.HeadCell>
                   <Table.HeadCell className="sr-only">
                     <span>Edit</span>
                   </Table.HeadCell>
@@ -86,6 +88,12 @@ const Stock = () => {
                           <Table.Cell>{stock.product.name}</Table.Cell>
                           <Table.Cell>{stock.store.name}</Table.Cell>
                           <Table.Cell>{stock.quantity}</Table.Cell>
+                          <Table.Cell>{stock.product.price}</Table.Cell>
+                          <Table.Cell>
+                            {stock.priceDiscount === stock.product.price
+                              ? '-'
+                              : stock.priceDiscount}
+                          </Table.Cell>
                           <Table.Cell>
                             <Link
                               href={`/dashboard/stock/edit/${stock.id}`}
@@ -99,7 +107,7 @@ const Stock = () => {
                     })
                   ) : (
                     <Table.Row className="bg-white">
-                      <Table.Cell colSpan={5} className="text-center">
+                      <Table.Cell colSpan={7} className="text-center">
                         No Stocks found
                       </Table.Cell>
                     </Table.Row>
