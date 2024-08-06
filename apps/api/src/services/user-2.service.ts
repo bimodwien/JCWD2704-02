@@ -111,6 +111,7 @@ class UserService2 {
         isVerified: true,
         name: true,
         role: true,
+        Cart: true,
       },
       where: {
         id: req.user?.id,

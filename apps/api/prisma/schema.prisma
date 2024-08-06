@@ -269,6 +269,8 @@ model Order {
   discountPrice     Float?
   voucher           Voucher?       @relation(fields: [voucherId], references: [id])
   voucherId         String?
+  origin            String
+  destination       String
 
   @@map("orders")
 }

@@ -7,7 +7,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import Swal from 'sweetalert2'; // Import SweetAlert2
+import Swal from 'sweetalert2';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -54,13 +54,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
         const newData = new FormData();
         if (values.paymentProof)
           newData.append('paymentProof', values.paymentProof);
-
-        console.log(
-          'Data yang diinput:',
-          Object.fromEntries(newData.entries()),
-        );
-
-        // Display SweetAlert2 confirmation dialog
         const result = await Swal.fire({
           title: 'Are you sure?',
           text: 'Do you want to submit the payment proof?',

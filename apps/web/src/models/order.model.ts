@@ -25,6 +25,11 @@ export type TOrder = {
   updatedAt: Date;
   expiry_time: Date;
   shippingCost: number;
+  cancelledBy: string;
+  confirmedBy: string;
+  checkedBy: string;
+  origin: string;
+  destination: string;
 };
 
 type TUser = {

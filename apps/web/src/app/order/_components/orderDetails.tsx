@@ -28,7 +28,6 @@ const Detail = () => {
       const response = await axiosInstance().get(`/order/${invoice}`);
       const { data } = response.data;
       setOrder(data);
-      console.log(data);
       startCountdown(data);
     } catch (error) {
       console.error('Error fetching transaction data:', error);
@@ -56,8 +55,6 @@ const Detail = () => {
         deadline = dayjs(order.expiry_time);
       }
     }
-
-    console.log(deadline);
 
     if (deadline) {
       const updateCountdown = () => {

@@ -17,8 +17,6 @@ class MidtransService {
         );
       }
 
-      // console.log('Received data:', data);
-
       const order = await prisma.order.findUnique({
         where: {
           invoice: data.order_id,
@@ -193,8 +191,6 @@ class MidtransService {
         });
         responData = updatedOrder;
       }
-
-      // console.log('Response data:', responData);
 
       return responData;
     } catch (error) {

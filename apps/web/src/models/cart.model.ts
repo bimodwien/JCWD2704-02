@@ -10,6 +10,7 @@ export type TCart = {
   stock: {
     quantity: number;
     priceDiscount?: number;
+    ProductDiscount: [];
   };
   store?: {
     name?: string;

@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { formatPrice } from '@/helpers/format';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
+import ShippingDetails from './shipping';
 
 const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -84,7 +85,7 @@ const Checkout = () => {
       const response = await axiosInstance().post(`/order/`, {
         addressId: shippingAddress?.id,
         paidType: paidType,
-        voucherId: selectedVoucher?.id, // Adjust based on the voucher structure
+        voucherId: selectedVoucher?.id,
       });
       Swal.fire({
         title: 'Created!',
@@ -180,56 +181,10 @@ const Checkout = () => {
           <div className="text-xl lg:text-2xl font-semibold flex gap-3 items-center border-b border-gray-300 pb-2">
             <IoReceiptOutline /> Order Details
           </div>
-          <div className="flex flex-col gap-3">
-            <div className="text-xl font-semibold">Shipping Method</div>
-            <div className="flex flex-col lg:flex-row lg:justify-start w-full gap-2">
-              <div className="rounded-xl border border-gray-400 p-3 lg:w-96">
-                <div className="flex justify-between items-center font-semibold">
-                  Store Address
-                </div>
-                {cartData.length > 0 && (
-                  <div className="text-sm flex flex-col">
-                    <span className="font-medium">
-                      ({cartData[0].store?.name})
-                    </span>
-                    <div
-                      className="flex flex-col overflow-hidden"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {cartData[0].store?.address}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="rounded-xl border border-gray-400 p-3 lg:w-96">
-                <div className="flex justify-between items-center font-semibold">
-                  Your Address
-                </div>
-                {shippingAddress && (
-                  <div className="text-sm flex flex-col">
-                    <span className="font-medium">
-                      ({shippingAddress.name})
-                    </span>
-                    <div
-                      className="flex flex-col overflow-hidden"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {shippingAddress.address}, {shippingAddress.province},{' '}
-                      {shippingAddress.city}, {shippingAddress.postalCode}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <ShippingDetails
+            cartData={cartData}
+            shippingAddress={shippingAddress}
+          />
           <div className="flex flex-col gap-3">
             <div className="text-xl font-semibold">Product List</div>
             <div className="flex flex-col gap-2 rounded-xl p-3 h-full max-h-60 overflow-x-auto">

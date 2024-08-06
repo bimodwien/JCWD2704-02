@@ -85,6 +85,7 @@ class UserService {
       where: {
         email: email,
       },
+      include: { Cart: true },
     });
 
     if (!data) throw new Error('wrong email');
@@ -103,6 +104,7 @@ class UserService {
           name: data.name,
           email: data.email,
           role: data.role,
+          Cart: data.Cart,
         },
         type: 'access_token',
       },
@@ -116,6 +118,7 @@ class UserService {
           name: data.name,
           email: data.email,
           role: data.role,
+          Cart: data.Cart,
         },
         type: 'refresh_token',
       },
@@ -195,6 +198,7 @@ class UserService {
       where: {
         email: email,
       },
+      include: { Cart: true },
     });
 
     if (!user) {
@@ -208,6 +212,7 @@ class UserService {
           name: user.name,
           email: user.email,
           role: user.role,
+          Cart: user.Cart,
         },
         type: 'access_token',
       },
@@ -221,6 +226,7 @@ class UserService {
           name: user.name,
           email: user.email,
           role: user.role,
+          Cart: user.Cart,
         },
         type: 'refresh_token',
       },

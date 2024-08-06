@@ -196,6 +196,22 @@ class CreateOrderService {
     totalPrice += shippingCost;
     totalPrice = Math.round(totalPrice);
 
+    const store = await prisma.store.findUnique({
+      where: { id: storeIds[0] },
+    });
+
+    if (!store) {
+      throw new Error('store not found');
+    }
+
+    const userAddress = await prisma.address.findUnique({
+      where: { id: addressId },
+    });
+
+    if (!userAddress) {
+      throw new Error('user address not found');
+    }
+
     const createdOrder = await prisma.order.create({
       data: {
         invoice: generateInvoice(),
@@ -211,6 +227,8 @@ class CreateOrderService {
         },
         voucherId: validVoucherId,
         discountPrice,
+        origin: store.address,
+        destination: userAddress.address,
       },
     });
 
@@ -237,7 +255,6 @@ class CreateOrderService {
 
   private async createSnapToken(order: TOrder, cart: TCart[]): Promise<string> {
     try {
-      // Retrieve order items
       const orderItems = await prisma.orderItem.findMany({
         where: { orderId: order.id },
         include: { product: true },
@@ -249,23 +266,20 @@ class CreateOrderService {
 
       if (!user) throw new Error('User not found');
 
-      // Initialize Midtrans Snap client
       const snap = new midtransClient.Snap({
         isProduction: false,
         serverKey: process.env.SERVER_KEY,
         clientKey: process.env.CLIENT_KEY,
       });
 
-      // Default values for shipping cost and discount
       const shippingCost = order.shippingCost ?? 0;
       const discountPrice = order.discountPrice ?? 0;
 
       const itemDetails = orderItems.flatMap((item) => {
-        const get = item.get ?? 0; // Default to 0 if get is null
-        const quantity = item.quantity - get; // Calculate quantity considering get
-        const pricePerItem = item.price / quantity; // Calculate price per item
+        const get = item.get ?? 0;
+        const quantity = item.quantity - get;
+        const pricePerItem = item.price / quantity;
 
-        // Main item detail
         const mainItemDetail = {
           id: item.product.id,
           price: Math.round(pricePerItem),
@@ -273,12 +287,11 @@ class CreateOrderService {
           name: item.product.name,
         };
 
-        // If there's a free item due to buy 1 get 1
         const freeItemDetails =
           get > 0
             ? {
                 id: `${item.product.id}_free`,
-                price: 0, // Price for free item
+                price: 0,
                 quantity: get,
                 name: `${item.product.name} (Free)`,
               }

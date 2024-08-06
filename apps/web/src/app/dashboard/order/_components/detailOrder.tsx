@@ -10,7 +10,6 @@ import StatusAndDetail from '@/app/order/_components/orderStatus';
 import PaymentOrder from './paymentDetail';
 import SeeProof from '@/app/order/_components/seeProof';
 import AdminAction from './actions';
-import { CgProfile } from 'react-icons/cg';
 
 const DetailOrder = () => {
   const [order, setOrder] = useState<TOrder | null>(null);
@@ -24,7 +23,6 @@ const DetailOrder = () => {
       const response = await axiosInstance().get(`/order/admin/${orderId}`);
       const { data } = response.data;
       setOrder(data);
-      console.log(data);
     } catch (error) {
       console.error('Error fetching transaction data:', error);
     }
@@ -47,7 +45,7 @@ const DetailOrder = () => {
   };
 
   return (
-    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 ">
+    <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 bg-[#F4F7FE]">
       <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200 max-w-[900px]">
         <div className="flex flex-col gap-5">
           <div className="flex justify-between w-full border-b border-gray-300 pb-2 items-center">

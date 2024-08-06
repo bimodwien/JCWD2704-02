@@ -9,6 +9,7 @@ import { TAddress, TCart } from '@/models/cart.model';
 import CartList from './cartItem';
 import { formatPrice } from '@/helpers/format';
 import Swal from 'sweetalert2';
+import { MdOutlineStorefront } from 'react-icons/md';
 
 const Cart = () => {
   const [cartData, setCartData] = useState<TCart[]>([]);
@@ -176,8 +177,9 @@ const Cart = () => {
               {totalQuantity} {totalQuantity > 1 ? 'items' : 'item'}
             </span>
           </div>
-          <div>
-            store: {''}
+          <div className="flex items-center gap-2">
+            <MdOutlineStorefront className="text-base text-center" />
+            Store: {''}
             {cartData &&
               cartData.length > 0 &&
               cartData[0].store &&
@@ -199,27 +201,15 @@ const Cart = () => {
             onClick={seeAddress}
             className="flex flex-col bg-blue-100 rounded-xl border border-blue-400 p-4 gap-1 cursor-pointer"
           >
-            <button
-              onClick={seeAddress}
-              className="flex justify-between items-center text-blue-700 lg:text-lg "
-            >
+            <div className="flex justify-between items-center text-blue-700 lg:text-lg ">
               <div className="flex gap-3 items-center font-semibold">
                 <LiaShippingFastSolid className="text-2xl" />
                 Shipping Address
               </div>
-              <div className="text-lg">
-                <FaChevronDown />
-              </div>
-            </button>
+              <FaChevronDown className="text-lg" />
+            </div>
             {shippingAddress && (
-              <div className="text-sm">
-                {shippingAddress.address}
-                <span className="text-sm">
-                  , {''}
-                  {shippingAddress.city}, {shippingAddress.province},{' '}
-                  {shippingAddress.postalCode}
-                </span>
-              </div>
+              <div className="text-sm">{shippingAddress.address}</div>
             )}
           </div>
           <div className="flex flex-col gap-2 border-t border-gray-300 pt-2">

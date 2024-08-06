@@ -10,7 +10,6 @@ import { MdNavigateBefore, MdNavigateNext } from 'react-icons/md';
 import { LuExternalLink } from 'react-icons/lu';
 import { RxAvatar } from 'react-icons/rx';
 import { useDebounce } from 'use-debounce';
-// import Sidebar from './Sidebar';
 import '../../../dashboard.css';
 import { DateRange, Range, RangeKeyDict } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
@@ -115,13 +114,10 @@ const OrderList = () => {
         limit,
       };
 
-      console.log('Query Params:', queryParams); // Debugging
-
       const response = await axiosInstance().get('/order/all', {
         params: queryParams,
       });
       const { data } = response.data;
-      console.log('data: ', data);
       setOrderData(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
