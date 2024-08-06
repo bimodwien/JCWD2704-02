@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { DiscountController } from '@/controllers/discount.controller';
+import { validateToken } from '@/middleware/auth.middleware';
+import { verifyAdmin } from '@/middleware/role.middleware';
 
 export class DiscountRouter {
   private router: Router;
@@ -12,11 +14,36 @@ export class DiscountRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', this.discountController.getByAll);
-    this.router.post('/', this.discountController.create);
-    this.router.get('/:id', this.discountController.getById);
-    this.router.patch('/:id', this.discountController.update);
-    this.router.delete('/:id', this.discountController.deleteDiscount);
+    this.router.get(
+      '/',
+      validateToken,
+      verifyAdmin,
+      this.discountController.getByAll,
+    );
+    this.router.post(
+      '/',
+      validateToken,
+      verifyAdmin,
+      this.discountController.create,
+    );
+    this.router.get(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.discountController.getById,
+    );
+    this.router.patch(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.discountController.update,
+    );
+    this.router.delete(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.discountController.deleteDiscount,
+    );
   }
 
   getRouter(): Router {

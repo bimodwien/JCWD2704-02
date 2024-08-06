@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { StockController } from '@/controllers/stock.controller';
+import { validateToken } from '@/middleware/auth.middleware';
+import { verifyAdmin } from '@/middleware/role.middleware';
 
 export class StockRouter {
   private router: Router;
@@ -12,10 +14,30 @@ export class StockRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', this.stockController.getAll);
-    this.router.post('/', this.stockController.create);
-    this.router.patch('/:id', this.stockController.update);
-    this.router.get('/:id', this.stockController.getById);
+    this.router.get(
+      '/',
+      validateToken,
+      verifyAdmin,
+      this.stockController.getAll,
+    );
+    this.router.post(
+      '/',
+      validateToken,
+      verifyAdmin,
+      this.stockController.create,
+    );
+    this.router.patch(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.stockController.update,
+    );
+    this.router.get(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.stockController.getById,
+    );
   }
 
   getRouter(): Router {

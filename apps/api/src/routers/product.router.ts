@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { ProductController } from '@/controllers/product.controller';
 import { blobUploader } from '@/lib/multer';
+import { validateToken } from '@/middleware/auth.middleware';
+import { verifyAdmin } from '@/middleware/role.middleware';
 
 export class ProductRouter {
   private router: Router;
@@ -13,21 +15,40 @@ export class ProductRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', this.productController.getByAll);
+    this.router.get(
+      '/',
+      validateToken,
+      verifyAdmin,
+      this.productController.getByAll,
+    );
     this.router.get('/all', this.productController.getAllByDistance);
     this.router.get('/allData', this.productController.getAllData);
-    this.router.get('/:id', this.productController.getProductById);
+    this.router.get(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.productController.getProductById,
+    );
     this.router.post(
       '/',
+      validateToken,
+      verifyAdmin,
       blobUploader().single('image'),
       this.productController.createProduct,
     );
     this.router.patch(
       '/:id',
+      validateToken,
+      verifyAdmin,
       blobUploader().single('image'),
       this.productController.editProduct,
     );
-    this.router.delete('/:id', this.productController.deleteProduct);
+    this.router.delete(
+      '/:id',
+      validateToken,
+      verifyAdmin,
+      this.productController.deleteProduct,
+    );
     this.router.get('/images/:id', this.productController.render);
   }
 

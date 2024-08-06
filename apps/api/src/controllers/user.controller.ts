@@ -48,6 +48,8 @@ export class UserController {
         .cookie('refresh_token', refreshToken)
         .send({
           message: 'user login',
+          access_token: accessToken,
+          refresh_token: refreshToken,
         });
     } catch (error) {
       next(error);
