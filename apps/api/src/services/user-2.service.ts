@@ -115,7 +115,6 @@ class UserService2 {
     if (!user) throw new Error('user not found');
     const singleCart = user.Cart.length > 0 ? user.Cart[0] : null;
 
-    console.log('alooo');
     return createToken(
       {
         user: {

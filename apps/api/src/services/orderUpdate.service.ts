@@ -67,8 +67,8 @@ class OrderAdminService {
         const userName = userData.user.name || userData.user.email;
         const orderInvoice = userData.invoice;
         const html = htmlTemplate
-          .replace(/{CustomerName}/g, orderInvoice)
-          .replace(/{OrderNumber}/g, userName);
+          .replace(/{CustomerName}/g, userName)
+          .replace(/{OrderNumber}/g, orderInvoice);
 
         await transporter.sendMail({
           from: 'bbhstore01@gmail.com',

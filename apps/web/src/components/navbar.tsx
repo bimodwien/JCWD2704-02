@@ -4,6 +4,7 @@ import { IoCartOutline, IoReceiptOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { axiosInstance } from '@/lib/axios';
+import Image from 'next/image';
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -52,6 +53,7 @@ const Navbar = () => {
     <nav className="border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-screen flex flex-wrap items-center justify-between mx-5 md:mx-10 py-5">
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+          <Image src="/logo.png" width={40} height={40} alt="bbh store" />
           <span className="self-center text-2xl font-semibold whitespace-nowrap ">
             BBH Store
           </span>

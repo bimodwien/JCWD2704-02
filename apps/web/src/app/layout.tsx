@@ -10,7 +10,10 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'BBH Store',
-  description: 'Favorite Grocery',
+  description: 'Your One-Stop Shop for Groceries',
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

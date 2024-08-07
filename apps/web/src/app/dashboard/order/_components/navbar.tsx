@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { IoMdHome } from 'react-icons/io';
+import { IoIosMore, IoMdHome } from 'react-icons/io';
 import { IoStorefront, IoLogOutSharp } from 'react-icons/io5';
 import { PiUsersThreeFill } from 'react-icons/pi';
 import { FaUserAlt, FaStore } from 'react-icons/fa';
@@ -9,6 +9,7 @@ import { BiSolidCategory } from 'react-icons/bi';
 import { RiShoppingBasket2Fill } from 'react-icons/ri';
 import Link from 'next/link';
 import { MdClose } from 'react-icons/md';
+import Image from 'next/image';
 
 const Navbar = () => {
   const [pathname, setPathName] = useState('');
@@ -33,14 +34,20 @@ const Navbar = () => {
   return (
     <>
       <div className="w-full bg-white shadow-md p-4 flex justify-between items-center z-50 sticky top-0 lg:hidden">
-        <h1 className="text-[#2B3674] font-bold font-poppins text-2xl">
-          BBH STORE
-        </h1>
+        <a
+          href="/dashboard"
+          className="flex items-center space-x-3 rtl:space-x-reverse"
+        >
+          <Image src="/logo.png" width={40} height={40} alt="bbh store" />
+          <span className="self-center text-2xl font-semibold whitespace-nowrap ">
+            BBH Store
+          </span>
+        </a>
         <button
           onClick={togglePopup}
           className="bg-blue-500 text-white px-4 py-2 rounded"
         >
-          More
+          <IoIosMore />
         </button>
       </div>
 
