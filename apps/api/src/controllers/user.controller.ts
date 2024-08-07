@@ -150,12 +150,10 @@ export class UserController {
 
   async validateUser(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log('siniii');
       const access_token = await User2Service.validate(req);
       res.send({
         access_token,
       });
-      console.log('woyyy');
     } catch (error) {
       next(error);
     }
