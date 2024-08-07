@@ -7,7 +7,6 @@ import Image from 'next/image';
 import RegisterIcon from '../../../../public/google.svg';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { TUser } from '@/models/user.model';
@@ -46,9 +45,9 @@ export default function FormSignInComponent() {
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log('====================================');
-      console.log(result);
-      console.log('====================================');
+      // console.log('====================================');
+      // console.log(result);
+      // console.log('====================================');
       const email = result.user.email;
       if (email != null) {
         await loginByGoogle(email)(dispatch);

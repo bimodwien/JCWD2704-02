@@ -93,7 +93,6 @@ class CartService {
       }),
     );
 
-    // Check if the cart item already exists
     const existingCart = await prisma.cart.findFirst({
       where: { userId: userId, productId: productId, storeId: storeId },
     });
@@ -140,15 +139,12 @@ class CartService {
 
     const stores = await prisma.store.findMany({
       include: { Stock: true },
-      // include: { Stock: { where: { productId: productId } } },
     });
 
     let closestStore = null;
     let minDistance = Infinity;
 
     for (const store of stores) {
-      // if (store.Stock.length === 0) continue;
-
       if (store.latitude === null || store.longitude === null) {
         continue;
       }

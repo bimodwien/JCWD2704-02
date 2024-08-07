@@ -50,7 +50,7 @@ class OrderAdminService {
 
       const templatePath = path.join(
         __dirname,
-        '../../templates/deny.template.html',
+        '../templates/deny.template.html',
       );
       const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -92,7 +92,7 @@ class OrderAdminService {
 
       const templatePath = path.join(
         __dirname,
-        '../../templates/processed.template.html',
+        '../templates/processed.template.html',
       );
       const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -219,7 +219,7 @@ class OrderAdminService {
 
       const templatePath = path.join(
         __dirname,
-        '../../templates/cancelled.template.html',
+        '../templates/cancelled.template.html',
       );
       const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -297,7 +297,7 @@ class OrderAdminService {
 
     const templatePath = path.join(
       __dirname,
-      '../../templates/shipped.template.html',
+      '../templates/shipped.template.html',
     );
     const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 

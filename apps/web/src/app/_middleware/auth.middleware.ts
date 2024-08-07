@@ -1,11 +1,11 @@
 import { Dispatch } from '@reduxjs/toolkit';
-import { axiosInstance } from '../_lib/axios';
 import { TUser } from '../../models/user.model';
 import { login } from '../../app/_lib/redux/slice/user.slice';
 import { setAuthCookie } from '../_lib/cookies';
 import { deleteCookie, getCookie } from 'cookies-next';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { axiosInstance } from '@/lib/axios';
 
 export const userLogin = ({ email, password }: TUser) => {
   return async (dispatch: Dispatch) => {

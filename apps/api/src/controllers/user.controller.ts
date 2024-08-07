@@ -59,9 +59,9 @@ export class UserController {
   async Location(req: Request, res: Response, next: NextFunction) {
     try {
       const data = await UserService.Location(req);
-      console.log('====================================');
-      console.log(data);
-      console.log('====================================');
+      // console.log('====================================');
+      // console.log(data);
+      // console.log('====================================');
       res.send({
         message: 'Location has been save',
         // data,
@@ -150,10 +150,12 @@ export class UserController {
 
   async validateUser(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log('siniii');
       const access_token = await User2Service.validate(req);
       res.send({
         access_token,
       });
+      console.log('woyyy');
     } catch (error) {
       next(error);
     }

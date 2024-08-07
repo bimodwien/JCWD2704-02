@@ -22,7 +22,9 @@ const AdminAction: React.FC<AdminAction> = ({ order, onConfirm }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axiosInstance().patch(`/order/ca/${order.id}`);
+          const response = await axiosInstance().patch(
+            `/orders/ca/${order.id}`,
+          );
           Swal.fire({
             title: 'Success!',
             text: 'Order has been cancelled successfully.',
@@ -54,7 +56,7 @@ const AdminAction: React.FC<AdminAction> = ({ order, onConfirm }) => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axiosInstance().patch(`/order/s/${order.id}`);
+          const response = await axiosInstance().patch(`/orders/s/${order.id}`);
           Swal.fire({
             title: 'Success!',
             text: 'Order has been send successfully.',

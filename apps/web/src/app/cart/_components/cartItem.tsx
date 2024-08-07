@@ -24,7 +24,7 @@ const CartList: React.FC<CartTableProps> = ({
       });
 
       if (result.isConfirmed) {
-        await axiosInstance().delete(`/cart/${cartId}`);
+        await axiosInstance().delete(`/carts/${cartId}`);
         Swal.fire({
           title: 'Deleted!',
           text: 'Your cart item has been deleted.',
@@ -49,13 +49,24 @@ const CartList: React.FC<CartTableProps> = ({
     return cart.product.price;
   };
 
+  const checkBuyGetDiscount = (cart: TCart) => {
+    const buyGetDiscount = cart.stock?.ProductDiscount?.find(
+      (discount: any) => discount.category === 'buyGet',
+    );
+    if (buyGetDiscount && cart.quantity > cart.stock.quantity / 2) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <div className="w-full flex flex-col gap-2">
       <div className="flex flex-col gap-2 w-full">
         {cartData?.map((cart) => {
           const stockQuantity = cart.stock?.quantity ?? 0;
           const isOutOfStock = stockQuantity === 0;
-          const isInsufficientStock = cart.quantity > stockQuantity;
+          const isInsufficientStock =
+            cart.quantity > stockQuantity || checkBuyGetDiscount(cart);
           const price = getPrice(cart);
 
           return (

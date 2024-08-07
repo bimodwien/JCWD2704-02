@@ -2,6 +2,7 @@ import { formatPrice, productSrc } from '@/helpers/format';
 import { TOrder } from '@/models/order.model';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { CiCircleInfo } from 'react-icons/ci';
 import { IoHomeOutline, IoStorefrontOutline } from 'react-icons/io5';
 import { LiaShippingFastSolid } from 'react-icons/lia';
 import { MdOutlineStorefront } from 'react-icons/md';
@@ -16,6 +17,21 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
 
   return (
     <>
+      {order.status === 'cancelled' && (
+        <div className="flex gap-3 items-center w-full py-2 px-3 bg-amber-100 rounded-xl text-sm">
+          <CiCircleInfo className="w-7 h-7" />
+          This order has been cancelled at{' '}
+          {dayjs(order.cancelledAt).format('DD MMMM YYYY, HH:mm:ss')}, by{' '}
+          {order.cancelledBy === 'user'
+            ? 'User'
+            : order.cancelledBy === 'system'
+              ? 'System '
+              : order.cancelledBy === 'superAdmin' ||
+                  order.cancelledBy === 'storeAdmin'
+                ? 'Admin'
+                : ''}
+        </div>
+      )}
       <div className="flex justify-center lg:flex-col gap-4 lg:gap-2">
         <div className="flex flex-col lg:hidden items-start justify-center gap-12 text-xs">
           <div className="w-24 h-8 text-right">
@@ -157,7 +173,7 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
             <div>Store Address</div>
           </div>
           <hr />
-          <div>{order.store.address}</div>
+          <div>{order.origin}</div>
         </div>
         <div className="flex flex-col gap-1 p-3 border-y lg:border-y-0 lg:border-x border-gray-300 lg:w-72">
           <div className="font-medium flex gap-1 items-center">
@@ -167,16 +183,28 @@ const StatusAndDetail: React.FC<StatusAndDetailProps> = ({ order }) => {
             <div>Customer Address</div>
           </div>
           <hr />
-          <div>{order.address.address}</div>
+          <div>{order.destination}</div>
         </div>
         <div className="flex flex-col gap-1 p-3 lg:w-72">
           <div className="font-medium flex gap-1 items-center">
-            <div>
-              <LiaShippingFastSolid className="text-base text-center" />
-            </div>
+            <LiaShippingFastSolid className="text-base text-center" />
             <div>Shipping Info</div>
           </div>
           <hr />
+          <div>JNE Reguler</div>
+          <div>
+            {order.shippingCost > 0 ? (
+              <div>Cost: Rp 20.000</div>
+            ) : (
+              <>
+                <div>
+                  Cost:{' '}
+                  <span className="line-through text-red-300">Rp 20.000</span>{' '}
+                  Rp 0
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
       <div className="border border-gray-300 rounded-xl overflow-hidden">

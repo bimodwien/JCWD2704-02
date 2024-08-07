@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { axiosInstance } from '@/lib/axios';
-import { useDebounce } from 'use-debounce';
 import { FaMinus, FaPlus } from 'react-icons/fa';
-import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { axiosInstance } from '@/lib/axios';
 import { QtyProps } from '@/models/cart.model';
+import { useDebounce } from 'use-debounce';
 
 const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
   const [quantity, setQuantity] = useState(cart.quantity);
   const [prevQuantity, setPrevQuantity] = useState(cart.quantity);
   const [debouncedQuantity] = useDebounce(quantity, 1000);
+  const hasBuyGetDiscount = cart.stock?.ProductDiscount?.some(
+    (discount: any) => discount.category === 'buyGet',
+  );
+  const buyGetThreshold = Math.floor(cart.stock?.quantity / 2);
+  const maxQuantity = hasBuyGetDiscount
+    ? buyGetThreshold
+    : cart.stock?.quantity;
 
   useEffect(() => {
     if (debouncedQuantity !== undefined) {
@@ -23,7 +29,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
 
   const updateQuantity = async (cartId: string, newQuantity: number) => {
     try {
-      await axiosInstance().patch(`/cart/${cartId}`, {
+      await axiosInstance().patch(`/carts/${cartId}`, {
         quantity: newQuantity,
       });
       fetchCart();
@@ -44,7 +50,12 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
 
   const handleDecrement = () => {
     if (quantity > 1) {
-      const newQuantity = quantity - 1;
+      let newQuantity = quantity - 1;
+      if (hasBuyGetDiscount && quantity > buyGetThreshold) {
+        newQuantity = buyGetThreshold;
+      } else if (!hasBuyGetDiscount && quantity > cart.stock?.quantity) {
+        newQuantity = cart.stock?.quantity;
+      }
       setPrevQuantity(quantity);
       setQuantity(newQuantity);
     } else {
@@ -62,7 +73,7 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
 
   const handleIncrement = () => {
     const newQuantity = quantity + 1;
-    if (newQuantity > cart.stock.quantity) {
+    if (newQuantity > maxQuantity) {
       toast.warning('Stock Limit Reached', {
         position: 'top-right',
         autoClose: 3000,
@@ -83,33 +94,35 @@ const Quantity: React.FC<QtyProps> = ({ cart, fetchCart }) => {
     if (isNaN(newQuantity)) {
       newQuantity = 0;
     } else {
-      newQuantity = Math.min(Math.max(0, newQuantity), cart.stock.quantity);
+      newQuantity = Math.min(Math.max(0, newQuantity), maxQuantity);
     }
     setPrevQuantity(quantity);
     setQuantity(newQuantity);
   };
 
   return (
-    <div className="flex justify-center gap-1 items-center p-1 border border-gray-400 bg-white rounded-full">
-      <button
-        className="text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600"
-        onClick={handleDecrement}
-      >
-        <FaMinus />
-      </button>
-      <input
-        type="text"
-        className="w-10 h-6 text-center"
-        value={quantity.toString()}
-        onChange={handleManual}
-        style={{ outline: 'none' }}
-      />
-      <button
-        className={`text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600`}
-        onClick={handleIncrement}
-      >
-        <FaPlus />
-      </button>
+    <div className="flex gap-2 items-center">
+      <div className="flex justify-center gap-1 items-center p-1 border border-gray-400 bg-white rounded-full">
+        <button
+          className="text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600"
+          onClick={handleDecrement}
+        >
+          <FaMinus />
+        </button>
+        <input
+          type="text"
+          className="w-10 h-6 text-center"
+          value={quantity.toString()}
+          onChange={handleManual}
+          style={{ outline: 'none' }}
+        />
+        <button
+          className={`text-xs flex justify-center items-center w-6 h-6 rounded-full text-white bg-blue-600`}
+          onClick={handleIncrement}
+        >
+          <FaPlus />
+        </button>
+      </div>
     </div>
   );
 };

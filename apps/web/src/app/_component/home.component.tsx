@@ -12,7 +12,6 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { useAppSelector } from '../../../hooks';
-import { axiosInstance } from '../_lib/axios';
 import Image from 'next/image';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TCategory } from '@/models/category';
@@ -20,6 +19,8 @@ import { getAll } from '@/helpers/fetchCategory';
 import { TProduct } from '@/models/product';
 import { getAllData, getNearestProducts } from '@/helpers/fetchProduct';
 import { useRouter } from 'next/navigation';
+import { categorySrc, productSrc } from '@/helpers/format';
+import { axiosInstance } from '@/lib/axios';
 
 export default function HomeComponent() {
   const user = useAppSelector((state) => state.auth);
@@ -140,7 +141,7 @@ export default function HomeComponent() {
                   {category.map((cat, index) => (
                     <div key={index} className="text-center">
                       <img
-                        src={`http://localhost:8000/category/images/${cat.id}`}
+                        src={`${categorySrc}${cat.id}`}
                         height={50}
                         width={50}
                         alt={cat.name}
@@ -177,7 +178,7 @@ export default function HomeComponent() {
                       onClick={() => handleProductClick(product.id)}
                     >
                       <img
-                        src={`http://localhost:8000/products/images/${product.ProductImage[0].id}`}
+                        src={`${productSrc}${product.ProductImage[0].id}`}
                         width="200"
                         height="200"
                       />

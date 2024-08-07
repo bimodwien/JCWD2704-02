@@ -168,8 +168,25 @@ class CartData {
       throw new Error('Invalid or missing productId');
     }
 
+    const now = new Date();
+
     const stock = await prisma.stock.findFirst({
-      where: { storeId: storeId, productId: productId },
+      where: {
+        storeId: storeId,
+        productId: productId,
+      },
+      include: {
+        ProductDiscount: {
+          where: {
+            startDate: {
+              lte: now,
+            },
+            endDate: {
+              gte: now,
+            },
+          },
+        },
+      },
     });
 
     return stock;
@@ -193,10 +210,7 @@ class CartData {
         voucher: {
           startDate: { lt: now },
           endDate: { gt: now },
-          AND: [
-            { productId: { in: productIds } },
-            { storeId: { in: storeIds } },
-          ],
+          storeId: { in: storeIds },
         },
       },
       include: { voucher: true },

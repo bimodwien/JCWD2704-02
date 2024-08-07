@@ -17,8 +17,6 @@ class MidtransService {
         );
       }
 
-      // console.log('Received data:', data);
-
       const order = await prisma.order.findUnique({
         where: {
           invoice: data.order_id,
@@ -57,7 +55,7 @@ class MidtransService {
 
         const templatePath = path.join(
           __dirname,
-          '../../templates/processed.template.html',
+          '../templates/processed.template.html',
         );
         const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -98,7 +96,7 @@ class MidtransService {
 
         const templatePath = path.join(
           __dirname,
-          '../../templates/processed.template.html',
+          '../templates/processed.template.html',
         );
         const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 
@@ -193,8 +191,6 @@ class MidtransService {
         });
         responData = updatedOrder;
       }
-
-      // console.log('Response data:', responData);
 
       return responData;
     } catch (error) {

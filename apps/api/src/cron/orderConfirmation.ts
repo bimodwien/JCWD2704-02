@@ -8,7 +8,7 @@ import path from 'path';
 const sendConfirmationEmail = async (orderId: string) => {
   const templatePath = path.join(
     __dirname,
-    '../../templates/confirmed.template.html',
+    '../templates/confirmed.template.html',
   );
   const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
 

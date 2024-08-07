@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { axiosInstance } from '@/lib/axios';
 import Swal from 'sweetalert2';
+import { productSrc } from '@/helpers/format';
 
 const Store = () => {
   const [search, setSearch] = useState('');
@@ -137,7 +138,7 @@ const Store = () => {
                       >
                         <div className="flex justify-center items-center py-5">
                           <img
-                            src={`http://localhost:8000/products/images/${product.ProductImage[0].id}`}
+                            src={`${productSrc}${product.ProductImage[0].id}`}
                             alt="sample"
                             className="h-[180px] w-[250px] rounded-xl"
                           />

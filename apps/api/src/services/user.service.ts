@@ -85,6 +85,7 @@ class UserService {
       where: {
         email: email,
       },
+      include: { Cart: true },
     });
 
     if (!data) throw new Error('wrong email');
@@ -96,6 +97,8 @@ class UserService {
 
     delete (data as any).password;
 
+    const singleCart = data.Cart.length > 0 ? data.Cart[0] : null;
+
     const accessToken = createToken(
       {
         user: {
@@ -103,6 +106,7 @@ class UserService {
           name: data.name,
           email: data.email,
           role: data.role,
+          Cart: singleCart,
         },
         type: 'access_token',
       },
@@ -116,6 +120,7 @@ class UserService {
           name: data.name,
           email: data.email,
           role: data.role,
+          Cart: singleCart,
         },
         type: 'refresh_token',
       },
@@ -124,8 +129,8 @@ class UserService {
     // console.log('access token: ', accessToken);
     // console.log('refresh token: ', refreshToken);
 
-    console.log('access token: ', accessToken);
-    console.log('refresh token: ', refreshToken);
+    // console.log('access token: ', accessToken);
+    // console.log('refresh token: ', refreshToken);
 
     return { accessToken, refreshToken };
   }
@@ -149,9 +154,9 @@ class UserService {
         },
       });
 
-      console.log('====================================');
-      console.log(updateLocation);
-      console.log('====================================');
+      // console.log('====================================');
+      // console.log(updateLocation);
+      // console.log('====================================');
       return updateLocation;
     } catch (error) {
       throw error;
@@ -195,11 +200,14 @@ class UserService {
       where: {
         email: email,
       },
+      include: { Cart: true },
     });
 
     if (!user) {
       throw new Error('User not found');
     }
+
+    const singleCart = user.Cart.length > 0 ? user.Cart[0] : null;
 
     const accessToken = createToken(
       {
@@ -208,6 +216,7 @@ class UserService {
           name: user.name,
           email: user.email,
           role: user.role,
+          Cart: singleCart,
         },
         type: 'access_token',
       },
@@ -221,6 +230,7 @@ class UserService {
           name: user.name,
           email: user.email,
           role: user.role,
+          Cart: singleCart,
         },
         type: 'refresh_token',
       },

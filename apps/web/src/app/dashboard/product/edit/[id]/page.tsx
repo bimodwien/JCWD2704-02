@@ -9,6 +9,7 @@ import { fetchCategory } from '@/helpers/fetchCategory';
 import { TCategory } from '@/models/category';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import { productSrc } from '@/helpers/format';
 
 const EditProduct = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -36,9 +37,7 @@ const EditProduct = ({ params }: { params: { id: string } }) => {
           categoryId: dataProduct.category ? dataProduct.category.id : '',
         });
         if (dataProduct.ProductImage && dataProduct.ProductImage.length > 0) {
-          const images =
-            'http://localhost:8000/products/images/' +
-            dataProduct.ProductImage[0].id;
+          const images = `${productSrc}` + dataProduct.ProductImage[0].id;
           console.log(images);
 
           setImagePreview(images);

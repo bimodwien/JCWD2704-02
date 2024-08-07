@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { formatPrice } from '@/helpers/format';
 import { IoIosCloseCircleOutline } from 'react-icons/io';
+import ShippingDetails from './shipping';
 
 const Checkout = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +29,7 @@ const Checkout = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/a`);
+      const response = await axiosInstance().get(`/carts/a`);
       const { data } = response.data;
       setCartData(data);
     } catch (error) {
@@ -38,7 +39,7 @@ const Checkout = () => {
 
   const fetchShippingAddress = async () => {
     try {
-      const response = await axiosInstance().get(`/order/a`, {
+      const response = await axiosInstance().get(`/orders/a`, {
         params: { filter: 'chosen' },
       });
       const { data } = response.data;
@@ -81,10 +82,13 @@ const Checkout = () => {
 
   const createOrder = async (paidType: 'manual' | 'gateway') => {
     try {
-      const response = await axiosInstance().post(`/order/`, {
+      const voucherId =
+        selectedVoucher?.voucherId ?? selectedVoucher?.id ?? null;
+
+      const response = await axiosInstance().post(`/orders/`, {
         addressId: shippingAddress?.id,
         paidType: paidType,
-        voucherId: selectedVoucher?.id, // Adjust based on the voucher structure
+        voucherId: voucherId,
       });
       Swal.fire({
         title: 'Created!',
@@ -130,7 +134,7 @@ const Checkout = () => {
 
   const fetchVoucher = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/voucher`);
+      const response = await axiosInstance().get(`/carts/voucher`);
       const { userVouchers, productVouchers } = response.data.data;
       setUserVouchers(userVouchers);
       setProductVouchers(productVouchers);
@@ -173,6 +177,13 @@ const Checkout = () => {
     };
   }, [isModalOpen]);
 
+  const reset = () => {
+    if (isModalOpen) {
+      setSelectedVoucher(null);
+      setIsModalOpen(false);
+    }
+  };
+
   return (
     <div className="p-5 md:p-10 flex flex-col md:flex-row md:justify-center gap-5 md:gap-10 bg-gray-100">
       <div className="rounded-xl p-5 bg-white w-full overflow-hidden shadow-md border border-gray-200 max-w-[900px]">
@@ -180,56 +191,10 @@ const Checkout = () => {
           <div className="text-xl lg:text-2xl font-semibold flex gap-3 items-center border-b border-gray-300 pb-2">
             <IoReceiptOutline /> Order Details
           </div>
-          <div className="flex flex-col gap-3">
-            <div className="text-xl font-semibold">Shipping Method</div>
-            <div className="flex flex-col lg:flex-row lg:justify-start w-full gap-2">
-              <div className="rounded-xl border border-gray-400 p-3 lg:w-96">
-                <div className="flex justify-between items-center font-semibold">
-                  Store Address
-                </div>
-                {cartData.length > 0 && (
-                  <div className="text-sm flex flex-col">
-                    <span className="font-medium">
-                      ({cartData[0].store?.name})
-                    </span>
-                    <div
-                      className="flex flex-col overflow-hidden"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {cartData[0].store?.address}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="rounded-xl border border-gray-400 p-3 lg:w-96">
-                <div className="flex justify-between items-center font-semibold">
-                  Your Address
-                </div>
-                {shippingAddress && (
-                  <div className="text-sm flex flex-col">
-                    <span className="font-medium">
-                      ({shippingAddress.name})
-                    </span>
-                    <div
-                      className="flex flex-col overflow-hidden"
-                      style={{
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {shippingAddress.address}, {shippingAddress.province},{' '}
-                      {shippingAddress.city}, {shippingAddress.postalCode}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <ShippingDetails
+            cartData={cartData}
+            shippingAddress={shippingAddress}
+          />
           <div className="flex flex-col gap-3">
             <div className="text-xl font-semibold">Product List</div>
             <div className="flex flex-col gap-2 rounded-xl p-3 h-full max-h-60 overflow-x-auto">
@@ -275,11 +240,11 @@ const Checkout = () => {
             ref={modalRef}
           >
             <div className="flex justify-between items-center flex-col gap-3 h-full overflow-auto">
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-3  w-72 ">
                 <div className="text-lg font-semibold mb-3">Choose Voucher</div>
-                <div className="flex flex-col gap-5 px-2">
+                <div className="flex flex-col gap-5 ">
                   {productVouchers.length > 0 && (
-                    <div className="flex flex-col gap-3 w-full">
+                    <div className="flex flex-col gap-3 w-72 ">
                       <div className="font-semibold">Product Vouchers</div>
                       {productVouchers.map((voucher) => (
                         <div
@@ -311,7 +276,7 @@ const Checkout = () => {
                     </div>
                   )}
                   {userVouchers.length > 0 ? (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 w-72 ">
                       <div className="font-semibold">User Vouchers</div>
                       {userVouchers.map((voucher) => (
                         <div
@@ -339,8 +304,14 @@ const Checkout = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center">No user vouchers available</p>
+                    <></>
                   )}
+                  {productVouchers.length === 0 &&
+                    userVouchers.length === 0 && (
+                      <div className="text-center">
+                        No user vouchers available
+                      </div>
+                    )}
                 </div>
               </div>
               <button
@@ -351,7 +322,7 @@ const Checkout = () => {
               </button>
               <div className="w-full bg-white sticky bottom-0 gap-2 flex justify-center pt-3">
                 <button
-                  onClick={() => setSelectedVoucher(null)}
+                  onClick={reset}
                   className="p-2 bg-red-500 text-white rounded-xl w-20"
                 >
                   Reset

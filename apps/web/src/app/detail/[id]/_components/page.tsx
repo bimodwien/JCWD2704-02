@@ -5,6 +5,7 @@ import { PiTrolleyFill } from 'react-icons/pi';
 import Link from 'next/link';
 import { axiosInstance } from '@/lib/axios';
 import AddToCartButton from './addToCart';
+import { productSrc } from '@/helpers/format';
 
 type Props = { dataProduct: any };
 
@@ -21,7 +22,7 @@ const DetailComponent = ({ dataProduct }: Props) => {
               {hasProductImage && (
                 <img
                   className="w-full border border-gray-200 rounded-lg"
-                  src={`http://localhost:8000/products/images/${dataProduct.ProductImage[0].id}`}
+                  src={`${productSrc}${dataProduct.ProductImage[0].id}`}
                   alt="sample"
                 />
               )}
@@ -32,7 +33,7 @@ const DetailComponent = ({ dataProduct }: Props) => {
               </h1>
               <div className="mt-4 sm:items-center sm:gap-4 sm:flex">
                 <p className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
-                  IDR. {dataProduct?.price}
+                  Rp {dataProduct?.price}
                 </p>
                 <div className="flex items-center gap-2 mt-2 sm:mt-0">
                   <p className="text-sm font-medium leading-none text-gray-500">
@@ -41,13 +42,13 @@ const DetailComponent = ({ dataProduct }: Props) => {
                 </div>
               </div>
               <div className="mt-6 sm:gap-4 sm:flex sm:flex-col sm:mt-8">
+                <AddToCartButton productId={dataProduct?.id} />
                 <Link
                   href={'/'}
                   className="flex items-center justify-center py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100"
                 >
                   Back to Home
                 </Link>
-                <AddToCartButton productId={dataProduct?.id} />
               </div>
               <hr className="my-6 md:my-8 border-gray-200" />
               <p className="mb-6 text-gray-500">{dataProduct?.description}</p>

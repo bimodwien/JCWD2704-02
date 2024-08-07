@@ -7,6 +7,7 @@ import { axiosInstance } from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
+import { categorySrc } from '@/helpers/format';
 
 const EditCategory = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -26,7 +27,7 @@ const EditCategory = ({ params }: { params: { id: string } }) => {
           name: dataCategory.name,
         });
         if (dataCategory.image) {
-          const imageUrl = `http://localhost:8000/category/images/${dataCategory.id}`;
+          const imageUrl = `${categorySrc}${dataCategory.id}`;
           setImagePreview(imageUrl);
           console.log(imageUrl);
         }

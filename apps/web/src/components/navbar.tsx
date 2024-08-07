@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const fetchCart = async () => {
     try {
-      const response = await axiosInstance().get(`/cart/t`);
+      const response = await axiosInstance().get(`/carts/t`);
       const { data } = response.data;
       setSumCart(data);
     } catch (error) {

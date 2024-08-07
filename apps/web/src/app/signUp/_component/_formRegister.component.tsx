@@ -5,9 +5,9 @@ import Image from 'next/image';
 import RegisterIcon from '../../../../public/google.svg';
 import { useRouter } from 'next/navigation';
 import { useFormik } from 'formik';
-import { axiosInstance } from '../../_lib/axios';
 import * as Yup from 'yup';
 import Swal from 'sweetalert2';
+import { axiosInstance } from '@/lib/axios';
 
 interface Props {
   id: string; // Define id as string

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ProductController } from '@/controllers/product.controller';
 import { blobUploader } from '@/lib/multer';
 import { validateToken } from '@/middleware/auth.middleware';
-import { verifyAdmin, verifyUser } from '@/middleware/role.middleware';
+import { verifyAdmin } from '@/middleware/role.middleware';
 
 export class ProductRouter {
   private router: Router;

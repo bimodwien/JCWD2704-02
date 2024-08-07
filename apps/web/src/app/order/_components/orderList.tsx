@@ -103,13 +103,10 @@ const OrderList = () => {
         limit,
       };
 
-      console.log('Query Params:', queryParams); // Debugging
-
-      const response = await axiosInstance().get('/order/yours', {
+      const response = await axiosInstance().get('/orders/yours', {
         params: queryParams,
       });
       const { data } = response.data;
-      console.log('data: ', data);
       setOrderData(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -332,9 +329,9 @@ const OrderList = () => {
                                   : ''}
                   </div>
                 </div>
-                <div>
+                <div className="flex justify-between">
                   {order.OrderItem && order.OrderItem.length > 0 ? (
-                    <div className="flex flex-col gap-2 text-sm lg:text-base">
+                    <div className="flex flex-col gap-2 text-sm lg:text-base  pr-3">
                       <div className="flex justify-between">
                         <div className="flex gap-3 items-center">
                           <img
@@ -342,7 +339,7 @@ const OrderList = () => {
                             alt={order.OrderItem[0].product.name}
                             className="w-14 h-14 rounded object-cover"
                           />
-                          <div className="flex flex-col gap-1 w-36 lg:w-96">
+                          <div className="flex flex-col gap-1 w-36 lg:w-80">
                             <div>{order.OrderItem[0].product.name}</div>
                             <div>{order.OrderItem[0].quantity}x</div>
                           </div>
@@ -356,14 +353,28 @@ const OrderList = () => {
                           see more product
                         </div>
                       )}
-                      <div className="flex justify-between pt-1 border-t border-gray-300">
+                      <div className="flex justify-between pt-1 border-t border-gray-300 px-3">
                         <div>{order.OrderItem.length} product</div>
-                        <div>Total: {formatPrice(order.totalPrice)}</div>
+                        <div className="font-medium ">
+                          Total: {formatPrice(order.totalPrice)}
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <div></div>
                   )}
+                  <div className="hidden lg:flex lg:flex-col pl-3 gap-3 border-l border-gray-300">
+                    <div>
+                      <span className="font-medium">
+                        Store: {order.store.name}
+                      </span>
+                      <div className="text-sm">{order.origin}</div>
+                    </div>
+                    <div>
+                      <span className="font-medium">Shipping:</span>{' '}
+                      <div className="text-sm">{order.destination}</div>
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))
